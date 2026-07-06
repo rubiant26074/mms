@@ -1,0 +1,214 @@
+/* MMS Theme: Emerald */
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&display=swap');
+
+body.theme-emerald {
+    --em-bg-1: #f2f7f3;
+    --em-bg-2: #dff1e6;
+    --em-ink: #0f1f1a;
+    --em-muted: #5c6f68;
+    --em-accent: #10b981;
+    --em-accent-2: #0f766e;
+    --em-surface: rgba(255, 255, 255, 0.9);
+    --em-line: rgba(15, 31, 26, 0.12);
+    font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+    background:
+        radial-gradient(circle at 12% -8%, rgba(16, 185, 129, 0.2), transparent 40%),
+        radial-gradient(circle at 110% 10%, rgba(15, 118, 110, 0.18), transparent 34%),
+        linear-gradient(180deg, var(--em-bg-2) 0%, var(--em-bg-1) 35%, #f4f9f6 100%);
+    color: var(--em-ink);
+}
+
+body.theme-emerald #content {
+    background: transparent;
+}
+
+body.theme-emerald #sidebar {
+    background: linear-gradient(165deg, #0a1e1a 0%, #103026 55%, #154235 100%);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 18px 32px rgba(7, 18, 15, 0.38);
+}
+
+body.theme-emerald .sidebar-logo-container {
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.theme-emerald .sidebar-logo-container h5,
+body.theme-emerald .sidebar-logo-container small {
+    color: #d7f3e6 !important;
+}
+
+body.theme-emerald .sidebar-company-name {
+    color: #ffffff;
+}
+
+body.theme-emerald #sidebar ul li a {
+    margin: 4px 10px;
+    border-radius: 10px;
+    border-left: none;
+    color: #c8e7db !important;
+    font-weight: 600;
+}
+
+body.theme-emerald #sidebar ul li a:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff !important;
+}
+
+body.theme-emerald #sidebar ul li a.active {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.26), rgba(15, 118, 110, 0.16));
+    border: 1px solid rgba(120, 234, 196, 0.3);
+    color: #eafff6 !important;
+}
+
+body.theme-emerald .sidebar-submenu {
+    background: transparent;
+}
+
+body.theme-emerald .sidebar-submenu .nav-link {
+    color: #bfe1d3;
+    margin: 2px 10px;
+    border-radius: 9px;
+}
+
+body.theme-emerald .sidebar-submenu .nav-link:hover,
+body.theme-emerald .sidebar-submenu .nav-link.active {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f2fff9 !important;
+}
+
+body.theme-emerald .dropdown-toggle::after {
+    color: #bfe7d8;
+}
+
+body.theme-emerald nav.navbar {
+    margin: 16px 18px 18px;
+    border-radius: 14px;
+    padding: 0.85rem 1rem !important;
+    background: var(--em-surface) !important;
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 10px 26px rgba(12, 32, 26, 0.12);
+    backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 1100;
+}
+
+body.theme-emerald #sidebarCollapse {
+    border-radius: 10px;
+    border: 1px solid rgba(12, 32, 26, 0.2) !important;
+    color: var(--em-ink);
+}
+
+body.theme-emerald .container-fluid {
+    padding: 0 18px 20px;
+}
+
+body.theme-emerald .card {
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.78);
+    box-shadow: 0 12px 24px rgba(12, 32, 26, 0.09);
+    background: var(--em-surface);
+    backdrop-filter: blur(8px);
+}
+
+body.theme-emerald .card-header {
+    border-bottom: 1px solid rgba(154, 255, 220, 0.18);
+    background: linear-gradient(135deg, #0c4a3a 0%, #0f766e 52%, #10b981 100%);
+    color: #eefdf6;
+}
+
+body.theme-emerald .card-header.bg-light,
+body.theme-emerald .card-header.bg-white,
+body.theme-emerald .card-header.bg-dark,
+body.theme-emerald .card-header.bg-primary,
+body.theme-emerald .card-header.bg-info,
+body.theme-emerald .card-header.bg-success {
+    background: linear-gradient(135deg, #0c4a3a 0%, #0f766e 52%, #10b981 100%) !important;
+    color: #eefdf6 !important;
+    border-bottom-color: rgba(154, 255, 220, 0.18) !important;
+}
+
+body.theme-emerald .card-header h1,
+body.theme-emerald .card-header h2,
+body.theme-emerald .card-header h3,
+body.theme-emerald .card-header h4,
+body.theme-emerald .card-header h5,
+body.theme-emerald .card-header h6,
+body.theme-emerald .card-header i,
+body.theme-emerald .card-header span:not(.badge),
+body.theme-emerald .card-header small {
+    color: inherit !important;
+}
+
+body.theme-emerald .card-header .text-dark,
+body.theme-emerald .card-header .text-muted,
+body.theme-emerald .card-header .text-secondary,
+body.theme-emerald .card-header .text-primary {
+    color: #eefdf6 !important;
+}
+
+body.theme-emerald .dashboard-hero {
+    background: linear-gradient(120deg, #0b3b2d 0%, #0f766e 55%, #10b981 100%) !important;
+    border-left: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    position: relative;
+}
+
+body.theme-emerald .dashboard-hero::after {
+    content: "";
+    position: absolute;
+    width: 170px;
+    height: 170px;
+    right: -40px;
+    top: -54px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.24), transparent 70%);
+}
+
+body.theme-emerald .dashboard-hero h2,
+body.theme-emerald .dashboard-hero h5,
+body.theme-emerald .dashboard-hero p,
+body.theme-emerald .dashboard-hero small,
+body.theme-emerald .dashboard-hero span,
+body.theme-emerald .dashboard-hero strong,
+body.theme-emerald .dashboard-hero i {
+    color: #f0fff8 !important;
+}
+
+body.theme-emerald .table thead th {
+    border-bottom: 1px solid var(--em-line);
+    background: #edf7f2;
+    color: #0f3b2f;
+}
+
+body.theme-emerald .table tbody tr:hover {
+    background: rgba(16, 185, 129, 0.06);
+}
+
+body.theme-emerald .dropdown-menu {
+    border-radius: 14px;
+    border: 1px solid rgba(15, 31, 26, 0.16);
+    box-shadow: 0 18px 28px rgba(12, 32, 26, 0.18);
+}
+
+body.theme-emerald .btn-primary {
+    background: linear-gradient(135deg, #0f766e, #10b981);
+    border: none;
+}
+
+body.theme-emerald .btn-primary:hover {
+    background: linear-gradient(135deg, #0b5e57, #0f9f6b);
+}
+
+@media (max-width: 768px) {
+    body.theme-emerald nav.navbar {
+        margin: 10px 10px 14px;
+    }
+    body.theme-emerald .container-fluid {
+        padding: 0 10px 12px;
+    }
+    body.theme-emerald #sidebar {
+        background: linear-gradient(165deg, #081d18 0%, #103329 58%, #174638 100%) !important;
+    }
+}

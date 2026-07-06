@@ -1,0 +1,71 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Master Barang Template</title>
+  <style>
+    table { border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11pt; }
+    th, td { border: 1px solid #000; padding: 6px 8px; }
+    th { background: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <table>
+    <tr>
+      <th>item_code</th>
+      <th>item_name</th>
+      <th>item_type</th>
+      <th>ownership</th>
+      <th>qc_type</th>
+      <th>unit</th>
+      <th>base_price</th>
+      <th>min_stock</th>
+      <th>description</th>
+      <th>customer_code</th>
+      <th>customer_name</th>
+      <th>drawing_file</th>
+    </tr>
+    <tr>
+      <td>FG-0001</td>
+      <td>Produk Contoh A</td>
+      <td>finish_good</td>
+      <td>internal</td>
+      <td>general</td>
+      <td>Pcs</td>
+      <td>150000</td>
+      <td>5</td>
+      <td>Deskripsi singkat</td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>RM-0001</td>
+      <td>Material Contoh</td>
+      <td>raw_material</td>
+      <td>internal</td>
+      <td>plate</td>
+      <td>Kg</td>
+      <td>25000</td>
+      <td>50</td>
+      <td>Material dasar</td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>CT-ABC-0001</td>
+      <td>Barang Customer</td>
+      <td>finish_good</td>
+      <td>customer</td>
+      <td>general</td>
+      <td>Pcs</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Milik customer</td>
+      <td>CT-001</td>
+      <td>PT. Contoh Customer</td>
+      <td></td>
+    </tr>
+  </table>
+</body>
+</html>

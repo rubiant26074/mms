@@ -1,0 +1,134 @@
+Finance (AR/AP/Tax)
+
+Aging Schedule AR/AP
+Bucket 0–30, 31–60, 61–90, >90 hari.
+Berguna untuk follow-up collection & vendor payment planning.
+
+Credit Limit & Overdue Lock (AR)
+Blok pembuatan invoice/DO jika customer melewati limit / overdue.
+
+Payment Allocation & Partial Settlement
+Pembayaran bisa dialokasikan ke beberapa invoice (bulk receive).
+
+Payment Reversal / Void
+Pembatalan pembayaran dengan auto reversal journal + status balik.
+
+Multi‑bank & Cash Ledger
+Pilih rekening bank/ kas per pembayaran.
+
+Tax e‑Billing Integration
+Input NTPN & auto attach ke transaksi pajak.
+
+Reminder otomatis
+Email/WA reminder sebelum jatuh tempo AR.
+
+Accounting (COA/Journal/Ledger/Reports)
+
+Trial Balance
+Laporan saldo akhir tiap akun (debit/credit), sangat penting sebelum laporan.
+
+Period Closing / Lock
+Tutup periode (bulan) agar tidak bisa backdate entry.
+
+Journal Approval Workflow
+Jurnal manual butuh approval sebelum posted.
+
+Recurring Journal
+Jurnal bulanan otomatis (sewa, gaji, amortisasi).
+
+Bank Reconciliation
+Cocokkan mutasi bank vs jurnal.
+
+Budget vs Actual
+Anggaran per akun, laporan variance.
+
+Fixed Asset Enhancement
+Disposal/penjualan aset + jurnal otomatis + gain/loss report.
+
+Cross‑Module
+
+Audit Trail
+Log perubahan posting/unposting, pembayaran, delete.
+
+Permissions Granular
+Pembatasan level akses (posting vs edit vs view).
+
+Document Attachments
+Lampirkan bukti invoice, PO, pembayaran, pajak.
+Kalau kamu pilih 1–2 fitur prioritas, saya bisa buatkan desain data model + flow + estimasi pekerjaan teknisnya.
+
+
+Sales
+
+Pipeline & Follow‑Up
+Status peluang (lead > qualified > proposal > won/lost), reminder follow‑up.
+
+Quotation Versioning
+Revisi penawaran dengan histori perubahan & approval.
+
+Customer Credit & Risk
+Profil kredit, histori pembayaran, otomatis warn jika overdue.
+
+Purchasing
+
+Vendor Rating
+Nilai vendor berdasarkan lead time, kualitas, harga.
+
+Approval PO Bertingkat
+Approver berbeda berdasarkan nilai PO.
+
+RFQ (Request for Quotation)
+Pembandingan harga vendor sebelum PO.
+
+Inventory / Warehouse
+
+Batch & Expiry Tracking
+Untuk barang raw material atau produk jadi.
+
+Cycle Counting
+Stock opname parsial periodik.
+
+Warehouse Transfer
+Multi-gudang, transfer antar lokasi.
+
+Production / PPIC
+
+MRP sederhana
+Hitung kebutuhan material dari order produksi.
+
+WIP Tracking
+Status produksi per tahap, waktu standard vs aktual.
+
+Machine Downtime & OEE
+Monitoring efisiensi produksi.
+
+QC (Quality Control)
+
+CAPA (Corrective & Preventive Action)
+Tindak lanjut temuan QC dengan tracking status.
+
+Sampling Plan
+AQL/acceptance sampling otomatis.
+
+HR / Payroll
+
+Timesheet & Overtime
+Terhubung ke biaya produksi (costing).
+
+Leave Management
+Cuti, izin, approval.
+
+Maintenance
+
+Preventive Maintenance
+Jadwal servis mesin, reminder otomatis.
+
+Sparepart Tracking
+Stock sparepart terhubung ke maintenance.
+
+Reporting
+
+Dashboard KPI
+Sales, produksi, inventory, cashflow ringkas di satu layar.
+Export CSV/Excel
+Semua laporan utama bisa diekspor.

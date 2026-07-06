@@ -1,0 +1,42 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Master Customer Template</title>
+  <style>
+    table { border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11pt; }
+    th, td { border: 1px solid #000; padding: 6px 8px; }
+    th { background: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <table>
+    <tr>
+      <th>customer_code</th>
+      <th>name</th>
+      <th>address</th>
+      <th>phone</th>
+      <th>pic</th>
+      <th>email</th>
+      <th>tax_id</th>
+    </tr>
+    <tr>
+      <td>CT-001</td>
+      <td>PT. Contoh Customer</td>
+      <td>Jl. Contoh No. 1, Jakarta</td>
+      <td>021-123456</td>
+      <td>Andi</td>
+      <td>andi@contoh.co.id</td>
+      <td>00.000.000.0-000.000</td>
+    </tr>
+    <tr>
+      <td>CT-002</td>
+      <td>CV. Maju Jaya</td>
+      <td>Jl. Maju No. 2, Bandung</td>
+      <td>022-987654</td>
+      <td>Sari</td>
+      <td>sari@majujaya.co.id</td>
+      <td>11.111.111.1-111.111</td>
+    </tr>
+  </table>
+</body>
+</html>

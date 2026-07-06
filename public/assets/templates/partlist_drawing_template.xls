@@ -1,0 +1,51 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Template Partlist Drawing</title>
+  <style>
+    table { border-collapse: collapse; font-family: Arial, sans-serif; font-size: 11pt; }
+    th, td { border: 1px solid #000; padding: 6px 8px; }
+    th { background: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <table>
+    <tr>
+      <th>no</th>
+      <th>drawing_no</th>
+      <th>part_name</th>
+      <th>qty</th>
+      <th>material</th>
+      <th>thickness</th>
+      <th>length</th>
+      <th>width</th>
+      <th>process</th>
+      <th>notes</th>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>DWG-001</td>
+      <td>Bracket Side LH</td>
+      <td>20</td>
+      <td>SPHC</td>
+      <td>1.2</td>
+      <td>120</td>
+      <td>80</td>
+      <td>Laser, Bending</td>
+      <td>Deburr all edges</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>DWG-002</td>
+      <td>Bracket Side RH</td>
+      <td>20</td>
+      <td>SPHC</td>
+      <td>1.2</td>
+      <td>120</td>
+      <td>80</td>
+      <td>Laser, Bending</td>
+      <td>Mirror pair</td>
+    </tr>
+  </table>
+</body>
+</html>

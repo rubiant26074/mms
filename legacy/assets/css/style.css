@@ -1,0 +1,375 @@
+/* * MMS - Global Stylesheet
+ * Theme: Clean White & Colorful Icons (MOBILE FIXED)
+ */
+
+/* Import Font Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* Color Palette */
+    --primary-color: #2c3e50;       /* Navy Blue Professional */
+    --accent-color: #3498db;        /* Blue Bright */
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+    --danger-color: #c0392b;
+    --bg-body: #f4f6f9;             /* Light Grey Background */
+    --text-main: #333333;
+    --text-muted: #6c757d;
+    
+    /* Sidebar Variables - FIX PUTIH */
+    --sidebar-bg: #ffffff;          /* Background Putih Bersih */
+    --sidebar-text: #4e5d6c;        /* Teks Abu Gelap (Kontras Tinggi) */
+    --sidebar-hover-bg: #f1f4f8;    /* Background Hover Abu Muda */
+    --sidebar-active-bg: #ebf5fb;   /* Background Aktif Biru Muda */
+    --sidebar-active-text: #3498db; /* Teks Aktif Biru */
+    --border-color: #e3e6f0;        /* Garis Pemisah Halus */
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    overflow-x: hidden;
+}
+
+/* --- Common Components --- */
+
+.card {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.05);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+    background-color: #fff;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.table thead th {
+    background-color: #f8f9fc;
+    border-bottom: 2px solid var(--border-color);
+    color: var(--primary-color);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+
+.btn {
+    border-radius: 0.35rem;
+    font-weight: 500;
+    padding: 0.375rem 1rem;
+}
+
+/* --- SIDEBAR & LAYOUT SYSTEM --- */
+
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+/* Sidebar Styling */
+#sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    min-height: 100vh;
+    background-color: var(--sidebar-bg); /* Putih */
+    color: var(--sidebar-text);          /* Abu Gelap */
+    transition: all 0.3s;
+    position: relative;
+    z-index: 999;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05); /* Shadow halus di kanan */
+    border-right: 1px solid var(--border-color);
+}
+
+#sidebarOverlay {
+    display: none;
+    flex: 0 0 0;
+}
+
+#sidebar.active {
+    margin-left: -250px;
+}
+
+/* Sidebar Header (Logo Area) */
+.sidebar-logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 22px 22px 20px;
+    background: #ffffff; /* Putih */
+    border-bottom: 1px solid var(--border-color);
+    min-height: 120px;
+    text-align: center;
+}
+
+.sidebar-company-name {
+    margin-top: 1em;
+    font-size: 0.975rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-align: center;
+    letter-spacing: 0.02em;
+}
+
+/* Teks di bawah logo */
+.sidebar-logo-container h5 {
+    color: var(--primary-color) !important;
+    font-weight: 700;
+}
+.sidebar-logo-container small {
+    color: var(--text-muted) !important;
+}
+
+#sidebar ul.components {
+    padding: 15px 0;
+    list-style: none;
+    padding-left: 0;
+}
+
+/* Sidebar Links (Menu Utama) */
+#sidebar ul li a {
+    padding: 12px 25px;
+    display: flex;
+    align-items: center;
+    color: var(--sidebar-text); /* Teks Abu Gelap */
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.2s;
+    border-left: 4px solid transparent;
+    font-size: 0.9rem;
+}
+
+/* Hover State */
+#sidebar ul li a:hover {
+    color: var(--primary-color);
+    background: var(--sidebar-hover-bg);
+}
+
+/* Active State */
+#sidebar ul li a.active {
+    color: var(--sidebar-active-text); /* Biru */
+    background: var(--sidebar-active-bg);
+    border-left: 4px solid var(--sidebar-active-text);
+}
+
+/* Icons Coloring */
+#sidebar ul li a i {
+    margin-right: 15px;
+    font-size: 1.2em;
+    width: 25px;
+    text-align: center;
+    transition: 0.2s;
+}
+
+/* Warna Icon Spesifik per Modul */
+#sidebar ul li a[href*="dashboard"] i { color: #3498db; }
+#sidebar ul li a[href*="sales"] i { color: #2ecc71; }
+#sidebar ul li a[href*="eng"] i { color: #9b59b6; }
+#sidebar ul li a[href*="ppic"] i { color: #e67e22; }
+#sidebar ul li a[href*="purch"] i { color: #e74c3c; }
+#sidebar ul li a[href*="prod"] i { color: #34495e; }
+#sidebar ul li a[href*="qc"] i { color: #1abc9c; }
+#sidebar ul li a[href*="whse"] i { color: #7f8c8d; }
+#sidebar ul li a[href*="fin"] i { color: #f1c40f; }
+#sidebar ul li a[href*="admin"], 
+#sidebar ul li a[href*="users"], 
+#sidebar ul li a[href*="roles"] { color: #2c3e50; }
+#sidebar a[href="logout.php"] i { color: #c0392b; }
+
+/* Logout Button Text Color */
+#sidebar a[href="logout.php"] {
+    color: #c0392b !important;
+}
+
+/* Submenu Style */
+.sidebar-submenu {
+    background: #ffffff;
+}
+
+.sidebar-submenu .nav-link {
+    padding-left: 3.8rem !important;
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: #858796; 
+}
+
+.sidebar-submenu .nav-link:hover {
+    color: var(--accent-color);
+    background: transparent;
+}
+
+.sidebar-submenu .nav-link.active {
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+/* Footer Sidebar (Profile) */
+.p-3.border-top {
+    background-color: #ffffff !important;
+    border-top: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+.p-3.border-top h6 {
+    color: var(--primary-color) !important;
+}
+.p-3.border-top i {
+    color: var(--text-muted) !important;
+}
+.p-3.border-top .badge {
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+}
+
+/* Dropdown Arrow Fix */
+.dropdown-toggle::after { 
+    transition: transform 0.2s; 
+    margin-left: auto; 
+    color: #b0b3b8;
+}
+.dropdown-toggle[aria-expanded="true"]::after { 
+    transform: rotate(90deg); 
+    color: var(--sidebar-active-text);
+}
+
+/* Content Area */
+#content {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-body);
+}
+
+#content > .container-fluid {
+    flex: 1 1 auto;
+}
+
+.mms-app-footer {
+    background: #ffffff;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.mms-app-footer-main {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    line-height: 1.25;
+}
+
+.mms-app-footer-sub {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    line-height: 1.2;
+}
+
+/* Navbar Dashboard */
+.navbar-dashboard {
+    background-color: #fff !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+    padding: 12px 25px;
+    color: var(--primary-color);
+}
+
+#sidebarCollapse {
+    background: transparent;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* --- Login Page --- */
+.login-body {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #1a252f 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-card {
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+/* --- Responsive (MOBILE FIX) --- */
+@media (max-width: 768px) {
+    #sidebar {
+        min-width: 100%;
+        max-width: 100%;
+        width: 100%;
+        min-height: 0;
+        max-height: 0;
+        margin-left: 0 !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding-top: 76px; /* ruang untuk topbar */
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-16px);
+        transition: max-height 0.28s ease, opacity 0.22s ease, transform 0.22s ease;
+        background-color: #ffffff !important;
+        z-index: 2000;
+        box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+        border-right: none;
+    }
+    
+    #sidebar.active {
+        max-height: 72vh;
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+        overflow-y: auto;
+    }
+    
+    #sidebarOverlay {
+        display: none !important;
+    }
+
+    #sidebar.active + #sidebarOverlay {
+        display: none !important;
+    }
+    
+    #sidebarCollapse {
+        display: block;
+        position: relative;
+        z-index: 3100;
+    }
+    
+    #content > .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 3000;
+        margin: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    #content > .container-fluid {
+        padding-top: 12px;
+    }
+}
