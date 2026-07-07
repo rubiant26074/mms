@@ -18,6 +18,7 @@ use App\Http\Controllers\Procurement\RfqController;
 use App\Http\Controllers\Procurement\SupplierController;
 use App\Http\Controllers\Procurement\VendorRatingController;
 use App\Http\Controllers\Qc\IncomingController;
+use App\Http\Controllers\Qc\ProductionController as QcProductionController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\MachineController;
@@ -371,6 +372,19 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::get('/incoming/{qc}/print', [IncomingController::class, 'print'])
             ->middleware(RequirePermission::class . ':qc_incoming_view')
             ->name('incoming.print');
+
+        Route::get('/production', [QcProductionController::class, 'index'])
+            ->middleware(RequirePermission::class . ':qc_production_view')
+            ->name('production.index');
+        Route::get('/production/inspect', [QcProductionController::class, 'inspect'])
+            ->middleware(RequirePermission::class . ':qc_production_manage')
+            ->name('production.inspect');
+        Route::post('/production/inspect/{spk}', [QcProductionController::class, 'store'])
+            ->middleware(RequirePermission::class . ':qc_production_manage')
+            ->name('production.store');
+        Route::get('/production/{qc}/print', [QcProductionController::class, 'print'])
+            ->middleware(RequirePermission::class . ':qc_production_view')
+            ->name('production.print');
     });
 
     Route::prefix('executive')->name('executive.')->group(function (): void {

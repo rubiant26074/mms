@@ -64,6 +64,11 @@ class Spk extends Model
         return $this->hasMany(ProductionAssignment::class, 'spk_id');
     }
 
+    public function productionQcs(): HasMany
+    {
+        return $this->hasMany(QcProduction::class, 'spk_id');
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
