@@ -51,7 +51,7 @@
                     <div class="text-muted small">{{ $user->role?->role_name }}</div>
                 </li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a href="index.php?page=user-settings" class="dropdown-item"><i class="bi bi-gear me-2"></i> User Setting</a></li>
+                <li><a href="{{ route('user_settings.edit') }}" class="dropdown-item"><i class="bi bi-gear me-2"></i> User Setting</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                     <form method="POST" action="{{ route('logout') }}">

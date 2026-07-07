@@ -15,6 +15,7 @@ class PpicRoutesTest extends TestCase
         $this->actingAs($admin)->get(route('ppic.spk.create'))->assertOk();
         $this->actingAs($admin)->get(route('ppic.purchase_requests.index'))->assertOk();
         $this->actingAs($admin)->get(route('ppic.purchase_requests.create'))->assertOk();
+        $this->actingAs($admin)->get(route('ppic.mps.index'))->assertOk();
         $this->actingAs($admin)->get(route('ppic.inventory.index'))->assertOk();
     }
 
@@ -29,6 +30,10 @@ class PpicRoutesTest extends TestCase
         $this->actingAs($admin)
             ->get('/index.php?page=ppic-pr')
             ->assertRedirect(route('ppic.purchase_requests.index'));
+
+        $this->actingAs($admin)
+            ->get('/index.php?page=ppic-mps')
+            ->assertRedirect(route('ppic.mps.index'));
 
         $this->actingAs($admin)
             ->get('/index.php?page=ppic-inventory')

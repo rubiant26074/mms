@@ -74,6 +74,7 @@ class LegacyController extends Controller
                 'edit' => $id ? route('admin.roles.edit', $id) : route('admin.roles.index'),
                 default => route('admin.roles.index'),
             },
+            'user-settings' => route('user_settings.edit'),
             'role-permissions' => $roleId ? route('admin.roles.permissions', $roleId) : route('admin.roles.permissions'),
             'admin-company' => route('admin.company.edit'),
             'admin-backup' => route('admin.backup.index'),
@@ -130,6 +131,7 @@ class LegacyController extends Controller
                 'print' => $id ? route('ppic.purchase_requests.print', $id) : route('ppic.purchase_requests.index'),
                 default => route('ppic.purchase_requests.index', $request->only(['status', 'search'])),
             },
+            'ppic-mps' => route('ppic.mps.index', $request->only(['month', 'year'])),
             'ppic-inventory' => match ($action) {
                 'view' => $id ? route('ppic.inventory.show', $id) : route('ppic.inventory.index'),
                 default => route('ppic.inventory.index', $request->only(['type', 'search'])),

@@ -22,6 +22,7 @@ class AdminRoutesTest extends TestCase
             route('admin.setup.index'),
             route('admin.wa_logs.index'),
             route('admin.menu.index'),
+            route('user_settings.edit'),
         ] as $url) {
             $this->actingAs($admin)->get($url)->assertOk();
         }
@@ -38,6 +39,10 @@ class AdminRoutesTest extends TestCase
         $this->actingAs($admin)
             ->get('/index.php?page=roles')
             ->assertRedirect(route('admin.roles.index'));
+
+        $this->actingAs($admin)
+            ->get('/index.php?page=user-settings')
+            ->assertRedirect(route('user_settings.edit'));
 
         $this->actingAs($admin)
             ->get('/index.php?page=admin-company')

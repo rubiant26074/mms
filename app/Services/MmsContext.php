@@ -135,6 +135,7 @@ class MmsContext
                 'icon' => 'bi-calendar2-week',
                 'submenu' => [
                     ['label' => 'SPK', 'url' => route('ppic.spk.index'), 'icon' => 'bi-clipboard-check'],
+                    ['label' => 'MPS', 'url' => route('ppic.mps.index'), 'icon' => 'bi-calendar-week'],
                     ['label' => 'Purchase Request', 'url' => route('ppic.purchase_requests.index'), 'icon' => 'bi-cart-plus'],
                     ['label' => 'Inventory', 'url' => route('ppic.inventory.index'), 'icon' => 'bi-box-seam'],
                 ],

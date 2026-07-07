@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LegacyController;
+use App\Http\Controllers\Ppic\MpsController;
 use App\Http\Controllers\Ppic\SpkController;
 use App\Http\Controllers\Ppic\PurchaseRequestController;
 use App\Http\Controllers\Ppic\InventoryController;
@@ -26,6 +27,7 @@ use App\Http\Middleware\RequirePermission;
 use App\Http\Controllers\Sales\CustomerController;
 use App\Http\Controllers\Sales\QuotationController;
 use App\Http\Controllers\Sales\SalesOrderController;
+use App\Http\Controllers\UserSettingsController;
 use App\Http\Controllers\Warehouse\GoodsReceiptController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +42,9 @@ Route::match(['get', 'post'], '/logout.php', [AuthController::class, 'logout']);
 
 Route::middleware(MmsAuthenticate::class)->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/user-settings', [UserSettingsController::class, 'edit'])->name('user_settings.edit');
+    Route::post('/user-settings/profile', [UserSettingsController::class, 'updateProfile'])->name('user_settings.profile');
+    Route::post('/user-settings/password', [UserSettingsController::class, 'updatePassword'])->name('user_settings.password');
 
     Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::middleware(RequirePermission::class . ':user_view')->group(function (): void {
@@ -218,6 +223,7 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
             ->name('purchase_requests.destroy');
 
         Route::middleware(RequirePermission::class . ':ppic_view')->group(function (): void {
+            Route::get('/mps', [MpsController::class, 'index'])->name('mps.index');
             Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
             Route::get('/inventory/{item}', [InventoryController::class, 'show'])->name('inventory.show');
         });
