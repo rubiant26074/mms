@@ -157,6 +157,8 @@ class LegacyController extends Controller
                 'print' => $id ? route('qc.incoming.print', $id) : route('qc.incoming.index'),
                 default => route('qc.incoming.index'),
             },
+            'exec-kpi' => route('executive.kpi.index'),
+            'exec-logs' => route('executive.logs.index', $request->only(['module', 'search'])),
             default => null,
         };
 

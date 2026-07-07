@@ -179,6 +179,17 @@ class MmsContext
                 ])),
             ];
         }
+        if ($can('owner_kpi') || $can('owner_logs')) {
+            $menus[] = [
+                'id' => 'executiveMenu',
+                'label' => 'Executive',
+                'icon' => 'bi-bar-chart-line',
+                'submenu' => array_values(array_filter([
+                    $can('owner_kpi') ? ['label' => 'KPI Dashboard', 'url' => route('executive.kpi.index'), 'icon' => 'bi-trophy'] : null,
+                    $can('owner_logs') ? ['label' => 'System Logs', 'url' => route('executive.logs.index'), 'icon' => 'bi-terminal'] : null,
+                ])),
+            ];
+        }
 
         return $menus;
     }

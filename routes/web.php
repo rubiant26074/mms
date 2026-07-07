@@ -22,6 +22,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Engineering\BomController;
 use App\Http\Controllers\Engineering\ItemController as EngineeringItemController;
 use App\Http\Controllers\Engineering\PartlistController;
+use App\Http\Controllers\Executive\AuditLogController;
+use App\Http\Controllers\Executive\KpiDashboardController;
 use App\Http\Middleware\MmsAuthenticate;
 use App\Http\Middleware\RequirePermission;
 use App\Http\Controllers\Sales\CustomerController;
@@ -297,6 +299,15 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::get('/incoming/{qc}/print', [IncomingController::class, 'print'])
             ->middleware(RequirePermission::class . ':qc_incoming_view')
             ->name('incoming.print');
+    });
+
+    Route::prefix('executive')->name('executive.')->group(function (): void {
+        Route::get('/kpi', [KpiDashboardController::class, 'index'])
+            ->middleware(RequirePermission::class . ':owner_kpi')
+            ->name('kpi.index');
+        Route::get('/logs', [AuditLogController::class, 'index'])
+            ->middleware(RequirePermission::class . ':owner_logs')
+            ->name('logs.index');
     });
 });
 
