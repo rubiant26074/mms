@@ -26,4 +26,9 @@ class Item extends Model
     {
         return $this->hasMany(WarehouseBatch::class);
     }
+
+    public function cycleCountSessionItems(): HasMany
+    {
+        return $this->hasMany(CycleCountSessionItem::class);
+    }
 }

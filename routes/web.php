@@ -44,6 +44,7 @@ use App\Http\Controllers\Sales\QuotationController;
 use App\Http\Controllers\Sales\SalesOrderController;
 use App\Http\Controllers\UserSettingsController;
 use App\Http\Controllers\Warehouse\BatchExpiryController;
+use App\Http\Controllers\Warehouse\CycleCountingController;
 use App\Http\Controllers\Warehouse\DeliveryNoteController;
 use App\Http\Controllers\Warehouse\GoodsReceiptController;
 use App\Http\Controllers\Warehouse\MaterialIssueController;
@@ -413,6 +414,23 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::middleware(RequirePermission::class . ':whse_stock')->group(function (): void {
             Route::post('/batch-expiry/batches', [BatchExpiryController::class, 'storeBatch'])->name('batch_expiry.store_batch');
             Route::post('/batch-expiry/movements', [BatchExpiryController::class, 'storeMovement'])->name('batch_expiry.store_movement');
+        });
+
+        Route::get('/cycle-counting', [CycleCountingController::class, 'index'])
+            ->middleware(RequirePermission::class . ':whse_view')
+            ->name('cycle_counting.index');
+        Route::get('/cycle-counting/create', [CycleCountingController::class, 'create'])
+            ->middleware(RequirePermission::class . ':whse_stock')
+            ->name('cycle_counting.create');
+        Route::get('/cycle-counting/{session}/print', [CycleCountingController::class, 'print'])
+            ->middleware(RequirePermission::class . ':whse_view')
+            ->name('cycle_counting.print');
+        Route::get('/cycle-counting/{session}', [CycleCountingController::class, 'show'])
+            ->middleware(RequirePermission::class . ':whse_view')
+            ->name('cycle_counting.show');
+        Route::middleware(RequirePermission::class . ':whse_stock')->group(function (): void {
+            Route::post('/cycle-counting', [CycleCountingController::class, 'store'])->name('cycle_counting.store');
+            Route::post('/cycle-counting/{session}/post', [CycleCountingController::class, 'post'])->name('cycle_counting.post');
         });
     });
 

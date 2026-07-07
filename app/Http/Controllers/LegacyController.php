@@ -196,6 +196,12 @@ class LegacyController extends Controller
                 'print' => route('warehouse.batch_expiry.print', $request->only(['search', 'expiry'])),
                 default => route('warehouse.batch_expiry.index', $request->only(['search', 'expiry'])),
             },
+            'whse-cycle-counting' => match ($action) {
+                'create' => route('warehouse.cycle_counting.create'),
+                'view' => $id ? route('warehouse.cycle_counting.show', $id) : route('warehouse.cycle_counting.index'),
+                'print' => $id ? route('warehouse.cycle_counting.print', $id) : route('warehouse.cycle_counting.index'),
+                default => route('warehouse.cycle_counting.index', $request->only(['status', 'search'])),
+            },
             'qc-incoming' => match ($action) {
                 'inspect' => route('qc.incoming.inspect', $request->only(['gr_id'])),
                 'print' => $id ? route('qc.incoming.print', $id) : route('qc.incoming.index'),
