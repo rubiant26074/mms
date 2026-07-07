@@ -22,4 +22,9 @@ class Supplier extends Model
     {
         return $this->hasMany(VendorRating::class);
     }
+
+    public function bills(): HasMany
+    {
+        return $this->hasMany(SupplierBill::class);
+    }
 }

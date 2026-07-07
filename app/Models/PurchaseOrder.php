@@ -54,6 +54,11 @@ class PurchaseOrder extends Model
         return $this->hasMany(PurchaseOrderItem::class);
     }
 
+    public function supplierBills(): HasMany
+    {
+        return $this->hasMany(SupplierBill::class);
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

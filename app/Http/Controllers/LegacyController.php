@@ -210,6 +210,12 @@ class LegacyController extends Controller
                 'print_tax' => $id ? route('finance.ar.print_tax', $id) : route('finance.ar.index'),
                 default => route('finance.ar.index', $request->only(['status', 'search'])),
             },
+            'fin-ap' => match ($action) {
+                'create' => route('finance.ap.create', $request->only(['po_id'])),
+                'edit' => $id ? route('finance.ap.edit', $id) : route('finance.ap.index'),
+                'pay' => $id ? route('finance.ap.payment', $id) : route('finance.ap.index'),
+                default => route('finance.ap.index', $request->only(['status', 'search'])),
+            },
             'qc-incoming' => match ($action) {
                 'inspect' => route('qc.incoming.inspect', $request->only(['gr_id'])),
                 'print' => $id ? route('qc.incoming.print', $id) : route('qc.incoming.index'),

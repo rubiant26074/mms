@@ -37,6 +37,7 @@ use App\Http\Controllers\Engineering\PartlistController;
 use App\Http\Controllers\Executive\AuditLogController;
 use App\Http\Controllers\Executive\KpiDashboardController;
 use App\Http\Controllers\Finance\AccountsReceivableController;
+use App\Http\Controllers\Finance\AccountsPayableController;
 use App\Http\Controllers\Finance\TaxController;
 use App\Http\Middleware\MmsAuthenticate;
 use App\Http\Middleware\RequirePermission;
@@ -521,6 +522,21 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
             Route::post('/ar/{invoice}/unpost', [AccountsReceivableController::class, 'unpost'])->name('ar.unpost');
             Route::get('/ar/{invoice}/payment', [AccountsReceivableController::class, 'payment'])->name('ar.payment');
             Route::post('/ar/{invoice}/payment', [AccountsReceivableController::class, 'storePayment'])->name('ar.payment.store');
+        });
+
+        Route::get('/ap', [AccountsPayableController::class, 'index'])
+            ->middleware(RequirePermission::class . ':fin_ap_view')
+            ->name('ap.index');
+        Route::middleware(RequirePermission::class . ':fin_ap_manage')->group(function (): void {
+            Route::get('/ap/create', [AccountsPayableController::class, 'create'])->name('ap.create');
+            Route::post('/ap', [AccountsPayableController::class, 'store'])->name('ap.store');
+            Route::get('/ap/{bill}/edit', [AccountsPayableController::class, 'edit'])->name('ap.edit');
+            Route::put('/ap/{bill}', [AccountsPayableController::class, 'update'])->name('ap.update');
+            Route::post('/ap/{bill}/post', [AccountsPayableController::class, 'post'])->name('ap.post');
+            Route::post('/ap/{bill}/unpost', [AccountsPayableController::class, 'unpost'])->name('ap.unpost');
+            Route::delete('/ap/{bill}', [AccountsPayableController::class, 'destroy'])->name('ap.destroy');
+            Route::get('/ap/{bill}/payment', [AccountsPayableController::class, 'payment'])->name('ap.payment');
+            Route::post('/ap/{bill}/payment', [AccountsPayableController::class, 'storePayment'])->name('ap.payment.store');
         });
 
         Route::get('/tax', [TaxController::class, 'index'])
