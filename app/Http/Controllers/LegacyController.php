@@ -153,6 +153,12 @@ class LegacyController extends Controller
                 'print' => $id ? route('procurement.orders.print', $id) : route('procurement.orders.index'),
                 default => route('procurement.orders.index', $request->only(['status', 'search'])),
             },
+            'purch-vendor-rating' => match ($action) {
+                'create' => route('procurement.vendor_ratings.create'),
+                'edit' => $id ? route('procurement.vendor_ratings.edit', $id) : route('procurement.vendor_ratings.index'),
+                'print' => route('procurement.vendor_ratings.print', $request->only(['period', 'supplier_id'])),
+                default => route('procurement.vendor_ratings.index', $request->only(['period', 'supplier_id'])),
+            },
             'whse-receive' => match ($action) {
                 'create' => route('warehouse.receipts.create', $request->only(['po_id'])),
                 'edit' => $id ? route('warehouse.receipts.edit', $id) : route('warehouse.receipts.index'),

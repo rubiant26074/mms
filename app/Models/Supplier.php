@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Supplier extends Model
 {
@@ -16,4 +17,9 @@ class Supplier extends Model
         'bank_name',
         'bank_number',
     ];
+
+    public function vendorRatings(): HasMany
+    {
+        return $this->hasMany(VendorRating::class);
+    }
 }

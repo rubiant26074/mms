@@ -12,6 +12,7 @@ use App\Http\Controllers\Ppic\PurchaseRequestController;
 use App\Http\Controllers\Ppic\InventoryController;
 use App\Http\Controllers\Procurement\PurchaseOrderController;
 use App\Http\Controllers\Procurement\SupplierController;
+use App\Http\Controllers\Procurement\VendorRatingController;
 use App\Http\Controllers\Qc\IncomingController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\BackupController;
@@ -260,6 +261,12 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::get('/suppliers', [SupplierController::class, 'index'])
             ->middleware(RequirePermission::class . ':purch_vendor_view')
             ->name('suppliers.index');
+        Route::get('/vendor-ratings', [VendorRatingController::class, 'index'])
+            ->middleware(RequirePermission::class . ':purch_vendor_view')
+            ->name('vendor_ratings.index');
+        Route::get('/vendor-ratings/print', [VendorRatingController::class, 'print'])
+            ->middleware(RequirePermission::class . ':purch_vendor_view')
+            ->name('vendor_ratings.print');
         Route::middleware(RequirePermission::class . ':purch_vendor_manage')->group(function (): void {
             Route::get('/suppliers/create', [SupplierController::class, 'create'])->name('suppliers.create');
             Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
@@ -267,6 +274,11 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
             Route::get('/suppliers/{supplier}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit');
             Route::put('/suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
             Route::delete('/suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+            Route::get('/vendor-ratings/create', [VendorRatingController::class, 'create'])->name('vendor_ratings.create');
+            Route::post('/vendor-ratings', [VendorRatingController::class, 'store'])->name('vendor_ratings.store');
+            Route::get('/vendor-ratings/{vendorRating}/edit', [VendorRatingController::class, 'edit'])->name('vendor_ratings.edit');
+            Route::put('/vendor-ratings/{vendorRating}', [VendorRatingController::class, 'update'])->name('vendor_ratings.update');
+            Route::delete('/vendor-ratings/{vendorRating}', [VendorRatingController::class, 'destroy'])->name('vendor_ratings.destroy');
         });
     });
 
