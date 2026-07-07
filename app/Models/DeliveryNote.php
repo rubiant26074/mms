@@ -40,6 +40,11 @@ class DeliveryNote extends Model
         return $this->hasMany(DeliveryNoteItem::class);
     }
 
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

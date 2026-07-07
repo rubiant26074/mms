@@ -202,6 +202,14 @@ class LegacyController extends Controller
                 'print' => $id ? route('warehouse.cycle_counting.print', $id) : route('warehouse.cycle_counting.index'),
                 default => route('warehouse.cycle_counting.index', $request->only(['status', 'search'])),
             },
+            'fin-ar' => match ($action) {
+                'create' => route('finance.ar.create', $request->only(['sj_id'])),
+                'edit' => $id ? route('finance.ar.edit', $id) : route('finance.ar.index'),
+                'pay' => $id ? route('finance.ar.payment', $id) : route('finance.ar.index'),
+                'print' => $id ? route('finance.ar.print', $id) : route('finance.ar.index'),
+                'print_tax' => $id ? route('finance.ar.print_tax', $id) : route('finance.ar.index'),
+                default => route('finance.ar.index', $request->only(['status', 'search'])),
+            },
             'qc-incoming' => match ($action) {
                 'inspect' => route('qc.incoming.inspect', $request->only(['gr_id'])),
                 'print' => $id ? route('qc.incoming.print', $id) : route('qc.incoming.index'),

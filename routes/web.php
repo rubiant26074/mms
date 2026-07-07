@@ -36,6 +36,7 @@ use App\Http\Controllers\Engineering\ItemController as EngineeringItemController
 use App\Http\Controllers\Engineering\PartlistController;
 use App\Http\Controllers\Executive\AuditLogController;
 use App\Http\Controllers\Executive\KpiDashboardController;
+use App\Http\Controllers\Finance\AccountsReceivableController;
 use App\Http\Controllers\Finance\TaxController;
 use App\Http\Middleware\MmsAuthenticate;
 use App\Http\Middleware\RequirePermission;
@@ -502,6 +503,26 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
     });
 
     Route::prefix('finance')->name('finance.')->group(function (): void {
+        Route::get('/ar', [AccountsReceivableController::class, 'index'])
+            ->middleware(RequirePermission::class . ':fin_ar_view')
+            ->name('ar.index');
+        Route::get('/ar/{invoice}/print', [AccountsReceivableController::class, 'print'])
+            ->middleware(RequirePermission::class . ':fin_ar_view')
+            ->name('ar.print');
+        Route::get('/ar/{invoice}/print-tax', [AccountsReceivableController::class, 'printTax'])
+            ->middleware(RequirePermission::class . ':fin_ar_view')
+            ->name('ar.print_tax');
+        Route::middleware(RequirePermission::class . ':fin_ar_manage')->group(function (): void {
+            Route::get('/ar/create', [AccountsReceivableController::class, 'create'])->name('ar.create');
+            Route::post('/ar', [AccountsReceivableController::class, 'store'])->name('ar.store');
+            Route::get('/ar/{invoice}/edit', [AccountsReceivableController::class, 'edit'])->name('ar.edit');
+            Route::put('/ar/{invoice}', [AccountsReceivableController::class, 'update'])->name('ar.update');
+            Route::post('/ar/{invoice}/post', [AccountsReceivableController::class, 'post'])->name('ar.post');
+            Route::post('/ar/{invoice}/unpost', [AccountsReceivableController::class, 'unpost'])->name('ar.unpost');
+            Route::get('/ar/{invoice}/payment', [AccountsReceivableController::class, 'payment'])->name('ar.payment');
+            Route::post('/ar/{invoice}/payment', [AccountsReceivableController::class, 'storePayment'])->name('ar.payment.store');
+        });
+
         Route::get('/tax', [TaxController::class, 'index'])
             ->middleware(RequirePermission::class . ':fin_ar_view')
             ->name('tax.index');
