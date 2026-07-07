@@ -190,10 +190,14 @@ body {
 #sidebar ul li a[href*="admin"], 
 #sidebar ul li a[href*="users"], 
 #sidebar ul li a[href*="roles"] { color: #2c3e50; }
-#sidebar a[href="logout.php"] i { color: #c0392b; }
+#sidebar a[href="/logout"] i,
+#sidebar a[href$="/logout"] i,
+#sidebar a[href="logout"] i { color: #c0392b; }
 
 /* Logout Button Text Color */
-#sidebar a[href="logout.php"] {
+#sidebar a[href="/logout"],
+#sidebar a[href$="/logout"],
+#sidebar a[href="logout"] {
     color: #c0392b !important;
 }
 

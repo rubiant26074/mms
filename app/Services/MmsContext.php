@@ -243,6 +243,16 @@ class MmsContext
                 ])),
             ];
         }
+        $menus[] = [
+            'id' => 'tvMenu',
+            'label' => 'TV Dashboard',
+            'icon' => 'bi-display',
+            'submenu' => [
+                ['label' => 'TV Lobby', 'url' => route('tv.lobby'), 'icon' => 'bi-easel'],
+                ['label' => 'TV Executive', 'url' => route('tv.executive'), 'icon' => 'bi-speedometer2'],
+                ['label' => 'TV Production', 'url' => route('tv.production'), 'icon' => 'bi-cpu'],
+            ],
+        ];
 
         return $menus;
     }

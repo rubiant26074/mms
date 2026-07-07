@@ -112,6 +112,11 @@ class MenuController extends Controller
                 ['slug' => 'acc-journal', 'label' => 'Jurnal Umum'],
                 ['slug' => 'acc-report', 'label' => 'Laporan Keuangan'],
             ]],
+            ['type' => 'group', 'label' => 'TV Dashboard', 'children' => [
+                ['slug' => 'tv-lobby', 'label' => 'TV Lobby'],
+                ['slug' => 'tv-exec', 'label' => 'TV Executive'],
+                ['slug' => 'tv-prod', 'label' => 'TV Production'],
+            ]],
         ];
     }
 }
