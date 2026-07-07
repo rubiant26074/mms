@@ -46,6 +46,7 @@ use App\Http\Controllers\UserSettingsController;
 use App\Http\Controllers\Warehouse\DeliveryNoteController;
 use App\Http\Controllers\Warehouse\GoodsReceiptController;
 use App\Http\Controllers\Warehouse\MaterialIssueController;
+use App\Http\Controllers\Warehouse\MaterialReturnController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => auth()->check()
@@ -390,6 +391,16 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
             Route::put('/delivery-notes/{deliveryNote}', [DeliveryNoteController::class, 'update'])->name('delivery_notes.update');
             Route::post('/delivery-notes/{deliveryNote}/approve', [DeliveryNoteController::class, 'approve'])->name('delivery_notes.approve');
             Route::delete('/delivery-notes/{deliveryNote}', [DeliveryNoteController::class, 'destroy'])->name('delivery_notes.destroy');
+        });
+
+        Route::get('/material-returns', [MaterialReturnController::class, 'index'])
+            ->middleware(RequirePermission::class . ':whse_view')
+            ->name('material_returns.index');
+        Route::middleware(RequirePermission::class . ':whse_stock')->group(function (): void {
+            Route::get('/material-returns/create', [MaterialReturnController::class, 'create'])->name('material_returns.create');
+            Route::post('/material-returns', [MaterialReturnController::class, 'store'])->name('material_returns.store');
+            Route::post('/material-returns/{materialReturn}/approve', [MaterialReturnController::class, 'approve'])->name('material_returns.approve');
+            Route::delete('/material-returns/{materialReturn}', [MaterialReturnController::class, 'destroy'])->name('material_returns.destroy');
         });
     });
 
