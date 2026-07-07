@@ -28,6 +28,7 @@ class User extends Authenticatable
         'bank_account',
         'signature_path',
         'avatar_path',
+        'face_reference_path',
         'employee_status',
         'department',
     ];

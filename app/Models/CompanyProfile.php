@@ -20,6 +20,10 @@ class CompanyProfile extends Model
         'website',
         'fonte_token',
         'ui_theme',
+        'attendance_location_name',
+        'attendance_latitude',
+        'attendance_longitude',
+        'attendance_radius_meters',
         'running_text',
         'logo_path',
         'updated_at',
@@ -30,6 +34,9 @@ class CompanyProfile extends Model
         return [
             'pkp_date' => 'date',
             'updated_at' => 'datetime',
+            'attendance_latitude' => 'decimal:7',
+            'attendance_longitude' => 'decimal:7',
+            'attendance_radius_meters' => 'integer',
         ];
     }
 }

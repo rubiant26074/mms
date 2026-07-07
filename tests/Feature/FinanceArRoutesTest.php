@@ -27,13 +27,4 @@ class FinanceArRoutesTest extends TestCase
         $this->actingAs($admin)->get(route('finance.ar.print', $invoice))->assertOk();
         $this->actingAs($admin)->get(route('finance.ar.print_tax', $invoice))->assertOk();
     }
-
-    public function test_legacy_ar_url_redirects_to_native_route(): void
-    {
-        $admin = User::query()->where('username', 'admin')->firstOrFail();
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=fin-ar')
-            ->assertRedirect(route('finance.ar.index'));
-    }
 }

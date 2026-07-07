@@ -18,25 +18,4 @@ class PpicRoutesTest extends TestCase
         $this->actingAs($admin)->get(route('ppic.mps.index'))->assertOk();
         $this->actingAs($admin)->get(route('ppic.inventory.index'))->assertOk();
     }
-
-    public function test_legacy_ppic_spk_url_redirects_to_native_route(): void
-    {
-        $admin = User::query()->where('username', 'admin')->firstOrFail();
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=ppic-spk')
-            ->assertRedirect(route('ppic.spk.index'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=ppic-pr')
-            ->assertRedirect(route('ppic.purchase_requests.index'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=ppic-mps')
-            ->assertRedirect(route('ppic.mps.index'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=ppic-inventory')
-            ->assertRedirect(route('ppic.inventory.index'));
-    }
 }

@@ -34,7 +34,7 @@
                 <i class="bi bi-people-fill fs-1 text-secondary"></i>
             </div>
             <div class="card-footer bg-dark border-top border-secondary p-2 text-center">
-                <a href="index.php?page=users" class="text-white text-decoration-none small">Manage Users &rarr;</a>
+                <a href="{{ route('admin.users.index') }}" class="text-white text-decoration-none small">Manage Users &rarr;</a>
             </div>
         </div>
     </div>
@@ -48,7 +48,7 @@
                 <i class="bi bi-shield-lock-fill fs-1 text-dark"></i>
             </div>
             <div class="card-footer bg-secondary border-top border-dark p-2 text-center">
-                <a href="index.php?page=roles" class="text-white text-decoration-none small">Access Control &rarr;</a>
+                <a href="{{ route('admin.roles.index') }}" class="text-white text-decoration-none small">Access Control &rarr;</a>
             </div>
         </div>
     </div>
@@ -72,7 +72,7 @@
     </div>
 </div>
 
-<div class="alert alert-info border-0 shadow-sm">
-    Dashboard ini sudah Laravel native. Menu lain masih diarahkan ke fallback legacy sampai modulnya selesai dipindahkan satu per satu.
+<div class="alert alert-success border-0 shadow-sm">
+    Dashboard ini berjalan penuh di Laravel dan sudah tidak bergantung pada renderer PHP native lama.
 </div>
 @endsection

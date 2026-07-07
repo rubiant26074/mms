@@ -23,33 +23,4 @@ class AccountingRoutesTest extends TestCase
         $this->actingAs($admin)->get(route('accounting.assets.create'))->assertOk();
         $this->actingAs($admin)->get(route('accounting.assets.print'))->assertOk();
     }
-
-    public function test_legacy_coa_url_redirects_to_native_route(): void
-    {
-        $admin = User::query()->where('username', 'admin')->firstOrFail();
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=acc-coa')
-            ->assertRedirect(route('accounting.coa.index'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=acc-coa&action=create')
-            ->assertRedirect(route('accounting.coa.create'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=acc-ledger')
-            ->assertRedirect(route('accounting.ledger.index'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=acc-journal')
-            ->assertRedirect(route('accounting.journal.index'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=acc-report')
-            ->assertRedirect(route('accounting.reports.index'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=acc-assets')
-            ->assertRedirect(route('accounting.assets.index'));
-    }
 }

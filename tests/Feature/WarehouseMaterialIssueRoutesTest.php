@@ -26,13 +26,4 @@ class WarehouseMaterialIssueRoutesTest extends TestCase
 
         $this->actingAs($admin)->get(route('warehouse.material_issues.print', $issue))->assertOk();
     }
-
-    public function test_legacy_material_issue_url_redirects_to_native_route(): void
-    {
-        $admin = User::query()->where('username', 'admin')->firstOrFail();
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=whse-issue')
-            ->assertRedirect(route('warehouse.material_issues.index'));
-    }
 }

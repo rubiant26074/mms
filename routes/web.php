@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\LegacyController;
 use App\Http\Controllers\Accounting\CoaController;
 use App\Http\Controllers\Accounting\AssetController;
 use App\Http\Controllers\Accounting\JournalController;
@@ -38,7 +37,12 @@ use App\Http\Controllers\Executive\AuditLogController;
 use App\Http\Controllers\Executive\KpiDashboardController;
 use App\Http\Controllers\Finance\AccountsReceivableController;
 use App\Http\Controllers\Finance\AccountsPayableController;
+use App\Http\Controllers\Finance\CashController;
 use App\Http\Controllers\Finance\TaxController;
+use App\Http\Controllers\TvController;
+use App\Http\Controllers\Hrd\AttendanceController;
+use App\Http\Controllers\Hrd\EmployeeController;
+use App\Http\Controllers\Hrd\PayrollController;
 use App\Http\Middleware\MmsAuthenticate;
 use App\Http\Middleware\RequirePermission;
 use App\Http\Controllers\Sales\CustomerController;
@@ -60,13 +64,15 @@ Route::get('/', fn () => auth()->check()
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.store');
 Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('logout');
-Route::match(['get', 'post'], '/logout.php', [AuthController::class, 'logout']);
 
 Route::middleware(MmsAuthenticate::class)->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/user-settings', [UserSettingsController::class, 'edit'])->name('user_settings.edit');
     Route::post('/user-settings/profile', [UserSettingsController::class, 'updateProfile'])->name('user_settings.profile');
     Route::post('/user-settings/password', [UserSettingsController::class, 'updatePassword'])->name('user_settings.password');
+    Route::get('/tv/lobby', [TvController::class, 'lobby'])->name('tv.lobby');
+    Route::get('/tv/executive', [TvController::class, 'executive'])->name('tv.executive');
+    Route::get('/tv/production', [TvController::class, 'production'])->name('tv.production');
 
     Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::middleware(RequirePermission::class . ':user_view')->group(function (): void {
@@ -173,6 +179,46 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::post('/orders/{order}/{action}', [SalesOrderController::class, 'workflow'])
             ->whereIn('action', ['submit', 'approve', 'reject', 'cancel', 'mark_sent'])
             ->name('orders.workflow');
+    });
+
+    Route::prefix('hrd')->name('hrd.')->group(function (): void {
+        Route::get('/attendance', [AttendanceController::class, 'index'])
+            ->middleware(RequirePermission::class . ':hrd_attendance_view')
+            ->name('attendance.index');
+        Route::post('/attendance', [AttendanceController::class, 'store'])
+            ->middleware(RequirePermission::class . ':hrd_attendance_view')
+            ->name('attendance.store');
+
+        Route::get('/payroll', [PayrollController::class, 'index'])
+            ->middleware(RequirePermission::class . ':hrd_payroll_view')
+            ->name('payroll.index');
+        Route::get('/payroll/attendance-count', [PayrollController::class, 'attendanceCount'])
+            ->middleware(RequirePermission::class . ':hrd_payroll_manage')
+            ->name('payroll.attendance_count');
+        Route::get('/payroll/{payroll}/print', [PayrollController::class, 'print'])
+            ->middleware(RequirePermission::class . ':hrd_payroll_view')
+            ->name('payroll.print');
+
+        Route::middleware(RequirePermission::class . ':hrd_payroll_manage')->group(function (): void {
+            Route::get('/payroll/create', [PayrollController::class, 'create'])->name('payroll.create');
+            Route::post('/payroll', [PayrollController::class, 'store'])->name('payroll.store');
+            Route::get('/payroll/{payroll}/edit', [PayrollController::class, 'edit'])->name('payroll.edit');
+            Route::put('/payroll/{payroll}', [PayrollController::class, 'update'])->name('payroll.update');
+            Route::post('/payroll/{payroll}/pay', [PayrollController::class, 'pay'])->name('payroll.pay');
+            Route::delete('/payroll/{payroll}', [PayrollController::class, 'destroy'])->name('payroll.destroy');
+        });
+
+        Route::get('/employees', [EmployeeController::class, 'index'])
+            ->middleware(RequirePermission::class . ':hrd_view')
+            ->name('employees.index');
+
+        Route::middleware(RequirePermission::class . ':hrd_employee_manage')->group(function (): void {
+            Route::get('/employees/create', [EmployeeController::class, 'create'])->name('employees.create');
+            Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
+            Route::get('/employees/{employee}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
+            Route::put('/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
+            Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+        });
     });
 
     Route::prefix('engineering')->name('engineering.')->group(function (): void {
@@ -504,6 +550,23 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
     });
 
     Route::prefix('finance')->name('finance.')->group(function (): void {
+        Route::get('/cash', [CashController::class, 'index'])
+            ->middleware(RequirePermission::class . ':fin_view')
+            ->name('cash.index');
+        Route::get('/cash/print', [CashController::class, 'print'])
+            ->middleware(RequirePermission::class . ':fin_view')
+            ->name('cash.print');
+        Route::middleware(RequirePermission::class . ':fin_ap_manage')->group(function (): void {
+            Route::get('/cash/create', [CashController::class, 'create'])->name('cash.create');
+            Route::post('/cash', [CashController::class, 'store'])->name('cash.store');
+            Route::get('/cash/{transaction}/edit', [CashController::class, 'edit'])->name('cash.edit');
+            Route::put('/cash/{transaction}', [CashController::class, 'update'])->name('cash.update');
+            Route::delete('/cash/{transaction}', [CashController::class, 'destroy'])->name('cash.destroy');
+            Route::post('/cash/{transaction}/{action}', [CashController::class, 'workflow'])
+                ->whereIn('action', ['post', 'unpost', 'cancel'])
+                ->name('cash.workflow');
+        });
+
         Route::get('/ar', [AccountsReceivableController::class, 'index'])
             ->middleware(RequirePermission::class . ':fin_ar_view')
             ->name('ar.index');
@@ -584,6 +647,3 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         });
     });
 });
-
-Route::any('/{path}', [LegacyController::class, 'handle'])
-    ->where('path', '.*');

@@ -27,45 +27,4 @@ class AdminRoutesTest extends TestCase
             $this->actingAs($admin)->get($url)->assertOk();
         }
     }
-
-    public function test_legacy_admin_urls_redirect_to_native_routes(): void
-    {
-        $admin = User::query()->where('username', 'admin')->firstOrFail();
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=users')
-            ->assertRedirect(route('admin.users.index'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=roles')
-            ->assertRedirect(route('admin.roles.index'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=user-settings')
-            ->assertRedirect(route('user_settings.edit'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=dashboard')
-            ->assertRedirect(route('dashboard'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=admin-company')
-            ->assertRedirect(route('admin.company.edit'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=admin-machines')
-            ->assertRedirect(route('admin.machines.index'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=admin-backup')
-            ->assertRedirect(route('admin.backup.index'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=admin-reset')
-            ->assertRedirect(route('admin.reset.index'));
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=admin-menu')
-            ->assertRedirect(route('admin.menu.index'));
-    }
 }

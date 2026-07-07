@@ -116,6 +116,18 @@ class MmsContext
                 ])),
             ];
         }
+        if ($can('hrd_view') || $can('hrd_attendance_view') || $can('hrd_payroll_view')) {
+            $menus[] = [
+                'id' => 'hrdMenu',
+                'label' => 'HRD',
+                'icon' => 'bi-people-fill',
+                'submenu' => array_values(array_filter([
+                    $can('hrd_attendance_view') ? ['label' => 'Absensi', 'url' => route('hrd.attendance.index'), 'icon' => 'bi-clock-history'] : null,
+                    $can('hrd_payroll_view') ? ['label' => 'Payroll', 'url' => route('hrd.payroll.index'), 'icon' => 'bi-cash-stack'] : null,
+                    $can('hrd_view') ? ['label' => 'Karyawan', 'url' => route('hrd.employees.index'), 'icon' => 'bi-person-vcard'] : null,
+                ])),
+            ];
+        }
         if ($can('eng_items') || $can('eng_bom') || $can('eng_view')) {
             $menus[] = [
                 'id' => 'engineeringMenu',
@@ -201,7 +213,7 @@ class MmsContext
                 'submenu' => array_values(array_filter([
                     $can('fin_ar_view') ? ['label' => 'Accounts Receivable', 'url' => route('finance.ar.index'), 'icon' => 'bi-receipt'] : null,
                     $can('fin_ap_view') ? ['label' => 'Accounts Payable', 'url' => route('finance.ap.index'), 'icon' => 'bi-wallet2'] : null,
-                    $can('fin_view') ? ['label' => 'Cash / Bank', 'url' => 'index.php?page=fin-cash', 'icon' => 'bi-bank'] : null,
+                    $can('fin_view') ? ['label' => 'Cash / Bank', 'url' => route('finance.cash.index'), 'icon' => 'bi-bank'] : null,
                     $can('fin_ar_view') ? ['label' => 'Perpajakan', 'url' => route('finance.tax.index'), 'icon' => 'bi-receipt-cutoff'] : null,
                 ])),
             ];

@@ -27,13 +27,4 @@ class NcrRoutesTest extends TestCase
         $this->actingAs($admin)->get(route('qc.ncr.edit', $ncr))->assertOk();
         $this->actingAs($admin)->get(route('qc.ncr.print', $ncr))->assertOk();
     }
-
-    public function test_legacy_ncr_url_redirects_to_native_route(): void
-    {
-        $admin = User::query()->where('username', 'admin')->firstOrFail();
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=qc-ncr')
-            ->assertRedirect(route('qc.ncr.index'));
-    }
 }

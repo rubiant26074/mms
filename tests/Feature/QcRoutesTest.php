@@ -13,13 +13,4 @@ class QcRoutesTest extends TestCase
 
         $this->actingAs($admin)->get(route('qc.incoming.index'))->assertOk();
     }
-
-    public function test_legacy_incoming_url_redirects_to_native_route(): void
-    {
-        $admin = User::query()->where('username', 'admin')->firstOrFail();
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=qc-incoming')
-            ->assertRedirect(route('qc.incoming.index'));
-    }
 }

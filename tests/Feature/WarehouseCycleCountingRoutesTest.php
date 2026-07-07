@@ -27,13 +27,4 @@ class WarehouseCycleCountingRoutesTest extends TestCase
         $this->actingAs($admin)->get(route('warehouse.cycle_counting.show', $session))->assertOk();
         $this->actingAs($admin)->get(route('warehouse.cycle_counting.print', $session))->assertOk();
     }
-
-    public function test_legacy_cycle_counting_url_redirects_to_native_route(): void
-    {
-        $admin = User::query()->where('username', 'admin')->firstOrFail();
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=whse-cycle-counting')
-            ->assertRedirect(route('warehouse.cycle_counting.index'));
-    }
 }

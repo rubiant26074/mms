@@ -40,13 +40,4 @@ class QcProductionRoutesTest extends TestCase
 
         $this->actingAs($admin)->get(route('qc.production.print', $qc))->assertOk();
     }
-
-    public function test_legacy_qc_production_url_redirects_to_native_route(): void
-    {
-        $admin = User::query()->where('username', 'admin')->firstOrFail();
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=qc-production')
-            ->assertRedirect(route('qc.production.index'));
-    }
 }

@@ -107,7 +107,7 @@
                     <td>{{ $invoice->due_date ? \Illuminate\Support\Carbon::parse($invoice->due_date)->format('d/m/Y') : '-' }}</td>
                     <td>{!! $hasNsfp ? e($invoice->tax_invoice_number) : '<span class="text-danger">Belum diisi</span>' !!}</td>
                     <td class="text-center"><span class="badge {{ $hasNsfp ? 'bg-success' : 'bg-danger' }}">{{ $hasNsfp ? 'Lengkap' : 'Belum' }}</span></td>
-                    <td class="text-center"><a href="index.php?page=fin-ar&action=edit&id={{ $invoice->id }}" class="btn btn-sm btn-outline-primary">Edit Invoice</a></td>
+                    <td class="text-center"><a href="{{ route('finance.ar.edit', $invoice->id) }}" class="btn btn-sm btn-outline-primary">Edit Invoice</a></td>
                 </tr>
             @empty
                 <tr><td colspan="6" class="text-center text-muted py-4">Tidak ada invoice pada periode ini.</td></tr>

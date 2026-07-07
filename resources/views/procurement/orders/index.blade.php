@@ -71,7 +71,7 @@
                                 <form method="POST" action="{{ route('procurement.orders.workflow', [$row, 'send_vendor']) }}" onsubmit="return confirm('Konfirmasi PO ke Supplier?')">@csrf<button class="btn btn-sm btn-info text-dark"><i class="bi bi-envelope-paper"></i> Konfirmasi</button></form>
                             @endif
                             @if($row->status === 'sent')
-                                <a href="/index.php?page=whse-receive&action=create&po_id={{ $row->id }}" class="btn btn-sm btn-success fw-bold"><i class="bi bi-box-seam"></i> Terima</a>
+                                <a href="{{ route('warehouse.receipts.create', ['po_id' => $row->id]) }}" class="btn btn-sm btn-success fw-bold"><i class="bi bi-box-seam"></i> Terima</a>
                             @endif
                         </div>
                     </td>

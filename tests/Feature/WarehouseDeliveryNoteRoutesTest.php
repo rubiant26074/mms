@@ -41,13 +41,4 @@ class WarehouseDeliveryNoteRoutesTest extends TestCase
             ->assertOk()
             ->assertJsonIsArray();
     }
-
-    public function test_legacy_delivery_note_url_redirects_to_native_route(): void
-    {
-        $admin = User::query()->where('username', 'admin')->firstOrFail();
-
-        $this->actingAs($admin)
-            ->get('/index.php?page=whse-sj')
-            ->assertRedirect(route('warehouse.delivery_notes.index'));
-    }
 }
