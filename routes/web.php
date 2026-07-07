@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\LegacyController;
 use App\Http\Controllers\Accounting\CoaController;
+use App\Http\Controllers\Accounting\JournalController;
 use App\Http\Controllers\Accounting\LedgerController;
 use App\Http\Controllers\Ppic\MpsController;
 use App\Http\Controllers\Ppic\SpkController;
@@ -328,6 +329,8 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
     Route::prefix('accounting')->name('accounting.')->group(function (): void {
         Route::middleware(RequirePermission::class . ':acc_view')->group(function (): void {
             Route::get('/coa', [CoaController::class, 'index'])->name('coa.index');
+            Route::get('/journal', [JournalController::class, 'index'])->name('journal.index');
+            Route::get('/journal/print', [JournalController::class, 'print'])->name('journal.print');
             Route::get('/ledger', [LedgerController::class, 'index'])->name('ledger.index');
             Route::get('/ledger/print', [LedgerController::class, 'print'])->name('ledger.print');
         });
@@ -338,6 +341,10 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
             Route::put('/coa/{coa}', [CoaController::class, 'update'])->name('coa.update');
             Route::delete('/coa/{coa}', [CoaController::class, 'destroy'])->name('coa.destroy');
             Route::post('/coa/reconcile', [CoaController::class, 'reconcile'])->name('coa.reconcile');
+        });
+        Route::middleware(RequirePermission::class . ':acc_journal_manage')->group(function (): void {
+            Route::get('/journal/create', [JournalController::class, 'create'])->name('journal.create');
+            Route::post('/journal', [JournalController::class, 'store'])->name('journal.store');
         });
     });
 });

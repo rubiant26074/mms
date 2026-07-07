@@ -173,6 +173,11 @@ class LegacyController extends Controller
                 'edit' => $id ? route('accounting.coa.edit', $id) : route('accounting.coa.index'),
                 default => route('accounting.coa.index', $request->only(['type', 'search'])),
             },
+            'acc-journal' => match ($action) {
+                'create' => route('accounting.journal.create'),
+                'print' => route('accounting.journal.print', $request->only(['search', 'start_date', 'end_date'])),
+                default => route('accounting.journal.index', $request->only(['search', 'start_date', 'end_date'])),
+            },
             'acc-ledger' => $action === 'print'
                 ? route('accounting.ledger.print', $request->only(['start_date', 'end_date', 'coa_id']))
                 : route('accounting.ledger.index', $request->only(['start_date', 'end_date', 'coa_id'])),

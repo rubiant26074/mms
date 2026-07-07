@@ -13,6 +13,9 @@ class AccountingRoutesTest extends TestCase
 
         $this->actingAs($admin)->get(route('accounting.coa.index'))->assertOk();
         $this->actingAs($admin)->get(route('accounting.coa.create'))->assertOk();
+        $this->actingAs($admin)->get(route('accounting.journal.index'))->assertOk();
+        $this->actingAs($admin)->get(route('accounting.journal.create'))->assertOk();
+        $this->actingAs($admin)->get(route('accounting.journal.print'))->assertOk();
         $this->actingAs($admin)->get(route('accounting.ledger.index'))->assertOk();
     }
 
@@ -31,5 +34,9 @@ class AccountingRoutesTest extends TestCase
         $this->actingAs($admin)
             ->get('/index.php?page=acc-ledger')
             ->assertRedirect(route('accounting.ledger.index'));
+
+        $this->actingAs($admin)
+            ->get('/index.php?page=acc-journal')
+            ->assertRedirect(route('accounting.journal.index'));
     }
 }
