@@ -43,6 +43,7 @@ use App\Http\Controllers\Sales\CustomerController;
 use App\Http\Controllers\Sales\QuotationController;
 use App\Http\Controllers\Sales\SalesOrderController;
 use App\Http\Controllers\UserSettingsController;
+use App\Http\Controllers\Warehouse\DeliveryNoteController;
 use App\Http\Controllers\Warehouse\GoodsReceiptController;
 use App\Http\Controllers\Warehouse\MaterialIssueController;
 use Illuminate\Support\Facades\Route;
@@ -372,6 +373,24 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::get('/material-issues/{issue}/print', [MaterialIssueController::class, 'print'])
             ->middleware(RequirePermission::class . ':whse_stock')
             ->name('material_issues.print');
+
+        Route::get('/delivery-notes', [DeliveryNoteController::class, 'index'])
+            ->middleware(RequirePermission::class . ':whse_sj_view')
+            ->name('delivery_notes.index');
+        Route::get('/delivery-notes/so-items/{order}', [DeliveryNoteController::class, 'soItems'])
+            ->middleware(RequirePermission::class . ':whse_sj_manage')
+            ->name('delivery_notes.so_items');
+        Route::get('/delivery-notes/{deliveryNote}/print', [DeliveryNoteController::class, 'print'])
+            ->middleware(RequirePermission::class . ':whse_sj_view')
+            ->name('delivery_notes.print');
+        Route::middleware(RequirePermission::class . ':whse_sj_manage')->group(function (): void {
+            Route::get('/delivery-notes/create', [DeliveryNoteController::class, 'create'])->name('delivery_notes.create');
+            Route::post('/delivery-notes', [DeliveryNoteController::class, 'store'])->name('delivery_notes.store');
+            Route::get('/delivery-notes/{deliveryNote}/edit', [DeliveryNoteController::class, 'edit'])->name('delivery_notes.edit');
+            Route::put('/delivery-notes/{deliveryNote}', [DeliveryNoteController::class, 'update'])->name('delivery_notes.update');
+            Route::post('/delivery-notes/{deliveryNote}/approve', [DeliveryNoteController::class, 'approve'])->name('delivery_notes.approve');
+            Route::delete('/delivery-notes/{deliveryNote}', [DeliveryNoteController::class, 'destroy'])->name('delivery_notes.destroy');
+        });
     });
 
     Route::prefix('qc')->name('qc.')->group(function (): void {

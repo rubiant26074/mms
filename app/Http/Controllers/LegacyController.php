@@ -182,6 +182,12 @@ class LegacyController extends Controller
                 'print' => $id ? route('warehouse.material_issues.print', $id) : route('warehouse.material_issues.index'),
                 default => route('warehouse.material_issues.index', $request->only(['status', 'search'])),
             },
+            'whse-sj' => match ($action) {
+                'create' => route('warehouse.delivery_notes.create', $request->only(['so_id'])),
+                'edit' => $id ? route('warehouse.delivery_notes.edit', $id) : route('warehouse.delivery_notes.index'),
+                'print' => $id ? route('warehouse.delivery_notes.print', $id) : route('warehouse.delivery_notes.index'),
+                default => route('warehouse.delivery_notes.index', $request->only(['status', 'search'])),
+            },
             'qc-incoming' => match ($action) {
                 'inspect' => route('qc.incoming.inspect', $request->only(['gr_id'])),
                 'print' => $id ? route('qc.incoming.print', $id) : route('qc.incoming.index'),
