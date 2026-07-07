@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ProductionAssignment extends Model
 {
@@ -48,5 +49,15 @@ class ProductionAssignment extends Model
     public function machine(): BelongsTo
     {
         return $this->belongsTo(Machine::class);
+    }
+
+    public function logs(): HasMany
+    {
+        return $this->hasMany(ProductionLog::class, 'assignment_id');
+    }
+
+    public function partlistProgress(): HasMany
+    {
+        return $this->hasMany(ProductionPartlistProgress::class, 'assignment_id');
     }
 }

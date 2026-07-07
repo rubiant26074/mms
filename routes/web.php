@@ -10,6 +10,7 @@ use App\Http\Controllers\Ppic\MpsController;
 use App\Http\Controllers\Ppic\SpkController;
 use App\Http\Controllers\Ppic\PurchaseRequestController;
 use App\Http\Controllers\Ppic\InventoryController;
+use App\Http\Controllers\Production\OperatorController as ProductionOperatorController;
 use App\Http\Controllers\Production\TaskController as ProductionTaskController;
 use App\Http\Controllers\Procurement\PurchaseOrderController;
 use App\Http\Controllers\Procurement\RfqController;
@@ -312,6 +313,23 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::post('/tasks/{spk}/assign', [ProductionTaskController::class, 'assign'])
             ->middleware(RequirePermission::class . ':prod_task_manage')
             ->name('tasks.assign');
+        Route::get('/operator', [ProductionOperatorController::class, 'index'])
+            ->name('operator.index');
+        Route::post('/operator/{assignment}/start', [ProductionOperatorController::class, 'start'])
+            ->middleware(RequirePermission::class . ':prod_operator_access')
+            ->name('operator.start');
+        Route::post('/operator/{assignment}/hold', [ProductionOperatorController::class, 'hold'])
+            ->middleware(RequirePermission::class . ':prod_operator_access')
+            ->name('operator.hold');
+        Route::post('/operator/{assignment}/resume', [ProductionOperatorController::class, 'resume'])
+            ->middleware(RequirePermission::class . ':prod_operator_access')
+            ->name('operator.resume');
+        Route::post('/operator/{assignment}/part-progress', [ProductionOperatorController::class, 'partProgress'])
+            ->middleware(RequirePermission::class . ':prod_operator_access')
+            ->name('operator.part_progress');
+        Route::post('/operator/{assignment}/finish', [ProductionOperatorController::class, 'finish'])
+            ->middleware(RequirePermission::class . ':prod_operator_access')
+            ->name('operator.finish');
     });
 
     Route::prefix('warehouse')->name('warehouse.')->group(function (): void {

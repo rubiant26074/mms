@@ -148,7 +148,7 @@ class MmsContext
                 'icon' => 'bi-kanban',
                 'submenu' => array_values(array_filter([
                     $can('prod_view') ? ['label' => 'Task Assignment', 'url' => route('production.tasks.index'), 'icon' => 'bi-list-task'] : null,
-                    $can('prod_operator_access') ? ['label' => 'Operator Panel', 'url' => 'index.php?page=prod-operator', 'icon' => 'bi-phone'] : null,
+                    ($can('prod_operator_access') || $can('prod_view')) ? ['label' => 'Operator Panel', 'url' => route('production.operator.index'), 'icon' => 'bi-phone'] : null,
                     $can('prod_view') ? ['label' => 'Laporan Harian', 'url' => 'index.php?page=prod-report', 'icon' => 'bi-file-bar-graph'] : null,
                 ])),
             ];
