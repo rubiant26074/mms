@@ -11,6 +11,7 @@ use App\Http\Controllers\Ppic\SpkController;
 use App\Http\Controllers\Ppic\PurchaseRequestController;
 use App\Http\Controllers\Ppic\InventoryController;
 use App\Http\Controllers\Procurement\PurchaseOrderController;
+use App\Http\Controllers\Procurement\RfqController;
 use App\Http\Controllers\Procurement\SupplierController;
 use App\Http\Controllers\Procurement\VendorRatingController;
 use App\Http\Controllers\Qc\IncomingController;
@@ -257,6 +258,24 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::post('/orders/{order}/{action}', [PurchaseOrderController::class, 'workflow'])
             ->whereIn('action', ['submit', 'approve', 'approve_finance', 'send_vendor', 'cancel'])
             ->name('orders.workflow');
+
+        Route::get('/rfqs', [RfqController::class, 'index'])
+            ->middleware(RequirePermission::class . ':purch_po_view')
+            ->name('rfqs.index');
+        Route::middleware(RequirePermission::class . ':purch_po_manage')->group(function (): void {
+            Route::get('/rfqs/create', [RfqController::class, 'create'])->name('rfqs.create');
+            Route::post('/rfqs', [RfqController::class, 'store'])->name('rfqs.store');
+            Route::get('/rfqs/{rfq}/edit', [RfqController::class, 'edit'])->name('rfqs.edit');
+            Route::put('/rfqs/{rfq}', [RfqController::class, 'update'])->name('rfqs.update');
+            Route::delete('/rfqs/{rfq}', [RfqController::class, 'destroy'])->name('rfqs.destroy');
+            Route::post('/rfqs/{rfq}/convert-po', [RfqController::class, 'convertToPo'])->name('rfqs.convert_po');
+        });
+        Route::get('/rfqs/{rfq}/print', [RfqController::class, 'print'])
+            ->middleware(RequirePermission::class . ':purch_po_view')
+            ->name('rfqs.print');
+        Route::get('/rfqs/{rfq}', [RfqController::class, 'show'])
+            ->middleware(RequirePermission::class . ':purch_po_view')
+            ->name('rfqs.show');
 
         Route::get('/suppliers', [SupplierController::class, 'index'])
             ->middleware(RequirePermission::class . ':purch_vendor_view')

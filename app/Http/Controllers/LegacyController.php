@@ -153,6 +153,13 @@ class LegacyController extends Controller
                 'print' => $id ? route('procurement.orders.print', $id) : route('procurement.orders.index'),
                 default => route('procurement.orders.index', $request->only(['status', 'search'])),
             },
+            'purch-rfq' => match ($action) {
+                'create' => route('procurement.rfqs.create'),
+                'edit' => $id ? route('procurement.rfqs.edit', $id) : route('procurement.rfqs.index'),
+                'view' => $id ? route('procurement.rfqs.show', $id) : route('procurement.rfqs.index'),
+                'print' => $id ? route('procurement.rfqs.print', $id) : route('procurement.rfqs.index'),
+                default => route('procurement.rfqs.index', $request->only(['status', 'search'])),
+            },
             'purch-vendor-rating' => match ($action) {
                 'create' => route('procurement.vendor_ratings.create'),
                 'edit' => $id ? route('procurement.vendor_ratings.edit', $id) : route('procurement.vendor_ratings.index'),

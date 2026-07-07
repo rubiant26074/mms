@@ -149,6 +149,7 @@ class MmsContext
                 'submenu' => array_values(array_filter([
                     $can('purch_vendor_view') ? ['label' => 'Suppliers', 'url' => route('procurement.suppliers.index'), 'icon' => 'bi-truck'] : null,
                     $can('purch_vendor_view') ? ['label' => 'Vendor Rating', 'url' => route('procurement.vendor_ratings.index'), 'icon' => 'bi-star-half'] : null,
+                    $can('purch_po_view') ? ['label' => 'RFQ', 'url' => route('procurement.rfqs.index'), 'icon' => 'bi-clipboard2-data'] : null,
                     $can('purch_po_view') ? ['label' => 'Purchase Orders', 'url' => route('procurement.orders.index'), 'icon' => 'bi-file-earmark-text'] : null,
                 ])),
             ];
