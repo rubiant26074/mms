@@ -187,6 +187,12 @@ class LegacyController extends Controller
                 'print' => $request->integer('qc_id') > 0 ? route('qc.production.print', $request->integer('qc_id')) : route('qc.production.index'),
                 default => route('qc.production.index'),
             },
+            'qc-ncr' => match ($action) {
+                'create' => route('qc.ncr.create'),
+                'edit' => $id ? route('qc.ncr.edit', $id) : route('qc.ncr.index'),
+                'print' => $id ? route('qc.ncr.print', $id) : route('qc.ncr.index'),
+                default => route('qc.ncr.index'),
+            },
             'exec-kpi' => route('executive.kpi.index'),
             'exec-logs' => route('executive.logs.index', $request->only(['module', 'search'])),
             'fin-tax' => $action === 'print'

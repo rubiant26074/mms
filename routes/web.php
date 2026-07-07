@@ -18,6 +18,7 @@ use App\Http\Controllers\Procurement\RfqController;
 use App\Http\Controllers\Procurement\SupplierController;
 use App\Http\Controllers\Procurement\VendorRatingController;
 use App\Http\Controllers\Qc\IncomingController;
+use App\Http\Controllers\Qc\NcrController;
 use App\Http\Controllers\Qc\ProductionController as QcProductionController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\BackupController;
@@ -385,6 +386,30 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::get('/production/{qc}/print', [QcProductionController::class, 'print'])
             ->middleware(RequirePermission::class . ':qc_production_view')
             ->name('production.print');
+
+        Route::get('/ncr', [NcrController::class, 'index'])
+            ->middleware(RequirePermission::class . ':qc_ncr_view')
+            ->name('ncr.index');
+        Route::get('/ncr/create', [NcrController::class, 'create'])
+            ->middleware(RequirePermission::class . ':qc_ncr_manage')
+            ->name('ncr.create');
+        Route::post('/ncr', [NcrController::class, 'store'])
+            ->middleware(RequirePermission::class . ':qc_ncr_manage')
+            ->name('ncr.store');
+        Route::get('/ncr/{ncr}/edit', [NcrController::class, 'edit'])
+            ->middleware(RequirePermission::class . ':qc_ncr_manage')
+            ->name('ncr.edit');
+        Route::put('/ncr/{ncr}', [NcrController::class, 'update'])
+            ->middleware(RequirePermission::class . ':qc_ncr_manage')
+            ->name('ncr.update');
+        Route::post('/ncr/{ncr}/assign-responsible', [NcrController::class, 'assignResponsible'])->name('ncr.assign_responsible');
+        Route::post('/ncr/{ncr}/sign-responsible', [NcrController::class, 'signResponsible'])->name('ncr.sign_responsible');
+        Route::post('/ncr/{ncr}/appeal', [NcrController::class, 'appeal'])->name('ncr.appeal');
+        Route::post('/ncr/{ncr}/approve', [NcrController::class, 'approve'])->name('ncr.approve');
+        Route::post('/ncr/{ncr}/close', [NcrController::class, 'close'])->name('ncr.close');
+        Route::get('/ncr/{ncr}/print', [NcrController::class, 'print'])
+            ->middleware(RequirePermission::class . ':qc_ncr_view')
+            ->name('ncr.print');
     });
 
     Route::prefix('executive')->name('executive.')->group(function (): void {

@@ -189,7 +189,7 @@ class MmsContext
                 'submenu' => array_values(array_filter([
                     ($can('qc_incoming_view') || $can('qc_view')) ? ['label' => 'Incoming QC', 'url' => route('qc.incoming.index'), 'icon' => 'bi-box-arrow-in-down'] : null,
                     ($can('qc_production_view') || $can('qc_view')) ? ['label' => 'Production QC', 'url' => route('qc.production.index'), 'icon' => 'bi-clipboard-check'] : null,
-                    ($can('qc_ncr_view') || $can('qc_view')) ? ['label' => 'NCR', 'url' => 'index.php?page=qc-ncr', 'icon' => 'bi-exclamation-octagon'] : null,
+                    ($can('qc_ncr_view') || $can('qc_view')) ? ['label' => 'NCR', 'url' => route('qc.ncr.index'), 'icon' => 'bi-exclamation-octagon'] : null,
                 ])),
             ];
         }
