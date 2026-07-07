@@ -176,7 +176,7 @@ class MmsContext
                     $can('whse_stock') ? ['label' => 'Material Issue', 'url' => route('warehouse.material_issues.index'), 'icon' => 'bi-box-arrow-up'] : null,
                     $can('whse_sj_view') ? ['label' => 'Surat Jalan', 'url' => route('warehouse.delivery_notes.index'), 'icon' => 'bi-truck'] : null,
                     ($can('whse_view') || $can('whse_stock')) ? ['label' => 'Material Return', 'url' => route('warehouse.material_returns.index'), 'icon' => 'bi-arrow-return-left'] : null,
-                    $can('whse_view') ? ['label' => 'Batch Expiry', 'url' => 'index.php?page=whse-batch-expiry', 'icon' => 'bi-calendar-x'] : null,
+                    $can('whse_view') ? ['label' => 'Batch Expiry', 'url' => route('warehouse.batch_expiry.index'), 'icon' => 'bi-calendar-x'] : null,
                     $can('whse_view') ? ['label' => 'Cycle Counting', 'url' => 'index.php?page=whse-cycle-counting', 'icon' => 'bi-clipboard-data'] : null,
                 ])),
             ];

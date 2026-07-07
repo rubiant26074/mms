@@ -43,6 +43,7 @@ use App\Http\Controllers\Sales\CustomerController;
 use App\Http\Controllers\Sales\QuotationController;
 use App\Http\Controllers\Sales\SalesOrderController;
 use App\Http\Controllers\UserSettingsController;
+use App\Http\Controllers\Warehouse\BatchExpiryController;
 use App\Http\Controllers\Warehouse\DeliveryNoteController;
 use App\Http\Controllers\Warehouse\GoodsReceiptController;
 use App\Http\Controllers\Warehouse\MaterialIssueController;
@@ -401,6 +402,17 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
             Route::post('/material-returns', [MaterialReturnController::class, 'store'])->name('material_returns.store');
             Route::post('/material-returns/{materialReturn}/approve', [MaterialReturnController::class, 'approve'])->name('material_returns.approve');
             Route::delete('/material-returns/{materialReturn}', [MaterialReturnController::class, 'destroy'])->name('material_returns.destroy');
+        });
+
+        Route::get('/batch-expiry', [BatchExpiryController::class, 'index'])
+            ->middleware(RequirePermission::class . ':whse_view')
+            ->name('batch_expiry.index');
+        Route::get('/batch-expiry/print', [BatchExpiryController::class, 'print'])
+            ->middleware(RequirePermission::class . ':whse_view')
+            ->name('batch_expiry.print');
+        Route::middleware(RequirePermission::class . ':whse_stock')->group(function (): void {
+            Route::post('/batch-expiry/batches', [BatchExpiryController::class, 'storeBatch'])->name('batch_expiry.store_batch');
+            Route::post('/batch-expiry/movements', [BatchExpiryController::class, 'storeMovement'])->name('batch_expiry.store_movement');
         });
     });
 
