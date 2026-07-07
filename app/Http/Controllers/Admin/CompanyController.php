@@ -7,6 +7,7 @@ use App\Models\CompanyProfile;
 use App\Services\MmsContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class CompanyController extends Controller
@@ -39,7 +40,13 @@ class CompanyController extends Controller
         $company = CompanyProfile::query()->firstOrNew(['id' => 1]);
 
         if ($request->hasFile('logo')) {
-            $data['logo_path'] = str_replace('\\', '/', $request->file('logo')->store('uploads/company', 'public_root'));
+            $logoPath = $this->storeLogo($request);
+            if ($logoPath === null) {
+                return back()->withInput()->withErrors('Upload logo gagal. Pastikan folder public/uploads/company writable di server.');
+            }
+
+            $this->deletePublicFile($company->logo_path);
+            $data['logo_path'] = $logoPath;
         }
 
         $company->fill($data);
@@ -61,5 +68,37 @@ class CompanyController extends Controller
         }
 
         return $themes;
+    }
+
+    private function storeLogo(Request $request): ?string
+    {
+        if (! $request->hasFile('logo')) {
+            return null;
+        }
+
+        try {
+            $disk = Storage::disk('public_root');
+            $directory = 'uploads/company';
+            $disk->makeDirectory($directory);
+
+            $file = $request->file('logo');
+            $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'png');
+            $filename = 'company_logo_' . now()->format('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
+            $path = $file->storeAs($directory, $filename, 'public_root');
+
+            return $path ? str_replace('\\', '/', $path) : null;
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    private function deletePublicFile(?string $path): void
+    {
+        $path = trim((string) $path);
+        if ($path === '' || str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return;
+        }
+
+        Storage::disk('public_root')->delete(ltrim($path, '/'));
     }
 }
