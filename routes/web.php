@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\LegacyController;
+use App\Http\Controllers\Accounting\CoaController;
+use App\Http\Controllers\Accounting\LedgerController;
 use App\Http\Controllers\Ppic\MpsController;
 use App\Http\Controllers\Ppic\SpkController;
 use App\Http\Controllers\Ppic\PurchaseRequestController;
@@ -321,6 +323,22 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::get('/tax/print', [TaxController::class, 'print'])
             ->middleware(RequirePermission::class . ':fin_ar_view')
             ->name('tax.print');
+    });
+
+    Route::prefix('accounting')->name('accounting.')->group(function (): void {
+        Route::middleware(RequirePermission::class . ':acc_view')->group(function (): void {
+            Route::get('/coa', [CoaController::class, 'index'])->name('coa.index');
+            Route::get('/ledger', [LedgerController::class, 'index'])->name('ledger.index');
+            Route::get('/ledger/print', [LedgerController::class, 'print'])->name('ledger.print');
+        });
+        Route::middleware(RequirePermission::class . ':acc_coa_manage')->group(function (): void {
+            Route::get('/coa/create', [CoaController::class, 'create'])->name('coa.create');
+            Route::post('/coa', [CoaController::class, 'store'])->name('coa.store');
+            Route::get('/coa/{coa}/edit', [CoaController::class, 'edit'])->name('coa.edit');
+            Route::put('/coa/{coa}', [CoaController::class, 'update'])->name('coa.update');
+            Route::delete('/coa/{coa}', [CoaController::class, 'destroy'])->name('coa.destroy');
+            Route::post('/coa/reconcile', [CoaController::class, 'reconcile'])->name('coa.reconcile');
+        });
     });
 });
 

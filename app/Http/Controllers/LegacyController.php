@@ -168,6 +168,14 @@ class LegacyController extends Controller
             'fin-tax' => $action === 'print'
                 ? route('finance.tax.print', $request->only(['month', 'year']))
                 : route('finance.tax.index', $request->only(['month', 'year'])),
+            'acc-coa' => match ($action) {
+                'create' => route('accounting.coa.create'),
+                'edit' => $id ? route('accounting.coa.edit', $id) : route('accounting.coa.index'),
+                default => route('accounting.coa.index', $request->only(['type', 'search'])),
+            },
+            'acc-ledger' => $action === 'print'
+                ? route('accounting.ledger.print', $request->only(['start_date', 'end_date', 'coa_id']))
+                : route('accounting.ledger.index', $request->only(['start_date', 'end_date', 'coa_id'])),
             default => null,
         };
 
