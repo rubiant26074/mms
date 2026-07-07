@@ -10,6 +10,7 @@ use App\Http\Controllers\Ppic\MpsController;
 use App\Http\Controllers\Ppic\SpkController;
 use App\Http\Controllers\Ppic\PurchaseRequestController;
 use App\Http\Controllers\Ppic\InventoryController;
+use App\Http\Controllers\Production\TaskController as ProductionTaskController;
 use App\Http\Controllers\Procurement\PurchaseOrderController;
 use App\Http\Controllers\Procurement\RfqController;
 use App\Http\Controllers\Procurement\SupplierController;
@@ -299,6 +300,18 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
             Route::put('/vendor-ratings/{vendorRating}', [VendorRatingController::class, 'update'])->name('vendor_ratings.update');
             Route::delete('/vendor-ratings/{vendorRating}', [VendorRatingController::class, 'destroy'])->name('vendor_ratings.destroy');
         });
+    });
+
+    Route::prefix('production')->name('production.')->group(function (): void {
+        Route::get('/tasks', [ProductionTaskController::class, 'index'])
+            ->middleware(RequirePermission::class . ':prod_view')
+            ->name('tasks.index');
+        Route::get('/tasks/{spk}/manage', [ProductionTaskController::class, 'manage'])
+            ->middleware(RequirePermission::class . ':prod_task_manage')
+            ->name('tasks.manage');
+        Route::post('/tasks/{spk}/assign', [ProductionTaskController::class, 'assign'])
+            ->middleware(RequirePermission::class . ':prod_task_manage')
+            ->name('tasks.assign');
     });
 
     Route::prefix('warehouse')->name('warehouse.')->group(function (): void {

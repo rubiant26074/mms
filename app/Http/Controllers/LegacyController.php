@@ -166,6 +166,9 @@ class LegacyController extends Controller
                 'print' => route('procurement.vendor_ratings.print', $request->only(['period', 'supplier_id'])),
                 default => route('procurement.vendor_ratings.index', $request->only(['period', 'supplier_id'])),
             },
+            'prod-task' => $action === 'manage' && $request->integer('spk_id') > 0
+                ? route('production.tasks.manage', $request->integer('spk_id'))
+                : route('production.tasks.index', $request->only(['status'])),
             'whse-receive' => match ($action) {
                 'create' => route('warehouse.receipts.create', $request->only(['po_id'])),
                 'edit' => $id ? route('warehouse.receipts.edit', $id) : route('warehouse.receipts.index'),

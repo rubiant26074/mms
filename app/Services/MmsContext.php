@@ -141,6 +141,18 @@ class MmsContext
                 ],
             ];
         }
+        if ($can('prod_view') || $can('prod_task_manage') || $can('prod_operator_access')) {
+            $menus[] = [
+                'id' => 'productionMenu',
+                'label' => 'Production',
+                'icon' => 'bi-kanban',
+                'submenu' => array_values(array_filter([
+                    $can('prod_view') ? ['label' => 'Task Assignment', 'url' => route('production.tasks.index'), 'icon' => 'bi-list-task'] : null,
+                    $can('prod_operator_access') ? ['label' => 'Operator Panel', 'url' => 'index.php?page=prod-operator', 'icon' => 'bi-phone'] : null,
+                    $can('prod_view') ? ['label' => 'Laporan Harian', 'url' => 'index.php?page=prod-report', 'icon' => 'bi-file-bar-graph'] : null,
+                ])),
+            ];
+        }
         if ($can('purch_po_view') || $can('purch_vendor_view')) {
             $menus[] = [
                 'id' => 'procurementMenu',
