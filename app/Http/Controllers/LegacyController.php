@@ -181,6 +181,9 @@ class LegacyController extends Controller
             'acc-ledger' => $action === 'print'
                 ? route('accounting.ledger.print', $request->only(['start_date', 'end_date', 'coa_id']))
                 : route('accounting.ledger.index', $request->only(['start_date', 'end_date', 'coa_id'])),
+            'acc-report' => $action === 'print'
+                ? route('accounting.reports.print', $request->only(['type', 'start_date', 'end_date']))
+                : route('accounting.reports.index', $request->only(['type', 'start_date', 'end_date'])),
             default => null,
         };
 

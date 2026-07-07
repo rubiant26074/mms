@@ -4,6 +4,7 @@ use App\Http\Controllers\LegacyController;
 use App\Http\Controllers\Accounting\CoaController;
 use App\Http\Controllers\Accounting\JournalController;
 use App\Http\Controllers\Accounting\LedgerController;
+use App\Http\Controllers\Accounting\ReportController;
 use App\Http\Controllers\Ppic\MpsController;
 use App\Http\Controllers\Ppic\SpkController;
 use App\Http\Controllers\Ppic\PurchaseRequestController;
@@ -333,6 +334,8 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
             Route::get('/journal/print', [JournalController::class, 'print'])->name('journal.print');
             Route::get('/ledger', [LedgerController::class, 'index'])->name('ledger.index');
             Route::get('/ledger/print', [LedgerController::class, 'print'])->name('ledger.print');
+            Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+            Route::get('/reports/print', [ReportController::class, 'print'])->name('reports.print');
         });
         Route::middleware(RequirePermission::class . ':acc_coa_manage')->group(function (): void {
             Route::get('/coa/create', [CoaController::class, 'create'])->name('coa.create');

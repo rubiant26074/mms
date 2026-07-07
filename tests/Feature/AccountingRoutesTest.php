@@ -17,6 +17,8 @@ class AccountingRoutesTest extends TestCase
         $this->actingAs($admin)->get(route('accounting.journal.create'))->assertOk();
         $this->actingAs($admin)->get(route('accounting.journal.print'))->assertOk();
         $this->actingAs($admin)->get(route('accounting.ledger.index'))->assertOk();
+        $this->actingAs($admin)->get(route('accounting.reports.index'))->assertOk();
+        $this->actingAs($admin)->get(route('accounting.reports.print'))->assertOk();
     }
 
     public function test_legacy_coa_url_redirects_to_native_route(): void
@@ -38,5 +40,9 @@ class AccountingRoutesTest extends TestCase
         $this->actingAs($admin)
             ->get('/index.php?page=acc-journal')
             ->assertRedirect(route('accounting.journal.index'));
+
+        $this->actingAs($admin)
+            ->get('/index.php?page=acc-report')
+            ->assertRedirect(route('accounting.reports.index'));
     }
 }
