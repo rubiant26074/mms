@@ -179,6 +179,19 @@ class MmsContext
                 ])),
             ];
         }
+        if ($can('fin_view') || $can('fin_ar_view') || $can('fin_ap_view')) {
+            $menus[] = [
+                'id' => 'financeMenu',
+                'label' => 'Finance',
+                'icon' => 'bi-cash-coin',
+                'submenu' => array_values(array_filter([
+                    $can('fin_ar_view') ? ['label' => 'Accounts Receivable', 'url' => 'index.php?page=fin-ar', 'icon' => 'bi-receipt'] : null,
+                    $can('fin_ap_view') ? ['label' => 'Accounts Payable', 'url' => 'index.php?page=fin-ap', 'icon' => 'bi-wallet2'] : null,
+                    $can('fin_view') ? ['label' => 'Cash / Bank', 'url' => 'index.php?page=fin-cash', 'icon' => 'bi-bank'] : null,
+                    $can('fin_ar_view') ? ['label' => 'Perpajakan', 'url' => route('finance.tax.index'), 'icon' => 'bi-receipt-cutoff'] : null,
+                ])),
+            ];
+        }
         if ($can('owner_kpi') || $can('owner_logs')) {
             $menus[] = [
                 'id' => 'executiveMenu',

@@ -64,6 +64,7 @@ class LegacyController extends Controller
         $roleId = $request->query('role_id');
 
         $route = match ($page) {
+            'dashboard' => route('dashboard'),
             'users' => match ($action) {
                 'create' => route('admin.users.create'),
                 'edit' => $id ? route('admin.users.edit', $id) : route('admin.users.index'),
@@ -108,6 +109,11 @@ class LegacyController extends Controller
                 'create' => route('engineering.items.create'),
                 'edit' => $id ? route('engineering.items.edit', $id) : route('engineering.items.index'),
                 default => route('engineering.items.index', $request->only(['filter_type', 'search'])),
+            },
+            'eng-machines' => match ($action) {
+                'create' => route('admin.machines.create'),
+                'edit' => $id ? route('admin.machines.edit', $id) : route('admin.machines.index'),
+                default => route('admin.machines.index', $request->only(['status', 'search'])),
             },
             'eng-bom' => match ($action) {
                 'create' => route('engineering.boms.create'),
@@ -159,6 +165,9 @@ class LegacyController extends Controller
             },
             'exec-kpi' => route('executive.kpi.index'),
             'exec-logs' => route('executive.logs.index', $request->only(['module', 'search'])),
+            'fin-tax' => $action === 'print'
+                ? route('finance.tax.print', $request->only(['month', 'year']))
+                : route('finance.tax.index', $request->only(['month', 'year'])),
             default => null,
         };
 

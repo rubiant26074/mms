@@ -27,6 +27,10 @@ class EngineeringRoutesTest extends TestCase
             ->assertRedirect(route('engineering.items.index'));
 
         $this->actingAs($admin)
+            ->get('/index.php?page=eng-machines')
+            ->assertRedirect(route('admin.machines.index'));
+
+        $this->actingAs($admin)
             ->get('/index.php?page=eng-bom')
             ->assertRedirect(route('engineering.boms.index'));
 

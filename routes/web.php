@@ -24,6 +24,7 @@ use App\Http\Controllers\Engineering\ItemController as EngineeringItemController
 use App\Http\Controllers\Engineering\PartlistController;
 use App\Http\Controllers\Executive\AuditLogController;
 use App\Http\Controllers\Executive\KpiDashboardController;
+use App\Http\Controllers\Finance\TaxController;
 use App\Http\Middleware\MmsAuthenticate;
 use App\Http\Middleware\RequirePermission;
 use App\Http\Controllers\Sales\CustomerController;
@@ -308,6 +309,18 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::get('/logs', [AuditLogController::class, 'index'])
             ->middleware(RequirePermission::class . ':owner_logs')
             ->name('logs.index');
+    });
+
+    Route::prefix('finance')->name('finance.')->group(function (): void {
+        Route::get('/tax', [TaxController::class, 'index'])
+            ->middleware(RequirePermission::class . ':fin_ar_view')
+            ->name('tax.index');
+        Route::post('/tax/payment', [TaxController::class, 'storePayment'])
+            ->middleware(RequirePermission::class . ':fin_ar_manage')
+            ->name('tax.payment');
+        Route::get('/tax/print', [TaxController::class, 'print'])
+            ->middleware(RequirePermission::class . ':fin_ar_view')
+            ->name('tax.print');
     });
 });
 

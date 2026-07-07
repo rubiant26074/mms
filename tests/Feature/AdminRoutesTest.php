@@ -45,6 +45,10 @@ class AdminRoutesTest extends TestCase
             ->assertRedirect(route('user_settings.edit'));
 
         $this->actingAs($admin)
+            ->get('/index.php?page=dashboard')
+            ->assertRedirect(route('dashboard'));
+
+        $this->actingAs($admin)
             ->get('/index.php?page=admin-company')
             ->assertRedirect(route('admin.company.edit'));
 
