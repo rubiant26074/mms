@@ -59,6 +59,11 @@ class Spk extends Model
         return $this->hasMany(SpkMaterial::class, 'spk_id');
     }
 
+    public function materialIssues(): HasMany
+    {
+        return $this->hasMany(MaterialIssue::class, 'spk_id');
+    }
+
     public function productionAssignments(): HasMany
     {
         return $this->hasMany(ProductionAssignment::class, 'spk_id');

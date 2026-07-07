@@ -173,7 +173,7 @@ class MmsContext
                 'icon' => 'bi-box-seam',
                 'submenu' => array_values(array_filter([
                     ($can('whse_receive_view') || $can('whse_view')) ? ['label' => 'Penerimaan Barang', 'url' => route('warehouse.receipts.index'), 'icon' => 'bi-box-arrow-in-down'] : null,
-                    $can('whse_stock') ? ['label' => 'Material Issue', 'url' => 'index.php?page=whse-issue', 'icon' => 'bi-box-arrow-up'] : null,
+                    $can('whse_stock') ? ['label' => 'Material Issue', 'url' => route('warehouse.material_issues.index'), 'icon' => 'bi-box-arrow-up'] : null,
                     $can('whse_sj_view') ? ['label' => 'Surat Jalan', 'url' => 'index.php?page=whse-sj', 'icon' => 'bi-truck'] : null,
                     ($can('whse_view') || $can('whse_stock')) ? ['label' => 'Material Return', 'url' => 'index.php?page=whse-return', 'icon' => 'bi-arrow-return-left'] : null,
                     $can('whse_view') ? ['label' => 'Batch Expiry', 'url' => 'index.php?page=whse-batch-expiry', 'icon' => 'bi-calendar-x'] : null,

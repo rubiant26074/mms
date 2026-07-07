@@ -44,6 +44,7 @@ use App\Http\Controllers\Sales\QuotationController;
 use App\Http\Controllers\Sales\SalesOrderController;
 use App\Http\Controllers\UserSettingsController;
 use App\Http\Controllers\Warehouse\GoodsReceiptController;
+use App\Http\Controllers\Warehouse\MaterialIssueController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => auth()->check()
@@ -350,8 +351,27 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
             Route::post('/receipts', [GoodsReceiptController::class, 'store'])->name('receipts.store');
             Route::get('/receipts/{receipt}/edit', [GoodsReceiptController::class, 'edit'])->name('receipts.edit');
             Route::put('/receipts/{receipt}', [GoodsReceiptController::class, 'update'])->name('receipts.update');
-            Route::delete('/receipts/{receipt}', [GoodsReceiptController::class, 'destroy'])->name('receipts.destroy');
+        Route::delete('/receipts/{receipt}', [GoodsReceiptController::class, 'destroy'])->name('receipts.destroy');
         });
+
+        Route::get('/material-issues', [MaterialIssueController::class, 'index'])
+            ->middleware(RequirePermission::class . ':whse_stock')
+            ->name('material_issues.index');
+        Route::get('/material-issues/create', [MaterialIssueController::class, 'create'])
+            ->middleware(RequirePermission::class . ':whse_stock')
+            ->name('material_issues.create');
+        Route::post('/material-issues', [MaterialIssueController::class, 'store'])
+            ->middleware(RequirePermission::class . ':whse_stock')
+            ->name('material_issues.store');
+        Route::post('/material-issues/{issue}/approve', [MaterialIssueController::class, 'approve'])
+            ->middleware(RequirePermission::class . ':whse_stock')
+            ->name('material_issues.approve');
+        Route::delete('/material-issues/{issue}', [MaterialIssueController::class, 'destroy'])
+            ->middleware(RequirePermission::class . ':whse_stock')
+            ->name('material_issues.destroy');
+        Route::get('/material-issues/{issue}/print', [MaterialIssueController::class, 'print'])
+            ->middleware(RequirePermission::class . ':whse_stock')
+            ->name('material_issues.print');
     });
 
     Route::prefix('qc')->name('qc.')->group(function (): void {

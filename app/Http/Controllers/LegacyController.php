@@ -177,6 +177,11 @@ class LegacyController extends Controller
                 'edit' => $id ? route('warehouse.receipts.edit', $id) : route('warehouse.receipts.index'),
                 default => route('warehouse.receipts.index', $request->only(['status', 'search'])),
             },
+            'whse-issue' => match ($action) {
+                'create' => route('warehouse.material_issues.create', $request->only(['spk_id'])),
+                'print' => $id ? route('warehouse.material_issues.print', $id) : route('warehouse.material_issues.index'),
+                default => route('warehouse.material_issues.index', $request->only(['status', 'search'])),
+            },
             'qc-incoming' => match ($action) {
                 'inspect' => route('qc.incoming.inspect', $request->only(['gr_id'])),
                 'print' => $id ? route('qc.incoming.print', $id) : route('qc.incoming.index'),
