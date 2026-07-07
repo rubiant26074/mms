@@ -11,6 +11,7 @@ use App\Http\Controllers\Ppic\SpkController;
 use App\Http\Controllers\Ppic\PurchaseRequestController;
 use App\Http\Controllers\Ppic\InventoryController;
 use App\Http\Controllers\Production\OperatorController as ProductionOperatorController;
+use App\Http\Controllers\Production\ReportController as ProductionReportController;
 use App\Http\Controllers\Production\TaskController as ProductionTaskController;
 use App\Http\Controllers\Procurement\PurchaseOrderController;
 use App\Http\Controllers\Procurement\RfqController;
@@ -330,6 +331,9 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::post('/operator/{assignment}/finish', [ProductionOperatorController::class, 'finish'])
             ->middleware(RequirePermission::class . ':prod_operator_access')
             ->name('operator.finish');
+        Route::get('/reports', [ProductionReportController::class, 'index'])
+            ->middleware(RequirePermission::class . ':prod_view')
+            ->name('reports.index');
     });
 
     Route::prefix('warehouse')->name('warehouse.')->group(function (): void {

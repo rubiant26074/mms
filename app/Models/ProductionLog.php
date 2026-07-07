@@ -24,6 +24,13 @@ class ProductionLog extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (ProductionLog $log): void {
+            $log->log_time ??= now();
+        });
+    }
+
     public function assignment(): BelongsTo
     {
         return $this->belongsTo(ProductionAssignment::class, 'assignment_id');

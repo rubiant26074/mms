@@ -171,6 +171,7 @@ class LegacyController extends Controller
                 : route('production.tasks.index', $request->only(['status'])),
             'prod-operator' => route('production.operator.index', $request->only(['mode', 'operator_id'])),
             'prod-scan' => route('production.operator.index', $request->only(['mode', 'operator_id'])),
+            'prod-report' => route('production.reports.index', $request->only(['date', 'activity'])),
             'whse-receive' => match ($action) {
                 'create' => route('warehouse.receipts.create', $request->only(['po_id'])),
                 'edit' => $id ? route('warehouse.receipts.edit', $id) : route('warehouse.receipts.index'),
