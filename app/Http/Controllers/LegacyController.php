@@ -184,6 +184,12 @@ class LegacyController extends Controller
             'acc-report' => $action === 'print'
                 ? route('accounting.reports.print', $request->only(['type', 'start_date', 'end_date']))
                 : route('accounting.reports.index', $request->only(['type', 'start_date', 'end_date'])),
+            'acc-assets' => match ($action) {
+                'create' => route('accounting.assets.create'),
+                'edit' => $id ? route('accounting.assets.edit', $id) : route('accounting.assets.index'),
+                'print' => route('accounting.assets.print', $request->only(['status', 'search'])),
+                default => route('accounting.assets.index', $request->only(['status', 'search'])),
+            },
             default => null,
         };
 

@@ -202,7 +202,7 @@ class MmsContext
                     $can('acc_view') ? ['label' => 'Jurnal Umum', 'url' => route('accounting.journal.index'), 'icon' => 'bi-journal-text'] : null,
                     $can('acc_view') ? ['label' => 'Buku Besar', 'url' => route('accounting.ledger.index'), 'icon' => 'bi-book'] : null,
                     $can('acc_reports') ? ['label' => 'Laporan Keuangan', 'url' => route('accounting.reports.index'), 'icon' => 'bi-file-earmark-bar-graph'] : null,
-                    $can('acc_view') ? ['label' => 'Fixed Assets', 'url' => 'index.php?page=acc-assets', 'icon' => 'bi-building-gear'] : null,
+                    $can('acc_view') ? ['label' => 'Fixed Assets', 'url' => route('accounting.assets.index'), 'icon' => 'bi-building-gear'] : null,
                 ])),
             ];
         }

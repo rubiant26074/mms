@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\LegacyController;
 use App\Http\Controllers\Accounting\CoaController;
+use App\Http\Controllers\Accounting\AssetController;
 use App\Http\Controllers\Accounting\JournalController;
 use App\Http\Controllers\Accounting\LedgerController;
 use App\Http\Controllers\Accounting\ReportController;
@@ -336,6 +337,8 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
             Route::get('/ledger/print', [LedgerController::class, 'print'])->name('ledger.print');
             Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
             Route::get('/reports/print', [ReportController::class, 'print'])->name('reports.print');
+            Route::get('/assets', [AssetController::class, 'index'])->name('assets.index');
+            Route::get('/assets/print', [AssetController::class, 'print'])->name('assets.print');
         });
         Route::middleware(RequirePermission::class . ':acc_coa_manage')->group(function (): void {
             Route::get('/coa/create', [CoaController::class, 'create'])->name('coa.create');
@@ -348,6 +351,14 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::middleware(RequirePermission::class . ':acc_journal_manage')->group(function (): void {
             Route::get('/journal/create', [JournalController::class, 'create'])->name('journal.create');
             Route::post('/journal', [JournalController::class, 'store'])->name('journal.store');
+        });
+        Route::middleware(RequirePermission::class . ':acc_asset_manage')->group(function (): void {
+            Route::get('/assets/create', [AssetController::class, 'create'])->name('assets.create');
+            Route::post('/assets', [AssetController::class, 'store'])->name('assets.store');
+            Route::get('/assets/{asset}/edit', [AssetController::class, 'edit'])->name('assets.edit');
+            Route::put('/assets/{asset}', [AssetController::class, 'update'])->name('assets.update');
+            Route::delete('/assets/{asset}', [AssetController::class, 'destroy'])->name('assets.destroy');
+            Route::post('/assets/depreciate', [AssetController::class, 'depreciate'])->name('assets.depreciate');
         });
     });
 });
