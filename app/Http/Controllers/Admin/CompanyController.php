@@ -37,19 +37,20 @@ class CompanyController extends Controller
             'fonte_token' => ['nullable', 'string', 'max:255'],
             'ui_theme' => ['nullable', 'string', 'max:100'],
             'logo_selected' => ['nullable', 'boolean'],
+            'logo_base64' => ['nullable', 'string'],
             'logo' => ['nullable', 'file', 'max:2048'],
         ]);
-        unset($data['logo_selected']);
+        unset($data['logo_selected'], $data['logo_base64']);
 
         $company = CompanyProfile::query()->firstOrNew(['id' => 1]);
 
-        if ($request->boolean('logo_selected') && $request->file('logo') === null) {
+        if ($request->boolean('logo_selected') && $request->file('logo') === null && ! $request->filled('logo_base64')) {
             return back()->withInput()->withErrors([
                 'logo' => $this->missingUploadMessage(),
             ]);
         }
 
-        if ($request->file('logo') !== null) {
+        if ($request->file('logo') !== null || $request->filled('logo_base64')) {
             try {
                 $logoPath = $this->storeLogo($request);
             } catch (ValidationException $e) {
@@ -118,6 +119,10 @@ class CompanyController extends Controller
 
     private function storeLogo(Request $request): string
     {
+        if ($request->filled('logo_base64')) {
+            return $this->storeBase64Logo($request->string('logo_base64')->toString());
+        }
+
         if (! $request->hasFile('logo')) {
             throw ValidationException::withMessages(['logo' => 'File logo tidak ditemukan pada request.']);
         }
@@ -136,6 +141,46 @@ class CompanyController extends Controller
             throw ValidationException::withMessages(['logo' => 'File yang dipilih bukan gambar yang valid.']);
         }
 
+        $directory = $this->ensureLogoDirectory();
+
+        $filename = 'company_logo_' . now()->format('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
+        $file->move($directory, $filename);
+
+        return 'company-logo/' . $filename;
+    }
+
+    private function storeBase64Logo(string $dataUrl): string
+    {
+        if (! preg_match('/^data:image\/(png|jpe?g);base64,([A-Za-z0-9+\/=\r\n]+)$/i', $dataUrl, $matches)) {
+            throw ValidationException::withMessages(['logo' => 'Data logo dari browser tidak valid. Pilih file JPG atau PNG.']);
+        }
+
+        $extension = strtolower($matches[1]) === 'jpeg' ? 'jpg' : strtolower($matches[1]);
+        $binary = base64_decode(str_replace(["\r", "\n"], '', $matches[2]), true);
+        if ($binary === false) {
+            throw ValidationException::withMessages(['logo' => 'Data logo gagal dibaca oleh server.']);
+        }
+
+        if (strlen($binary) > 2 * 1024 * 1024) {
+            throw ValidationException::withMessages(['logo' => 'Ukuran logo maksimal 2MB.']);
+        }
+
+        if (@getimagesizefromstring($binary) === false) {
+            throw ValidationException::withMessages(['logo' => 'File yang dipilih bukan gambar yang valid.']);
+        }
+
+        $directory = $this->ensureLogoDirectory();
+        $filename = 'company_logo_' . now()->format('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
+
+        if (@file_put_contents($directory . DIRECTORY_SEPARATOR . $filename, $binary) === false) {
+            throw ValidationException::withMessages(['logo' => 'Upload logo gagal. Server tidak bisa menulis file ke storage/app/company.']);
+        }
+
+        return 'company-logo/' . $filename;
+    }
+
+    private function ensureLogoDirectory(): string
+    {
         $directory = storage_path('app/company');
         if (! is_dir($directory) && ! @mkdir($directory, 0775, true) && ! is_dir($directory)) {
             throw ValidationException::withMessages([
@@ -148,10 +193,7 @@ class CompanyController extends Controller
             ]);
         }
 
-        $filename = 'company_logo_' . now()->format('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
-        $file->move($directory, $filename);
-
-        return 'company-logo/' . $filename;
+        return $directory;
     }
 
     private function deletePublicFile(?string $path): void

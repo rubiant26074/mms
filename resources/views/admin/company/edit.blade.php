@@ -63,6 +63,7 @@
                     <div class="mb-3">
                         <label class="form-label">Upload Logo Baru (JPG/PNG)</label>
                         <input type="hidden" name="logo_selected" id="logo_selected" value="0">
+                        <input type="hidden" name="logo_base64" id="logo_base64" value="">
                         <input type="file" name="logo" id="logo" class="form-control" accept="image/png, image/jpeg">
                         <div class="form-text">Biarkan kosong jika tidak ingin mengubah logo.</div>
                     </div>
@@ -80,7 +81,24 @@
 @push('scripts')
 <script>
     document.getElementById('logo')?.addEventListener('change', function () {
-        document.getElementById('logo_selected').value = this.files.length > 0 ? '1' : '0';
+        const selected = this.files.length > 0;
+        document.getElementById('logo_selected').value = selected ? '1' : '0';
+        document.getElementById('logo_base64').value = '';
+
+        if (! selected) {
+            return;
+        }
+
+        const file = this.files[0];
+        if (! ['image/jpeg', 'image/png'].includes(file.type) || file.size > 2 * 1024 * 1024) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function () {
+            document.getElementById('logo_base64').value = String(reader.result || '');
+        };
+        reader.readAsDataURL(file);
     });
 </script>
 @endpush
