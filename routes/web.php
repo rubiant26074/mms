@@ -67,6 +67,9 @@ Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->nam
 Route::get('/company-logo/{filename}', [CompanyController::class, 'logo'])
     ->where('filename', 'company_logo_[A-Za-z0-9_\\-]+\\.(jpg|jpeg|png)')
     ->name('company.logo');
+Route::get('/uploads/company/{filename}', [CompanyController::class, 'legacyLogo'])
+    ->where('filename', '[A-Za-z0-9_\\-]+\\.(jpg|jpeg|png)')
+    ->name('company.legacy-logo');
 
 Route::middleware(MmsAuthenticate::class)->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

@@ -62,7 +62,8 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Upload Logo Baru (JPG/PNG)</label>
-                        <input type="file" name="logo" class="form-control" accept="image/png, image/jpeg">
+                        <input type="hidden" name="logo_selected" id="logo_selected" value="0">
+                        <input type="file" name="logo" id="logo" class="form-control" accept="image/png, image/jpeg">
                         <div class="form-text">Biarkan kosong jika tidak ingin mengubah logo.</div>
                     </div>
                     <hr>
@@ -75,3 +76,11 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.getElementById('logo')?.addEventListener('change', function () {
+        document.getElementById('logo_selected').value = this.files.length > 0 ? '1' : '0';
+    });
+</script>
+@endpush

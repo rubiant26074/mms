@@ -36,10 +36,18 @@ class CompanyController extends Controller
             'running_text' => ['nullable', 'string'],
             'fonte_token' => ['nullable', 'string', 'max:255'],
             'ui_theme' => ['nullable', 'string', 'max:100'],
+            'logo_selected' => ['nullable', 'boolean'],
             'logo' => ['nullable', 'file', 'max:2048'],
         ]);
+        unset($data['logo_selected']);
 
         $company = CompanyProfile::query()->firstOrNew(['id' => 1]);
+
+        if ($request->boolean('logo_selected') && $request->file('logo') === null) {
+            return back()->withInput()->withErrors([
+                'logo' => 'Upload logo gagal terbaca oleh server. Cek upload_max_filesize, post_max_size, dan permission folder storage di hosting.',
+            ]);
+        }
 
         if ($request->file('logo') !== null) {
             try {
@@ -75,6 +83,23 @@ class CompanyController extends Controller
         return response()->file($path, [
             'Cache-Control' => 'public, max-age=31536000',
         ]);
+    }
+
+    public function legacyLogo(string $filename): BinaryFileResponse
+    {
+        if (! preg_match('/^[A-Za-z0-9_\-]+\.(jpg|jpeg|png)$/i', $filename)) {
+            abort(404);
+        }
+
+        foreach ($this->legacyLogoCandidates($filename) as $path) {
+            if (is_file($path)) {
+                return response()->file($path, [
+                    'Cache-Control' => 'public, max-age=31536000',
+                ]);
+            }
+        }
+
+        abort(404);
     }
 
     /**
@@ -178,5 +203,19 @@ class CompanyController extends Controller
         }
 
         return array_values(array_unique($roots));
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function legacyLogoCandidates(string $filename): array
+    {
+        $paths = [storage_path('app/company/' . $filename)];
+
+        foreach ($this->publicRootCandidates() as $root) {
+            $paths[] = $root . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'company' . DIRECTORY_SEPARATOR . $filename;
+        }
+
+        return array_values(array_unique($paths));
     }
 }
