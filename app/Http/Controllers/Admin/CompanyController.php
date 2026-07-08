@@ -8,6 +8,7 @@ use App\Services\MmsContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class CompanyController extends Controller
@@ -34,15 +35,18 @@ class CompanyController extends Controller
             'running_text' => ['nullable', 'string'],
             'fonte_token' => ['nullable', 'string', 'max:255'],
             'ui_theme' => ['nullable', 'string', 'max:100'],
-            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'logo' => ['nullable', 'file', 'max:2048'],
         ]);
 
         $company = CompanyProfile::query()->firstOrNew(['id' => 1]);
 
-        if ($request->hasFile('logo')) {
-            $logoPath = $this->storeLogo($request);
-            if ($logoPath === null) {
-                return back()->withInput()->withErrors('Upload logo gagal. Pastikan folder public/uploads/company writable di server.');
+        if ($request->file('logo') !== null) {
+            try {
+                $logoPath = $this->storeLogo($request);
+            } catch (ValidationException $e) {
+                return back()->withInput()->withErrors($e->errors());
+            } catch (\Throwable $e) {
+                return back()->withInput()->withErrors('Upload logo gagal: ' . $e->getMessage());
             }
 
             $this->deletePublicFile($company->logo_path);
@@ -70,26 +74,38 @@ class CompanyController extends Controller
         return $themes;
     }
 
-    private function storeLogo(Request $request): ?string
+    private function storeLogo(Request $request): string
     {
         if (! $request->hasFile('logo')) {
-            return null;
+            throw ValidationException::withMessages(['logo' => 'File logo tidak ditemukan pada request.']);
         }
 
-        try {
-            $disk = Storage::disk('public_root');
-            $directory = 'uploads/company';
-            $disk->makeDirectory($directory);
-
-            $file = $request->file('logo');
-            $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'png');
-            $filename = 'company_logo_' . now()->format('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
-            $path = $file->storeAs($directory, $filename, 'public_root');
-
-            return $path ? str_replace('\\', '/', $path) : null;
-        } catch (\Throwable) {
-            return null;
+        $file = $request->file('logo');
+        if (! $file || ! $file->isValid()) {
+            throw ValidationException::withMessages(['logo' => 'Upload logo tidak valid atau melebihi batas upload server.']);
         }
+
+        $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: '');
+        if (! in_array($extension, ['jpg', 'jpeg', 'png'], true)) {
+            throw ValidationException::withMessages(['logo' => 'Format logo harus JPG atau PNG.']);
+        }
+
+        if (@getimagesize($file->getRealPath()) === false) {
+            throw ValidationException::withMessages(['logo' => 'File yang dipilih bukan gambar yang valid.']);
+        }
+
+        $directory = 'uploads/company';
+        $targetRoot = $this->writablePublicRoot($directory);
+        if ($targetRoot === null) {
+            throw ValidationException::withMessages([
+                'logo' => 'Upload logo gagal. Folder uploads/company tidak writable pada document root hosting. Buat folder tersebut dan set permission 755/775.',
+            ]);
+        }
+
+        $filename = 'company_logo_' . now()->format('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
+        $file->move($targetRoot . DIRECTORY_SEPARATOR . $directory, $filename);
+
+        return $directory . '/' . $filename;
     }
 
     private function deletePublicFile(?string $path): void
@@ -99,6 +115,56 @@ class CompanyController extends Controller
             return;
         }
 
-        Storage::disk('public_root')->delete(ltrim($path, '/'));
+        $relativePath = ltrim($path, '/');
+        Storage::disk('public_root')->delete($relativePath);
+
+        foreach ($this->publicRootCandidates() as $root) {
+            $file = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativePath);
+            if (is_file($file)) {
+                @unlink($file);
+            }
+        }
+    }
+
+    private function writablePublicRoot(string $directory): ?string
+    {
+        foreach ($this->publicRootCandidates() as $root) {
+            $target = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $directory);
+            if (! is_dir($target) && ! @mkdir($target, 0775, true) && ! is_dir($target)) {
+                continue;
+            }
+
+            $probe = $target . DIRECTORY_SEPARATOR . '.write-test-' . bin2hex(random_bytes(4));
+            if (@file_put_contents($probe, 'ok') !== false) {
+                @unlink($probe);
+
+                return $root;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function publicRootCandidates(): array
+    {
+        $paths = [
+            $_SERVER['DOCUMENT_ROOT'] ?? null,
+            public_path(),
+            base_path('public_html'),
+            dirname(base_path()) . DIRECTORY_SEPARATOR . 'public_html',
+        ];
+
+        $roots = [];
+        foreach ($paths as $path) {
+            $path = $path ? realpath($path) : false;
+            if ($path && is_dir($path)) {
+                $roots[] = $path;
+            }
+        }
+
+        return array_values(array_unique($roots));
     }
 }
