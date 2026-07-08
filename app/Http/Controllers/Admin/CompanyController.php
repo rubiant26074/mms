@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CompanyController extends Controller
 {
@@ -60,6 +61,22 @@ class CompanyController extends Controller
         return redirect()->route('admin.company.edit')->with('success', 'Identitas Perusahaan berhasil diperbarui!');
     }
 
+    public function logo(string $filename): BinaryFileResponse
+    {
+        if (! preg_match('/^company_logo_[A-Za-z0-9_\-]+\.(jpg|jpeg|png)$/i', $filename)) {
+            abort(404);
+        }
+
+        $path = storage_path('app/company/' . $filename);
+        if (! is_file($path)) {
+            abort(404);
+        }
+
+        return response()->file($path, [
+            'Cache-Control' => 'public, max-age=31536000',
+        ]);
+    }
+
     /**
      * @return array<string, string>
      */
@@ -94,18 +111,22 @@ class CompanyController extends Controller
             throw ValidationException::withMessages(['logo' => 'File yang dipilih bukan gambar yang valid.']);
         }
 
-        $directory = 'uploads/company';
-        $targetRoot = $this->writablePublicRoot($directory);
-        if ($targetRoot === null) {
+        $directory = storage_path('app/company');
+        if (! is_dir($directory) && ! @mkdir($directory, 0775, true) && ! is_dir($directory)) {
             throw ValidationException::withMessages([
-                'logo' => 'Upload logo gagal. Folder uploads/company tidak writable pada document root hosting. Buat folder tersebut dan set permission 755/775.',
+                'logo' => 'Upload logo gagal. Folder storage/app/company tidak bisa dibuat di server hosting.',
+            ]);
+        }
+        if (! is_writable($directory)) {
+            throw ValidationException::withMessages([
+                'logo' => 'Upload logo gagal. Folder storage/app/company tidak writable. Set permission folder storage ke 775.',
             ]);
         }
 
         $filename = 'company_logo_' . now()->format('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
-        $file->move($targetRoot . DIRECTORY_SEPARATOR . $directory, $filename);
+        $file->move($directory, $filename);
 
-        return $directory . '/' . $filename;
+        return 'company-logo/' . $filename;
     }
 
     private function deletePublicFile(?string $path): void
@@ -116,6 +137,16 @@ class CompanyController extends Controller
         }
 
         $relativePath = ltrim($path, '/');
+        if (str_starts_with($relativePath, 'company-logo/')) {
+            $filename = basename($relativePath);
+            $file = storage_path('app/company/' . $filename);
+            if (is_file($file)) {
+                @unlink($file);
+            }
+
+            return;
+        }
+
         Storage::disk('public_root')->delete($relativePath);
 
         foreach ($this->publicRootCandidates() as $root) {
@@ -124,25 +155,6 @@ class CompanyController extends Controller
                 @unlink($file);
             }
         }
-    }
-
-    private function writablePublicRoot(string $directory): ?string
-    {
-        foreach ($this->publicRootCandidates() as $root) {
-            $target = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $directory);
-            if (! is_dir($target) && ! @mkdir($target, 0775, true) && ! is_dir($target)) {
-                continue;
-            }
-
-            $probe = $target . DIRECTORY_SEPARATOR . '.write-test-' . bin2hex(random_bytes(4));
-            if (@file_put_contents($probe, 'ok') !== false) {
-                @unlink($probe);
-
-                return $root;
-            }
-        }
-
-        return null;
     }
 
     /**
