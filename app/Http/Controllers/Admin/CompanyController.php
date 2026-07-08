@@ -45,7 +45,7 @@ class CompanyController extends Controller
 
         if ($request->boolean('logo_selected') && $request->file('logo') === null) {
             return back()->withInput()->withErrors([
-                'logo' => 'Upload logo gagal terbaca oleh server. Cek upload_max_filesize, post_max_size, dan permission folder storage di hosting.',
+                'logo' => $this->missingUploadMessage(),
             ]);
         }
 
@@ -180,6 +180,35 @@ class CompanyController extends Controller
                 @unlink($file);
             }
         }
+    }
+
+    private function missingUploadMessage(): string
+    {
+        $uploadError = $_FILES['logo']['error'] ?? null;
+        $errorLabel = is_int($uploadError) ? $this->uploadErrorLabel($uploadError) : 'file tidak masuk ke PHP';
+
+        return sprintf(
+            'Upload logo gagal terbaca oleh server (%s). file_uploads=%s, upload_max_filesize=%s, post_max_size=%s, content_length=%s. Jika file kecil tetap gagal, cek PHP Selector/cPanel: file_uploads harus On dan upload_tmp_dir harus writable.',
+            $errorLabel,
+            ini_get('file_uploads') ? 'On' : 'Off',
+            ini_get('upload_max_filesize') ?: '-',
+            ini_get('post_max_size') ?: '-',
+            $_SERVER['CONTENT_LENGTH'] ?? '-'
+        );
+    }
+
+    private function uploadErrorLabel(int $error): string
+    {
+        return match ($error) {
+            UPLOAD_ERR_INI_SIZE => 'file melebihi upload_max_filesize',
+            UPLOAD_ERR_FORM_SIZE => 'file melebihi batas form',
+            UPLOAD_ERR_PARTIAL => 'upload terputus/partial',
+            UPLOAD_ERR_NO_FILE => 'server menerima request tanpa file',
+            UPLOAD_ERR_NO_TMP_DIR => 'folder temporary upload tidak ada',
+            UPLOAD_ERR_CANT_WRITE => 'server gagal menulis file temporary',
+            UPLOAD_ERR_EXTENSION => 'upload diblokir extension PHP',
+            default => 'error upload tidak dikenal: ' . $error,
+        };
     }
 
     /**

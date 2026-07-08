@@ -102,7 +102,7 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
 
         Route::middleware(RequirePermission::class . ':admin_company_manage')->group(function (): void {
             Route::get('/company', [CompanyController::class, 'edit'])->name('company.edit');
-            Route::put('/company', [CompanyController::class, 'update'])->name('company.update');
+            Route::match(['post', 'put'], '/company', [CompanyController::class, 'update'])->name('company.update');
         });
 
         Route::middleware(RequirePermission::class . ':admin_reset_db')->group(function (): void {

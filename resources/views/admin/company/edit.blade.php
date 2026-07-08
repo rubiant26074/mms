@@ -12,7 +12,7 @@
             <div class="card-body">
                 @include('partials.alerts')
                 <form method="POST" action="{{ route('admin.company.update') }}" enctype="multipart/form-data">
-                    @csrf @method('PUT')
+                    @csrf
                     <div class="text-center mb-4 p-3 bg-light border rounded">
                         <label class="form-label fw-bold d-block">Logo Saat Ini:</label>
                         @if($logoUrl)
