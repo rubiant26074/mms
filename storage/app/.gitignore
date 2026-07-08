@@ -1,4 +1,7 @@
 *
 !private/
 !public/
+!company/
 !.gitignore
+company/*
+!company/.gitkeep
