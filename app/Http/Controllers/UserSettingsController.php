@@ -25,35 +25,58 @@ class UserSettingsController extends Controller
 
     public function updateProfile(Request $request): RedirectResponse
     {
-        $data = $request->validate([
-            'signature_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'avatar_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'face_reference_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:4096'],
+        $request->validate([
+            'signature_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:4096'],
+            'avatar_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:4096'],
+            'face_reference_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:8192'],
         ]);
 
         $user = $this->currentUser();
         $updates = [];
 
-        $signaturePath = $this->storeUploadedImage($request, 'signature_file', 'uploads/signatures', 'sig_' . $user->id);
-        if ($signaturePath !== null) {
-            $this->deletePublicFile($user->signature_path);
-            $updates['signature_path'] = $signaturePath;
-        }
+        $uploads = [
+            'signature_file' => [
+                'column' => 'signature_path',
+                'directory' => 'uploads/signatures',
+                'prefix' => 'sig_' . $user->id,
+                'error' => 'Upload tanda tangan gagal. Pastikan folder public/uploads/signatures writable di server.',
+            ],
+            'avatar_file' => [
+                'column' => 'avatar_path',
+                'directory' => 'uploads/avatars',
+                'prefix' => 'ava_' . $user->id,
+                'error' => 'Upload avatar gagal. Pastikan folder public/uploads/avatars writable di server.',
+            ],
+            'face_reference_file' => [
+                'column' => 'face_reference_path',
+                'directory' => 'uploads/face-reference',
+                'prefix' => 'face_' . $user->id,
+                'error' => 'Upload wajah referensi gagal. Pastikan folder public/uploads/face-reference writable di server.',
+            ],
+        ];
 
-        $avatarPath = $this->storeUploadedImage($request, 'avatar_file', 'uploads/avatars', 'ava_' . $user->id);
-        if ($avatarPath !== null) {
-            $this->deletePublicFile($user->avatar_path);
-            $updates['avatar_path'] = $avatarPath;
-        }
+        foreach ($uploads as $field => $upload) {
+            $path = $this->storeUploadedImage($request, $field, $upload['directory'], $upload['prefix']);
+            if ($path !== null) {
+                $updates[$upload['column']] = $path;
+            } elseif ($request->hasFile($field)) {
+                $this->deletePendingUploads($updates);
 
-        $faceReferencePath = $this->storeUploadedImage($request, 'face_reference_file', 'uploads/face-reference', 'face_' . $user->id);
-        if ($faceReferencePath !== null) {
-            $this->deletePublicFile($user->face_reference_path);
-            $updates['face_reference_path'] = $faceReferencePath;
+                return back()->withErrors($upload['error']);
+            }
         }
 
         if ($updates !== []) {
+            $oldPaths = [];
+            foreach (array_keys($updates) as $column) {
+                $oldPaths[] = $user->{$column};
+            }
+
             $user->forceFill($updates)->save();
+
+            foreach ($oldPaths as $oldPath) {
+                $this->deletePublicFile($oldPath);
+            }
         }
 
         return back()->with('success', $updates === [] ? 'Tidak ada file profil baru yang diunggah.' : 'Profil berhasil diperbarui.');
@@ -94,10 +117,17 @@ class UserSettingsController extends Controller
             return null;
         }
 
-        $file = $request->file($field);
-        $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'jpg');
-        $filename = $prefix . '_' . now()->format('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
-        $path = $file->storeAs($directory, $filename, 'public_root');
+        try {
+            $disk = Storage::disk('public_root');
+            $disk->makeDirectory($directory);
+
+            $file = $request->file($field);
+            $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'jpg');
+            $filename = $prefix . '_' . now()->format('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
+            $path = $file->storeAs($directory, $filename, 'public_root');
+        } catch (\Throwable) {
+            return null;
+        }
 
         return $path ? str_replace('\\', '/', $path) : null;
     }
@@ -110,5 +140,15 @@ class UserSettingsController extends Controller
         }
 
         Storage::disk('public_root')->delete(ltrim($path, '/'));
+    }
+
+    /**
+     * @param array<string, string> $paths
+     */
+    private function deletePendingUploads(array $paths): void
+    {
+        foreach ($paths as $path) {
+            $this->deletePublicFile($path);
+        }
     }
 }
