@@ -244,7 +244,13 @@ class UserSettingsController extends Controller
      */
     private function legacyMediaCandidates(string $directory, string $filename): array
     {
-        $paths = [storage_path('app/user-media/' . $directory . '/' . $filename)];
+        $storageDirectory = match ($directory) {
+            'signatures' => 'signature',
+            'avatars' => 'avatar',
+            'face-reference' => 'face_reference',
+            default => $directory,
+        };
+        $paths = [storage_path('app/user-media/' . $storageDirectory . '/' . $filename)];
         $publicRoots = [
             $_SERVER['DOCUMENT_ROOT'] ?? null,
             public_path(),
