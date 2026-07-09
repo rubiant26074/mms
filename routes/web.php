@@ -70,9 +70,17 @@ Route::get('/company-logo/{filename}', [CompanyController::class, 'logo'])
 Route::get('/uploads/company/{filename}', [CompanyController::class, 'legacyLogo'])
     ->where('filename', '[A-Za-z0-9_\\-]+\\.(jpg|jpeg|png)')
     ->name('company.legacy-logo');
+Route::get('/uploads/{directory}/{filename}', [UserSettingsController::class, 'legacyMedia'])
+    ->where('directory', 'signatures|avatars|face-reference')
+    ->where('filename', '[A-Za-z0-9_\\-]+\\.(jpg|jpeg|png)')
+    ->name('user_settings.legacy-media');
 
 Route::middleware(MmsAuthenticate::class)->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/user-media/{type}/{filename}', [UserSettingsController::class, 'media'])
+        ->where('type', 'signature|avatar|face_reference')
+        ->where('filename', '[A-Za-z0-9_\\-]+\\.(jpg|jpeg|png)')
+        ->name('user_settings.media');
     Route::get('/user-settings', [UserSettingsController::class, 'edit'])->name('user_settings.edit');
     Route::post('/user-settings/profile', [UserSettingsController::class, 'updateProfile'])->name('user_settings.profile');
     Route::post('/user-settings/password', [UserSettingsController::class, 'updatePassword'])->name('user_settings.password');
