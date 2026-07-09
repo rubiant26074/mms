@@ -16,6 +16,7 @@ class CustomerController extends Controller
     {
         $search = trim((string) $request->query('search', ''));
         $customers = Customer::query()
+            ->with('creator:id,fullname,username')
             ->when($search !== '', function ($query) use ($search): void {
                 $term = "%{$search}%";
                 $query->where(function ($sub) use ($term): void {

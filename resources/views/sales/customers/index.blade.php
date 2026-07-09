@@ -78,7 +78,10 @@
                 @forelse($customers as $row)
                     <tr>
                         <td><span class="badge bg-secondary">{{ $row->customer_code ?: '-' }}</span></td>
-                        <td class="fw-bold text-primary">{{ $row->name }}</td>
+                        <td>
+                            <div class="fw-bold text-primary">{{ $row->name }}</div>
+                            <small class="text-muted d-block">Input oleh: {{ $row->creator?->fullname ?: ($row->creator?->username ?: '-') }}</small>
+                        </td>
                         <td><strong>{{ $row->pic }}</strong><br><small class="text-muted"><i class="bi bi-telephone"></i> {{ $row->phone }}</small></td>
                         <td>
                             <small class="d-block text-truncate" style="max-width:250px" title="{{ $row->address }}"><i class="bi bi-geo-alt"></i> {{ $row->address }}</small>
