@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Sales;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,8 +16,10 @@ class CustomerController extends Controller
     public function index(Request $request): View
     {
         $search = trim((string) $request->query('search', ''));
+        $salesBy = (int) $request->query('sales_by', 0);
         $customers = Customer::query()
             ->with('creator:id,fullname,username')
+            ->when($salesBy > 0, fn ($query) => $query->where('created_by', $salesBy))
             ->when($search !== '', function ($query) use ($search): void {
                 $term = "%{$search}%";
                 $query->where(function ($sub) use ($term): void {
@@ -29,8 +32,12 @@ class CustomerController extends Controller
             })
             ->latest('id')
             ->get();
+        $salesUsers = User::query()
+            ->whereIn('id', Customer::query()->whereNotNull('created_by')->select('created_by'))
+            ->orderBy('fullname')
+            ->get(['id', 'fullname', 'username']);
 
-        return view('sales.customers.index', compact('customers', 'search'));
+        return view('sales.customers.index', compact('customers', 'search', 'salesBy', 'salesUsers'));
     }
 
     public function create(): View

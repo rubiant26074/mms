@@ -55,11 +55,19 @@
 <div class="card shadow-sm mb-4 border-start border-4 border-primary">
     <div class="card-body py-3">
         <form method="GET" class="row g-2 align-items-center" id="customer-filter-form">
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <div class="input-group">
                     <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
                     <input type="text" name="search" class="form-control" placeholder="Cari Kode / Nama / PIC / Telepon / Email..." value="{{ $search }}" autocomplete="off">
                 </div>
+            </div>
+            <div class="col-md-3">
+                <select name="sales_by" class="form-select" title="Filter Sales by">
+                    <option value="0">Semua Sales by</option>
+                    @foreach($salesUsers as $salesUser)
+                        <option value="{{ $salesUser->id }}" @selected($salesBy === $salesUser->id)>{{ $salesUser->fullname ?: $salesUser->username }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Filter</button></div>
             <div class="col-md-1"><a href="{{ route('sales.customers.index') }}" class="btn btn-outline-secondary w-100" title="Reset"><i class="bi bi-arrow-clockwise"></i></a></div>
@@ -80,7 +88,7 @@
                         <td><span class="badge bg-secondary">{{ $row->customer_code ?: '-' }}</span></td>
                         <td>
                             <div class="fw-bold text-primary">{{ $row->name }}</div>
-                            <small class="text-muted d-block">Input oleh: {{ $row->creator?->fullname ?: ($row->creator?->username ?: '-') }}</small>
+                            <small class="text-muted d-block">Sales by: {{ $row->creator?->fullname ?: ($row->creator?->username ?: '-') }}</small>
                         </td>
                         <td><strong>{{ $row->pic }}</strong><br><small class="text-muted"><i class="bi bi-telephone"></i> {{ $row->phone }}</small></td>
                         <td>
@@ -111,8 +119,10 @@
 (function () {
     const form = document.getElementById('customer-filter-form');
     const search = form?.querySelector('input[name="search"]');
+    const salesBy = form?.querySelector('select[name="sales_by"]');
     let t;
     search?.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => form.requestSubmit ? form.requestSubmit() : form.submit(), 400); });
+    salesBy?.addEventListener('change', () => form.requestSubmit ? form.requestSubmit() : form.submit());
 })();
 function normalizeHeader(val) { return String(val || '').toLowerCase().trim().replace(/\s+/g, '_'); }
 function detectHeaderRow(row) { return row.map(normalizeHeader).includes('name'); }
