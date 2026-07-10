@@ -69,15 +69,31 @@ class AttendanceController extends Controller
             'type' => ['required', 'in:in,out'],
             'latitude' => ['required', 'numeric'],
             'longitude' => ['required', 'numeric'],
+            'method' => ['required', 'in:selfie_geotag,qr_geotag'],
+            'qr_code' => ['nullable', 'string'],
             'selfie_in' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:4096'],
             'selfie_out' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:4096'],
         ]);
 
-        if (trim((string) $user->face_reference_path) === '') {
-            return back()->withErrors('Wajah belum didaftarkan. Silakan masuk ke User Setting lalu registrasikan wajah terlebih dahulu.');
+        $company = CompanyProfile::query()->find(1) ?? new CompanyProfile();
+
+        // 1. Verifikasi QR Code jika menggunakan metode QR
+        if ($data['method'] === 'qr_geotag') {
+            if (empty($data['qr_code'])) {
+                return back()->withErrors('Scan QR Code wajib dilakukan untuk metode ini.');
+            }
+            $expectedQr = 'MMS-ABSEN-' . md5($company->id . '-' . $company->company_name);
+            if ($data['qr_code'] !== $expectedQr) {
+                return back()->withErrors('Kode QR Absensi tidak valid untuk kantor ini.');
+            }
+        } else {
+            // Validasi selfie jika menggunakan metode Selfie
+            if (trim((string) $user->face_reference_path) === '') {
+                return back()->withErrors('Wajah belum didaftarkan. Silakan masuk ke User Setting lalu registrasikan wajah terlebih dahulu.');
+            }
         }
 
-        $company = CompanyProfile::query()->find(1) ?? new CompanyProfile();
+        // 2. Verifikasi Geolocation GPS
         $distance = $this->distanceMeters(
             (float) $data['latitude'],
             (float) $data['longitude'],
@@ -96,12 +112,15 @@ class AttendanceController extends Controller
             return back()->withErrors("Lokasi Anda di luar radius absensi. Jarak saat ini {$distanceLabel} dari {$officeLabel}.");
         }
 
-        $field = $data['type'] === 'in' ? 'selfie_in' : 'selfie_out';
-        if (! $request->hasFile($field)) {
-            return back()->withErrors('Foto selfie wajib diambil dari kamera depan.');
+        // 3. Simpan / Update Absensi
+        $photoPath = null;
+        if ($data['method'] === 'selfie_geotag') {
+            $field = $data['type'] === 'in' ? 'selfie_in' : 'selfie_out';
+            if (! $request->hasFile($field)) {
+                return back()->withErrors('Foto selfie wajib diambil dari kamera depan.');
+            }
+            $photoPath = $this->storePhoto($request, $field, 'att_' . $data['type'] . '_' . $user->id);
         }
-
-        $photoPath = $this->storePhoto($request, $field, 'att_' . $data['type'] . '_' . $user->id);
 
         if ($data['type'] === 'in') {
             $exists = Attendance::query()
@@ -122,7 +141,7 @@ class AttendanceController extends Controller
                 'clock_in_longitude' => $data['longitude'],
                 'clock_in_distance_meters' => $distance,
                 'status' => $now > '08:15:00' ? 'late' : 'present',
-                'attendance_method' => 'selfie_geotag',
+                'attendance_method' => $data['method'],
             ]);
 
             return back()->with('success', "Berhasil absen masuk pada jam {$now}.");
@@ -140,14 +159,19 @@ class AttendanceController extends Controller
             return back()->withErrors('Anda sudah melakukan absen pulang hari ini.');
         }
 
-        $attendance->update([
+        $updateData = [
             'clock_out' => $now,
-            'clock_out_photo' => $photoPath,
             'clock_out_latitude' => $data['latitude'],
             'clock_out_longitude' => $data['longitude'],
             'clock_out_distance_meters' => $distance,
-            'attendance_method' => 'selfie_geotag',
-        ]);
+            'attendance_method' => $data['method'],
+        ];
+
+        if ($photoPath !== null) {
+            $updateData['clock_out_photo'] = $photoPath;
+        }
+
+        $attendance->update($updateData);
 
         return back()->with('success', "Berhasil absen pulang pada jam {$now}.");
     }

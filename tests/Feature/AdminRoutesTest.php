@@ -25,6 +25,7 @@ class AdminRoutesTest extends TestCase
             route('admin.menu.index'),
             route('user_settings.edit'),
             route('dashboard'),
+            route('hrd.attendance.index'),
         ] as $url) {
             $this->actingAs($admin)->get($url)->assertOk();
         }
