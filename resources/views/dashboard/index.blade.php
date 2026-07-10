@@ -72,7 +72,4 @@
     </div>
 </div>
 
-<div class="alert alert-success border-0 shadow-sm">
-    Dashboard ini berjalan penuh di Laravel dan sudah tidak bergantung pada renderer PHP native lama.
-</div>
 @endsection
