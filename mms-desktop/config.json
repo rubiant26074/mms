@@ -1,0 +1,7 @@
+{
+  "url": "http://127.0.0.1:8000",
+  "appName": "MMS Desktop",
+  "width": 1280,
+  "height": 800,
+  "autoHideMenuBar": true
+}
