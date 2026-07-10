@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\ResetController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SetupWizardController;
+use App\Http\Controllers\Admin\SystemUtilityController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WaLogController;
 use App\Http\Controllers\AuthController;
@@ -123,6 +124,8 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
             Route::get('/setup-wizard', [SetupWizardController::class, 'index'])->name('setup.index');
             Route::post('/setup-wizard', [SetupWizardController::class, 'save'])->name('setup.save');
             Route::get('/wa-logs', [WaLogController::class, 'index'])->name('wa_logs.index');
+            Route::get('/system-utility', [SystemUtilityController::class, 'index'])->name('system.index');
+            Route::post('/system-utility/run', [SystemUtilityController::class, 'runCommand'])->name('system.run');
         });
 
         Route::middleware(RequirePermission::class . ':admin_menu_manage')->group(function (): void {

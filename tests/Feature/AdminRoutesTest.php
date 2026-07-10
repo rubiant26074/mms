@@ -21,6 +21,7 @@ class AdminRoutesTest extends TestCase
             route('admin.reset.index'),
             route('admin.setup.index'),
             route('admin.wa_logs.index'),
+            route('admin.system.index'),
             route('admin.menu.index'),
             route('user_settings.edit'),
         ] as $url) {

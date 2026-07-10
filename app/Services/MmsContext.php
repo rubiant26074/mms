@@ -101,6 +101,7 @@ class MmsContext
                     $can('admin_reset_db') ? ['label' => 'Backup', 'url' => route('admin.backup.index'), 'icon' => 'bi-database-down'] : null,
                     $can('admin_reset_db') ? ['label' => 'Reset', 'url' => route('admin.reset.index'), 'icon' => 'bi-exclamation-triangle'] : null,
                     $can('admin_reset_db') ? ['label' => 'WA Logs', 'url' => route('admin.wa_logs.index'), 'icon' => 'bi-whatsapp'] : null,
+                    $can('admin_reset_db') ? ['label' => 'System Utility', 'url' => route('admin.system.index'), 'icon' => 'bi-terminal'] : null,
                 ])),
             ];
         }
