@@ -92,8 +92,9 @@ body.theme-pro .sidebar-submenu .nav-link.active {
 }
 
 body.theme-pro .sidebar-menu-icon {
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    backdrop-filter: blur(2px);
+    border: none;
+    backdrop-filter: none;
+    background: transparent;
 }
 
 body.theme-pro .dropdown-toggle::after {

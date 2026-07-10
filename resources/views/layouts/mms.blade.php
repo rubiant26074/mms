@@ -24,25 +24,24 @@
         .sidebar-submenu .nav-link { font-size: 0.9em; padding-left: 2.8rem !important; display: flex; align-items: center; gap: 10px; }
         .notif-unread { background-color: #f0f7ff; }
         .sidebar-menu-icon {
-            width: 1.45rem;
-            height: 1.45rem;
-            border-radius: 0.45rem;
+            width: 1.5rem;
+            height: 1.5rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.86rem;
+            font-size: 1.15rem;
             flex-shrink: 0;
         }
-        .tone-blue { color: #0b63f6; background: rgba(11, 99, 246, 0.14); }
-        .tone-teal { color: #0f766e; background: rgba(15, 118, 110, 0.14); }
-        .tone-green { color: #2b8a3e; background: rgba(43, 138, 62, 0.14); }
-        .tone-cyan { color: #0891b2; background: rgba(8, 145, 178, 0.14); }
-        .tone-orange { color: #d97706; background: rgba(217, 119, 6, 0.14); }
-        .tone-red { color: #dc2626; background: rgba(220, 38, 38, 0.14); }
-        .tone-indigo { color: #4f46e5; background: rgba(79, 70, 229, 0.14); }
-        .tone-pink { color: #db2777; background: rgba(219, 39, 119, 0.14); }
-        .tone-yellow { color: #a16207; background: rgba(161, 98, 7, 0.16); }
-        .tone-slate { color: #334155; background: rgba(51, 65, 85, 0.14); }
+        .tone-blue { color: #0b63f6; }
+        .tone-teal { color: #0f766e; }
+        .tone-green { color: #2b8a3e; }
+        .tone-cyan { color: #0891b2; }
+        .tone-orange { color: #d97706; }
+        .tone-red { color: #dc2626; }
+        .tone-indigo { color: #4f46e5; }
+        .tone-pink { color: #db2777; }
+        .tone-yellow { color: #a16207; }
+        .tone-slate { color: #334155; }
     </style>
 </head>
 <body class="{{ $theme['body_class'] }}">
