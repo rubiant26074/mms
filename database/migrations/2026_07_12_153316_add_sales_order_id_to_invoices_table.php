@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::table('invoices', function (Blueprint $table) {
             $table->unsignedBigInteger('delivery_note_id')->nullable()->change();
-            $table->foreignId('sales_order_id')->nullable()->after('delivery_note_id')->constrained('sales_orders')->nullOnDelete();
+            if (! Schema::hasColumn('invoices', 'sales_order_id')) {
+                $table->unsignedBigInteger('sales_order_id')->nullable()->after('delivery_note_id');
+            }
         });
     }
 
@@ -23,8 +25,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('invoices', function (Blueprint $table) {
-            $table->dropForeign(['sales_order_id']);
-            $table->dropColumn('sales_order_id');
+            if (Schema::hasColumn('invoices', 'sales_order_id')) {
+                $table->dropColumn('sales_order_id');
+            }
         });
     }
 };
