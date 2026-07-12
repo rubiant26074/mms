@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PurchaseOrder extends Model
 {
+    public const UPDATED_AT = null;
+
     protected $fillable = [
         'po_number',
         'purchase_request_id',

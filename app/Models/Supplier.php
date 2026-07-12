@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Supplier extends Model
 {
+    public const UPDATED_AT = null;
+
     protected $fillable = [
         'code',
         'name',

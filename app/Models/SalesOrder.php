@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SalesOrder extends Model
 {
+    public const UPDATED_AT = null;
+
     protected $fillable = [
         'so_number',
         'quotation_id',

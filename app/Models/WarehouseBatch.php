@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class WarehouseBatch extends Model
 {
+    public const UPDATED_AT = null;
+
     protected $fillable = [
         'item_id',
         'batch_number',

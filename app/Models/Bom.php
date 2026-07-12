@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Bom extends Model
 {
+    public const UPDATED_AT = null;
+
     protected $table = 'boms';
 
     protected $fillable = ['bom_code', 'item_id', 'qty_result', 'notes', 'description', 'status', 'created_by'];

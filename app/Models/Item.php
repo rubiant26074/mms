@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Item extends Model
 {
+    public const UPDATED_AT = null;
+
     protected $fillable = [
         'customer_id',
         'item_code',

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SupplierBill extends Model
 {
+    public const UPDATED_AT = null;
+
     protected $fillable = [
         'bill_number',
         'supplier_inv_number',
