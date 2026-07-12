@@ -240,15 +240,10 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
     });
 
     Route::prefix('engineering')->name('engineering.')->group(function (): void {
-        Route::middleware(RequirePermission::class . ':eng_items')->group(function (): void {
-            Route::get('/items', [EngineeringItemController::class, 'index'])->name('items.index');
-            Route::get('/items/generate-code', [EngineeringItemController::class, 'generateCode'])->name('items.generate_code');
-            Route::post('/items/import-ajax', [EngineeringItemController::class, 'importAjax'])->name('items.import_ajax');
-            Route::get('/items/create', [EngineeringItemController::class, 'create'])->name('items.create');
-            Route::post('/items', [EngineeringItemController::class, 'store'])->name('items.store');
-            Route::get('/items/{item}/edit', [EngineeringItemController::class, 'edit'])->name('items.edit');
-            Route::put('/items/{item}', [EngineeringItemController::class, 'update'])->name('items.update');
-            Route::delete('/items/{item}', [EngineeringItemController::class, 'destroy'])->name('items.destroy');
+        Route::middleware(RequirePermission::class . ':whse_stock')->group(function (): void {
+            Route::get('/items', fn () => redirect()->route('warehouse.items.index'))->name('items.index');
+            Route::get('/items/create', fn () => redirect()->route('warehouse.items.create'))->name('items.create');
+            Route::get('/items/{item}/edit', fn ($item) => redirect()->route('warehouse.items.edit', $item))->name('items.edit');
         });
 
         Route::middleware(RequirePermission::class . ':eng_bom')->group(function (): void {
@@ -410,6 +405,17 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
     });
 
     Route::prefix('warehouse')->name('warehouse.')->group(function (): void {
+        Route::middleware(RequirePermission::class . ':whse_stock')->group(function (): void {
+            Route::get('/items', [EngineeringItemController::class, 'index'])->name('items.index');
+            Route::get('/items/generate-code', [EngineeringItemController::class, 'generateCode'])->name('items.generate_code');
+            Route::post('/items/import-ajax', [EngineeringItemController::class, 'importAjax'])->name('items.import_ajax');
+            Route::get('/items/create', [EngineeringItemController::class, 'create'])->name('items.create');
+            Route::post('/items', [EngineeringItemController::class, 'store'])->name('items.store');
+            Route::get('/items/{item}/edit', [EngineeringItemController::class, 'edit'])->name('items.edit');
+            Route::put('/items/{item}', [EngineeringItemController::class, 'update'])->name('items.update');
+            Route::delete('/items/{item}', [EngineeringItemController::class, 'destroy'])->name('items.destroy');
+        });
+
         Route::get('/receipts', [GoodsReceiptController::class, 'index'])
             ->middleware(RequirePermission::class . ':whse_receive_view')
             ->name('receipts.index');

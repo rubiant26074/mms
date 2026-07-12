@@ -58,7 +58,7 @@ class ItemController extends Controller
         }
         Item::query()->create($data);
 
-        return redirect()->route('engineering.items.index')->with('success', 'Data tersimpan!');
+        return redirect()->route('warehouse.items.index')->with('success', 'Data tersimpan!');
     }
 
     public function edit(Item $item): View
@@ -80,7 +80,7 @@ class ItemController extends Controller
         }
         $item->update($data);
 
-        return redirect()->route('engineering.items.index')->with('success', 'Data tersimpan!');
+        return redirect()->route('warehouse.items.index')->with('success', 'Data tersimpan!');
     }
 
     public function destroy(Item $item): RedirectResponse
@@ -88,7 +88,7 @@ class ItemController extends Controller
         try {
             $item->delete();
 
-            return redirect()->route('engineering.items.index')->with('success', 'Barang berhasil dihapus.');
+            return redirect()->route('warehouse.items.index')->with('success', 'Barang berhasil dihapus.');
         } catch (\Throwable) {
             return back()->withErrors('Gagal menghapus. Barang mungkin sudah digunakan dalam transaksi.');
         }

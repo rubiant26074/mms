@@ -19,6 +19,9 @@ class MenuController extends Controller
         $access = $editUser
             ? DB::table('user_custom_menus')->where('user_id', $editUser->id)->pluck('menu_slug')->all()
             : [];
+        if (in_array('eng-items', $access, true)) {
+            $access[] = 'whse-items';
+        }
 
         return view('admin.menu.index', [
             'mode' => $mode,
@@ -41,7 +44,10 @@ class MenuController extends Controller
     public function saveUserMenu(Request $request, User $user): RedirectResponse
     {
         $this->ensureSchema();
-        $menus = array_values(array_unique(array_filter((array) $request->input('menus', []))));
+        $menus = array_map(
+            fn (string $menu): string => $menu === 'eng-items' ? 'whse-items' : $menu,
+            array_values(array_unique(array_filter((array) $request->input('menus', []))))
+        );
 
         DB::transaction(function () use ($user, $menus): void {
             DB::table('user_custom_menus')->where('user_id', $user->id)->delete();
@@ -85,7 +91,6 @@ class MenuController extends Controller
                 ['slug' => 'hrd-employees', 'label' => 'Karyawan'],
             ]],
             ['type' => 'group', 'label' => 'Engineering', 'children' => [
-                ['slug' => 'eng-items', 'label' => 'Master Barang'],
                 ['slug' => 'eng-bom', 'label' => 'BOM'],
                 ['slug' => 'eng-partlist', 'label' => 'Partlist & Drawing'],
             ]],
@@ -105,6 +110,7 @@ class MenuController extends Controller
                 ['slug' => 'prod-report', 'label' => 'Laporan Harian'],
             ]],
             ['type' => 'group', 'label' => 'Warehouse', 'children' => [
+                ['slug' => 'whse-items', 'label' => 'Master Barang'],
                 ['slug' => 'whse-receive', 'label' => 'Penerimaan Barang'],
                 ['slug' => 'whse-issue', 'label' => 'Material Issue'],
                 ['slug' => 'whse-sj', 'label' => 'Surat Jalan'],

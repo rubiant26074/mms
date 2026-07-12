@@ -14,7 +14,7 @@
         <p class="text-muted">Database Material, Sparepart, dan Finish Good.</p>
     </div>
     <div class="col-md-6 text-end">
-        <a href="{{ route('engineering.items.create') }}" class="btn btn-primary shadow-sm"><i class="bi bi-plus-lg"></i> Tambah Barang</a>
+        <a href="{{ route('warehouse.items.create') }}" class="btn btn-primary shadow-sm"><i class="bi bi-plus-lg"></i> Tambah Barang</a>
         <button type="button" class="btn btn-outline-success shadow-sm ms-2" data-bs-toggle="modal" data-bs-target="#importItemsModal"><i class="bi bi-file-earmark-excel"></i> Import Excel</button>
     </div>
 </div>
@@ -33,7 +33,7 @@
                 </select>
             </div>
             <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Filter</button></div>
-            <div class="col-md-1"><a href="{{ route('engineering.items.index') }}" class="btn btn-outline-secondary w-100" title="Reset"><i class="bi bi-arrow-clockwise"></i></a></div>
+            <div class="col-md-1"><a href="{{ route('warehouse.items.index') }}" class="btn btn-outline-secondary w-100" title="Reset"><i class="bi bi-arrow-clockwise"></i></a></div>
         </form>
     </div>
 </div>
@@ -62,7 +62,7 @@
                         <td class="text-center {{ $lowStock ? 'text-danger fw-bold' : 'text-dark fw-bold' }}">{{ $row->current_stock + 0 }} @if($lowStock)<i class="bi bi-exclamation-circle-fill ms-1" title="Stok Menipis"></i>@endif</td>
                         <td class="text-center">{{ $row->unit }}</td>
                         @if($canSeePrice)<td class="text-end text-success fw-bold">Rp {{ number_format((float) $row->base_price, 0, ',', '.') }}</td>@endif
-                        <td class="text-center"><div class="btn-group"><a href="{{ route('engineering.items.edit', $row) }}" class="btn btn-sm btn-outline-warning text-dark"><i class="bi bi-pencil"></i></a><form method="POST" action="{{ route('engineering.items.destroy', $row) }}" onsubmit="return confirm('Hapus barang {{ $row->item_code }}?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form></div></td>
+                        <td class="text-center"><div class="btn-group"><a href="{{ route('warehouse.items.edit', $row) }}" class="btn btn-sm btn-outline-warning text-dark"><i class="bi bi-pencil"></i></a><form method="POST" action="{{ route('warehouse.items.destroy', $row) }}" onsubmit="return confirm('Hapus barang {{ $row->item_code }}?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form></div></td>
                     </tr>
                 @empty
                     <tr><td colspan="{{ $canSeePrice ? 7 : 6 }}" class="text-center py-5 text-muted">Data tidak ditemukan.</td></tr>
@@ -122,7 +122,7 @@ document.getElementById('btnItemsImport')?.addEventListener('click', function ()
             Object.entries(headers).forEach(([k, idx]) => obj[k] = rows[i][idx] ?? '');
             if (obj.item_code || obj.item_name) data.push(obj);
         }
-        fetch('{{ route('engineering.items.import_ajax') }}', {
+        fetch('{{ route('warehouse.items.import_ajax') }}', {
             method: 'POST',
             headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
             body: JSON.stringify({ rows: data, mode: document.getElementById('itemsImportMode').value })

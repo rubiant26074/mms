@@ -36,6 +36,7 @@
     <div class="card-header bg-white py-3"><h6 class="m-0 fw-bold text-primary"><i class="bi bi-lightning-charge"></i> Tindakan Cepat Gudang</h6></div>
     <div class="card-body">
         <div class="d-flex flex-wrap gap-2">
+            <a href="{{ route('warehouse.items.index') }}" class="btn btn-outline-primary"><i class="bi bi-box-seam me-1"></i> Data Master Items</a>
             <a href="{{ route('warehouse.receipts.index') }}" class="btn btn-outline-primary"><i class="bi bi-box-arrow-in-down me-1"></i> Penerimaan Barang</a>
             <a href="{{ route('warehouse.material_issues.index') }}" class="btn btn-outline-primary"><i class="bi bi-box-arrow-up me-1"></i> Pengeluaran Bahan (Issue)</a>
             <a href="{{ route('warehouse.delivery_notes.index') }}" class="btn btn-outline-primary"><i class="bi bi-truck me-1"></i> Surat Jalan (Delivery)</a>

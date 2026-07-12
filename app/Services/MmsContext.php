@@ -129,13 +129,12 @@ class MmsContext
                 ])),
             ];
         }
-        if ($can('eng_items') || $can('eng_bom') || $can('eng_view')) {
+        if ($can('eng_bom') || $can('eng_view')) {
             $menus[] = [
                 'id' => 'engineeringMenu',
                 'label' => 'Engineering',
                 'icon' => 'bi-tools',
                 'submenu' => array_values(array_filter([
-                    $can('eng_items') ? ['label' => 'Items', 'url' => route('engineering.items.index'), 'icon' => 'bi-box'] : null,
                     $can('eng_bom') ? ['label' => 'BOM', 'url' => route('engineering.boms.index'), 'icon' => 'bi-diagram-3'] : null,
                     $can('eng_view') ? ['label' => 'Part List', 'url' => route('engineering.partlists.index'), 'icon' => 'bi-list-check'] : null,
                 ])),
@@ -185,6 +184,7 @@ class MmsContext
                 'label' => 'Warehouse',
                 'icon' => 'bi-box-seam',
                 'submenu' => array_values(array_filter([
+                    $can('whse_stock') ? ['label' => 'Items', 'url' => route('warehouse.items.index'), 'icon' => 'bi-box'] : null,
                     ($can('whse_receive_view') || $can('whse_view')) ? ['label' => 'Penerimaan Barang', 'url' => route('warehouse.receipts.index'), 'icon' => 'bi-box-arrow-in-down'] : null,
                     $can('whse_stock') ? ['label' => 'Material Issue', 'url' => route('warehouse.material_issues.index'), 'icon' => 'bi-box-arrow-up'] : null,
                     $can('whse_sj_view') ? ['label' => 'Surat Jalan', 'url' => route('warehouse.delivery_notes.index'), 'icon' => 'bi-truck'] : null,
@@ -267,6 +267,9 @@ class MmsContext
                         ->where('user_id', $user->id)
                         ->pluck('menu_slug')
                         ->all();
+                    if (in_array('eng-items', $allowedSlugs, true)) {
+                        $allowedSlugs[] = 'whse-items';
+                    }
 
                     // Always allow dashboard
                     $allowedSlugs[] = 'dashboard';
@@ -287,7 +290,6 @@ class MmsContext
                         route('hrd.payroll.index') => 'hrd-payroll',
                         route('hrd.employees.index') => 'hrd-employees',
 
-                        route('engineering.items.index') => 'eng-items',
                         route('engineering.boms.index') => 'eng-bom',
                         route('engineering.partlists.index') => 'eng-partlist',
 
@@ -305,6 +307,7 @@ class MmsContext
                         route('production.operator.index') => 'prod-scan',
                         route('production.reports.index') => 'prod-report',
 
+                        route('warehouse.items.index') => 'whse-items',
                         route('warehouse.receipts.index') => 'whse-receive',
                         route('warehouse.material_issues.index') => 'whse-issue',
                         route('warehouse.delivery_notes.index') => 'whse-sj',

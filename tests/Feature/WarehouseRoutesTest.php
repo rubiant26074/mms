@@ -11,6 +11,8 @@ class WarehouseRoutesTest extends TestCase
     {
         $admin = User::query()->where('username', 'admin')->firstOrFail();
 
+        $this->actingAs($admin)->get(route('warehouse.items.index'))->assertOk();
+        $this->actingAs($admin)->get(route('warehouse.items.create'))->assertOk();
         $this->actingAs($admin)->get(route('warehouse.receipts.index'))->assertOk();
         $this->actingAs($admin)->get(route('warehouse.receipts.create'))->assertOk();
     }

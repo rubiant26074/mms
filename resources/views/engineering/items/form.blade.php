@@ -9,7 +9,7 @@
             <div class="card-header bg-primary text-white"><h5 class="mb-0">{{ $isEdit ? 'Edit Barang' : 'Tambah Barang Baru' }}</h5></div>
             <div class="card-body">
                 @include('partials.alerts')
-                <form method="POST" enctype="multipart/form-data" action="{{ $isEdit ? route('engineering.items.update', $item) : route('engineering.items.store') }}">
+                <form method="POST" enctype="multipart/form-data" action="{{ $isEdit ? route('warehouse.items.update', $item) : route('warehouse.items.store') }}">
                     @csrf
                     @if($isEdit) @method('PUT') @endif
                     <div class="row bg-light p-3 rounded mb-3 border">
@@ -32,7 +32,7 @@
                     </div>
                     <div class="mb-3"><label class="fw-bold text-danger"><i class="bi bi-file-earmark-pdf"></i> Upload Drawing (PDF/IMG)</label><input type="file" name="drawing_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png"><div class="form-text small">Max 5MB.</div>@if($item->drawing_file)<div class="mt-2"><a href="{{ asset($item->drawing_file) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> Lihat Drawing Saat Ini</a></div>@endif</div>
                     <div class="mb-3"><label>Deskripsi / Spesifikasi</label><textarea name="description" class="form-control" rows="3">{{ old('description', $item->description) }}</textarea></div>
-                    <div class="d-flex justify-content-between mt-4"><a href="{{ route('engineering.items.index') }}" class="btn btn-secondary">Batal</a><button class="btn btn-primary px-5">Simpan Data</button></div>
+                    <div class="d-flex justify-content-between mt-4"><a href="{{ route('warehouse.items.index') }}" class="btn btn-secondary">Batal</a><button class="btn btn-primary px-5">Simpan Data</button></div>
                 </form>
             </div>
         </div>
@@ -49,7 +49,7 @@
     function generateCode() {
         if (isEdit) return;
         if (!customer.value && ownership.value === 'customer' && type.value !== 'consumable') { code.value = ''; return; }
-        const url = new URL('{{ route('engineering.items.generate_code') }}', window.location.origin);
+        const url = new URL('{{ route('warehouse.items.generate_code') }}', window.location.origin);
         url.searchParams.set('customer_id', customer.value);
         url.searchParams.set('type', ownership.value);
         url.searchParams.set('item_type', type.value);

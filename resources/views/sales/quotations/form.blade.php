@@ -66,7 +66,60 @@
 <script>
 (function () {
     const tbody = document.querySelector('#itemsTable tbody');
+    const fields = ['item_code[]', 'item_name[]', 'material[]', 'ownership[]', 'unit[]', 'qty[]', 'price[]'];
     const rupiah = n => new Intl.NumberFormat('id-ID').format(Math.round(n || 0));
+    const cleanNumber = value => {
+        let text = String(value ?? '').trim();
+        if (!text) return '';
+        text = text.replace(/[^\d,.\-]/g, '');
+        if (text.includes(',') && text.includes('.')) text = text.replace(/\./g, '').replace(',', '.');
+        else if (text.includes(',')) text = text.replace(',', '.');
+        else if ((text.match(/\./g) || []).length > 1 || /^\d{1,3}(\.\d{3})+$/.test(text)) text = text.replace(/\./g, '');
+        return text;
+    };
+    const normalizeOwnership = value => {
+        const text = String(value ?? '').trim().toLowerCase();
+        return ['customer', 'cust', 'consignment', 'konsinyasi'].includes(text) ? 'customer' : 'internal';
+    };
+    const rowValues = row => fields.map(name => row.querySelector(`[name="${name}"]`));
+    const addRow = () => {
+        const row = tbody.querySelector('tr').cloneNode(true);
+        row.querySelectorAll('input').forEach(input => input.value = input.name === 'qty[]' ? '1' : '');
+        row.querySelectorAll('select').forEach(select => select.value = 'internal');
+        row.querySelector('.row-subtotal').textContent = '0';
+        tbody.appendChild(row);
+        return row;
+    };
+    const parseClipboard = text => text
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n')
+        .split('\n')
+        .filter(row => row.trim() !== '')
+        .map(row => row.split('\t'));
+    const headerMap = row => {
+        const aliases = {
+            item_code: ['kode', 'kode item', 'kode barang', 'code', 'item code', 'item_code'],
+            item_name: ['nama', 'nama item', 'nama barang', 'item', 'item name', 'description', 'deskripsi'],
+            material: ['material', 'spec', 'spesifikasi', 'specification'],
+            ownership: ['ownership', 'kepemilikan', 'owner'],
+            unit: ['unit', 'uom', 'satuan'],
+            qty: ['qty', 'quantity', 'jumlah'],
+            price: ['harga', 'harga satuan', 'price', 'unit price']
+        };
+        const normalized = row.map(cell => String(cell ?? '').trim().toLowerCase());
+        const map = {};
+        Object.entries(aliases).forEach(([field, names]) => {
+            const idx = normalized.findIndex(cell => names.includes(cell));
+            if (idx >= 0) map[field] = idx;
+        });
+        return Object.keys(map).length >= 2 ? map : null;
+    };
+    const setField = (input, value) => {
+        if (!input) return;
+        if (input.name === 'ownership[]') input.value = normalizeOwnership(value);
+        else if (['qty[]', 'price[]'].includes(input.name)) input.value = cleanNumber(value);
+        else input.value = String(value ?? '').trim();
+    };
     function recalc() {
         let total = 0;
         tbody.querySelectorAll('tr').forEach(row => {
@@ -87,10 +140,36 @@
     document.addEventListener('input', e => { if (e.target.matches('.calc,#discountAmount,#taxMode,#ppnPercent')) recalc(); });
     document.addEventListener('change', e => { if (e.target.matches('#taxMode')) recalc(); });
     document.getElementById('addRow')?.addEventListener('click', () => {
-        const row = tbody.querySelector('tr').cloneNode(true);
-        row.querySelectorAll('input').forEach(input => input.value = input.name === 'qty[]' ? '1' : '');
-        row.querySelectorAll('select').forEach(select => select.value = 'internal');
-        tbody.appendChild(row);
+        addRow();
+        recalc();
+    });
+    document.addEventListener('paste', e => {
+        const target = e.target;
+        if (!target.closest('#itemsTable tbody') || !target.matches('input,select')) return;
+
+        const rows = parseClipboard(e.clipboardData?.getData('text/plain') || '');
+        if (!rows.length || (rows.length === 1 && rows[0].length === 1)) return;
+
+        e.preventDefault();
+        const bodyRows = Array.from(tbody.querySelectorAll('tr'));
+        const startRow = bodyRows.indexOf(target.closest('tr'));
+        const startCol = Math.max(0, fields.indexOf(target.name));
+        const headers = headerMap(rows[0]);
+        const dataRows = headers ? rows.slice(1) : rows;
+        const fieldKeys = ['item_code', 'item_name', 'material', 'ownership', 'unit', 'qty', 'price'];
+
+        dataRows.forEach((cells, offset) => {
+            let row = tbody.querySelectorAll('tr')[startRow + offset];
+            if (!row) row = addRow();
+
+            if (headers) {
+                fieldKeys.forEach(key => setField(row.querySelector(`[name="${key}[]"]`), cells[headers[key]] ?? ''));
+            } else {
+                const inputs = rowValues(row);
+                cells.forEach((cell, idx) => setField(inputs[startCol + idx], cell));
+            }
+        });
+
         recalc();
     });
     document.addEventListener('click', e => {

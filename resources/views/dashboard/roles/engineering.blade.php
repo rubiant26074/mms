@@ -36,7 +36,6 @@
     <div class="card-header bg-white py-3"><h6 class="m-0 fw-bold text-primary"><i class="bi bi-lightning-charge"></i> Tindakan Cepat Engineering</h6></div>
     <div class="card-body">
         <div class="d-flex flex-wrap gap-2">
-            <a href="{{ route('engineering.items.index') }}" class="btn btn-outline-primary"><i class="bi bi-box-seam me-1"></i> Data Master Items</a>
             <a href="{{ route('engineering.boms.index') }}" class="btn btn-outline-primary"><i class="bi bi-diagram-3-fill me-1"></i> Kelola Struktur BOM</a>
             <a href="{{ route('engineering.partlists.index') }}" class="btn btn-outline-primary"><i class="bi bi-list-check me-1"></i> Daftar Part List</a>
         </div>
