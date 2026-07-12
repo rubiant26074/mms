@@ -352,7 +352,7 @@ class AccountsReceivableController extends Controller
             ->where(function ($query) use ($selectedId): void {
                 $query->whereDoesntHave('invoices', fn ($inv) => $inv->where('status', '!=', 'cancelled'));
                 if ($selectedId) {
-                    $query->orWhereKey($selectedId);
+                    $query->orWhere('id', $selectedId);
                 }
             })
             ->latest('id')
@@ -392,7 +392,7 @@ class AccountsReceivableController extends Controller
             ->where(function ($query) use ($selectedId): void {
                 $query->whereDoesntHave('invoices', fn ($inv) => $inv->where('status', '!=', 'cancelled'));
                 if ($selectedId) {
-                    $query->orWhereKey($selectedId);
+                    $query->orWhere('id', $selectedId);
                 }
             })
             ->latest('id')
