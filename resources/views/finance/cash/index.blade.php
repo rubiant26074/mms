@@ -10,7 +10,7 @@
         <p class="text-muted">Kelola pemasukan dan pengeluaran umum di luar transaksi SO/Invoice.</p>
     </div>
     <div class="col-md-6 text-end">
-        @if(auth()->user()?->hasPermission('fin_ap_manage'))
+        @if(auth()->user()?->hasPermission('fin_cash_manage'))
             <a href="{{ route('finance.cash.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Input Transaksi Kas</a>
         @endif
     </div>
@@ -89,7 +89,7 @@
                             <td class="text-end fw-bold {{ $row->transaction_type === 'income' ? 'text-success' : 'text-danger' }}">Rp {{ number_format((float) $row->amount, 0, ',', '.') }}</td>
                             <td class="text-center"><span class="badge {{ $statusBadge }}">{{ strtoupper($row->status) }}</span></td>
                             <td class="text-center">
-                                @if(auth()->user()?->hasPermission('fin_ap_manage'))
+                                @if(auth()->user()?->hasPermission('fin_cash_manage'))
                                     <div class="btn-group">
                                         @if($row->status === 'draft')
                                             <a href="{{ route('finance.cash.edit', $row) }}" class="btn btn-sm btn-warning text-dark"><i class="bi bi-pencil"></i></a>

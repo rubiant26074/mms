@@ -78,11 +78,15 @@ Route::match(['get', 'post'], '/uploads/{directory}/{filename}', [UserSettingsCo
 
 Route::get('/run-migration-discount', function () {
     try {
-        $result = \Illuminate\Support\Facades\Artisan::call('migrate', [
+        $res1 = \Illuminate\Support\Facades\Artisan::call('migrate', [
             '--path' => 'database/migrations/2026_07_12_151015_add_discount_columns_to_quotations_table.php',
             '--force' => true
         ]);
-        return 'Migration successful! Result: ' . $result . '<br><br><span style="color:green;font-weight:bold;">Tabel berhasil diperbarui! Silakan kembali ke aplikasi dan buat/edit penawaran harga Anda.</span>';
+        $res2 = \Illuminate\Support\Facades\Artisan::call('migrate', [
+            '--path' => 'database/migrations/2026_07_12_152555_add_fin_cash_manage_permission.php',
+            '--force' => true
+        ]);
+        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . '<br><br><span style="color:green;font-weight:bold;">Tabel berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
     } catch (\Exception $e) {
         return 'Migration failed: ' . $e->getMessage();
     }
@@ -592,7 +596,7 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::get('/cash/print', [CashController::class, 'print'])
             ->middleware(RequirePermission::class . ':fin_view')
             ->name('cash.print');
-        Route::middleware(RequirePermission::class . ':fin_ap_manage')->group(function (): void {
+        Route::middleware(RequirePermission::class . ':fin_cash_manage')->group(function (): void {
             Route::get('/cash/create', [CashController::class, 'create'])->name('cash.create');
             Route::post('/cash', [CashController::class, 'store'])->name('cash.store');
             Route::get('/cash/{transaction}/edit', [CashController::class, 'edit'])->name('cash.edit');
