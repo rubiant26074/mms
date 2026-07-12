@@ -16,7 +16,7 @@
                         <div class="col-md-3"><label class="fw-bold">No. Quotation</label><input type="text" class="form-control bg-light fw-bold" value="{{ $quotation->quote_number }}" readonly></div>
                         <div class="col-md-3"><label>Customer <span class="text-danger">*</span></label><select name="customer_id" class="form-select" required><option value="">- Pilih Customer -</option>@foreach($customers as $customer)<option value="{{ $customer->id }}" @selected((int) old('customer_id', $quotation->customer_id) === $customer->id)>{{ $customer->name }}</option>@endforeach</select></div>
                         <div class="col-md-2"><label>Tanggal</label><input type="date" name="quote_date" class="form-control" value="{{ old('quote_date', optional($quotation->quote_date)->format('Y-m-d') ?: now()->toDateString()) }}" required></div>
-                        <div class="col-md-2"><label>Payment Terms</label><input type="text" name="payment_terms" class="form-control" value="{{ old('payment_terms', $quotation->payment_terms ?: 'Net 30 Days') }}"></div>
+                        <div class="col-md-2"><label>Payment Terms</label><select name="payment_terms" class="form-select">@foreach(['Cash','Net 14 Days','Net 30 Days','Net 60 Days'] as $term)<option value="{{ $term }}" @selected(old('payment_terms', $quotation->payment_terms ?: 'Net 30 Days') === $term)>{{ $term }}</option>@endforeach</select></div>
                         <div class="col-md-2"><label>Attachment</label><input type="file" name="attachment" class="form-control">@if($quotation->attachment)<small><a href="{{ asset($quotation->attachment) }}" target="_blank">Lihat lampiran</a></small>@endif</div>
                     </div>
                     <div class="row g-3 mb-3">
