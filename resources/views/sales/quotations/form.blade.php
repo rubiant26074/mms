@@ -27,7 +27,7 @@
                     </div>
                     <div class="table-responsive mb-3">
                         <table class="table table-bordered align-middle" id="itemsTable">
-                            <thead class="table-light"><tr><th>Kode</th><th>Nama Item</th><th>Material/Spec</th><th>Ownership</th><th>Unit</th><th width="100">Qty</th><th width="150">Harga</th><th width="150">Subtotal</th><th width="60"></th></tr></thead>
+                            <thead class="table-light"><tr><th>Kode</th><th>Nama Item</th><th>Material/Spec</th><th>Ownership</th><th width="100">Qty</th><th>Unit</th><th width="150">Harga</th><th width="150">Subtotal</th><th width="60"></th></tr></thead>
                             <tbody>
                             @foreach($items as $item)
                                 <tr>
@@ -35,8 +35,8 @@
                                     <td><input name="item_name[]" class="form-control" required value="{{ old('item_name.' . $loop->index, $item->item_name_manual ?: $item->temp_item_name) }}"></td>
                                     <td><input name="material[]" class="form-control" value="{{ old('material.' . $loop->index, $item->material_manual ?: $item->temp_spec) }}"></td>
                                     <td><select name="ownership[]" class="form-select"><option value="internal" @selected($item->ownership !== 'customer')>Internal</option><option value="customer" @selected($item->ownership === 'customer')>Customer</option></select></td>
-                                    <td><input name="unit[]" class="form-control" value="{{ old('unit.' . $loop->index, $item->unit_manual ?: $item->temp_uom) }}"></td>
                                     <td><input name="qty[]" type="number" step="0.01" min="0" class="form-control calc qty" value="{{ old('qty.' . $loop->index, $item->qty ?: 1) }}"></td>
+                                    <td><input name="unit[]" class="form-control" value="{{ old('unit.' . $loop->index, $item->unit_manual ?: $item->temp_uom) }}"></td>
                                     <td><input name="price[]" type="number" step="0.01" min="0" class="form-control calc price" value="{{ old('price.' . $loop->index, $item->unit_price ?: 0) }}"></td>
                                     <td class="text-end row-subtotal">0</td>
                                     <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-row"><i class="bi bi-trash"></i></button></td>
@@ -66,7 +66,7 @@
 <script>
 (function () {
     const tbody = document.querySelector('#itemsTable tbody');
-    const fields = ['item_code[]', 'item_name[]', 'material[]', 'ownership[]', 'unit[]', 'qty[]', 'price[]'];
+    const fields = ['item_code[]', 'item_name[]', 'material[]', 'ownership[]', 'qty[]', 'unit[]', 'price[]'];
     const rupiah = n => new Intl.NumberFormat('id-ID').format(Math.round(n || 0));
     const cleanNumber = value => {
         let text = String(value ?? '').trim();
@@ -156,7 +156,7 @@
         const startCol = Math.max(0, fields.indexOf(target.name));
         const headers = headerMap(rows[0]);
         const dataRows = headers ? rows.slice(1) : rows;
-        const fieldKeys = ['item_code', 'item_name', 'material', 'ownership', 'unit', 'qty', 'price'];
+        const fieldKeys = ['item_code', 'item_name', 'material', 'ownership', 'qty', 'unit', 'price'];
 
         dataRows.forEach((cells, offset) => {
             let row = tbody.querySelectorAll('tr')[startRow + offset];
