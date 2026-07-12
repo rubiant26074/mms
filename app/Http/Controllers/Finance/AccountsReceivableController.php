@@ -348,7 +348,7 @@ class AccountsReceivableController extends Controller
     {
         return \App\Models\SalesOrder::query()
             ->with('customer')
-            ->whereIn('status', ['approved', 'in_production', 'ready_for_delivery', 'sent', 'won'])
+            ->whereIn('status', ['confirmed', 'in_production', 'delivered', 'completed'])
             ->where(function ($query) use ($selectedId): void {
                 $query->whereDoesntHave('invoices', fn ($inv) => $inv->where('status', '!=', 'cancelled'));
                 if ($selectedId) {
