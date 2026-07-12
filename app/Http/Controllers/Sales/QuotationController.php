@@ -192,6 +192,7 @@ class QuotationController extends Controller
     {
         return view('sales.quotations.print', [
             'quotation' => $quotation->load(['customer', 'items', 'creator', 'approver']),
+            'company' => app(\App\Services\MmsContext::class)->company(),
         ]);
     }
 
