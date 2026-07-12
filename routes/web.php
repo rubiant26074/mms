@@ -76,6 +76,18 @@ Route::match(['get', 'post'], '/uploads/{directory}/{filename}', [UserSettingsCo
     ->where('filename', '[A-Za-z0-9_\\-]+\\.(jpg|jpeg|png)')
     ->name('user_settings.legacy-media');
 
+Route::get('/run-migration-discount', function () {
+    try {
+        $result = \Illuminate\Support\Facades\Artisan::call('migrate', [
+            '--path' => 'database/migrations/2026_07_12_151015_add_discount_columns_to_quotations_table.php',
+            '--force' => true
+        ]);
+        return 'Migration successful! Result: ' . $result . '<br><br><span style="color:green;font-weight:bold;">Tabel berhasil diperbarui! Silakan kembali ke aplikasi dan buat/edit penawaran harga Anda.</span>';
+    } catch (\Exception $e) {
+        return 'Migration failed: ' . $e->getMessage();
+    }
+});
+
 Route::middleware(MmsAuthenticate::class)->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::match(['get', 'post'], '/user-media/{type}/{filename}', [UserSettingsController::class, 'media'])
