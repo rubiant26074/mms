@@ -91,6 +91,11 @@
                                     <form method="POST" action="{{ route('sales.quotations.workflow', [$row, 'lost']) }}" onsubmit="return confirm('Lost?')">@csrf<button class="btn btn-dark">Lost</button></form>
                                     <form method="POST" action="{{ route('sales.quotations.workflow', [$row, 'revise']) }}" onsubmit="return confirm('Buat Revisi?')">@csrf<button class="btn btn-warning text-dark"><i class="bi bi-arrow-repeat"></i> Revise</button></form>
                                 @endif
+                                @if($statusView === 'won')
+                                    @if(auth()->user()?->hasPermission('sales_so_manage'))
+                                        <a href="{{ route('sales.orders.create', ['quote_id' => $row->id]) }}" class="btn btn-success fw-bold" title="Buat Sales Order"><i class="bi bi-cart-plus"></i> Buat SO</a>
+                                    @endif
+                                @endif
                             </div>
                         </td>
                     </tr>
