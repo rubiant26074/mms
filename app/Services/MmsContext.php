@@ -255,6 +255,112 @@ class MmsContext
             ],
         ];
 
+        // Filter based on Custom Menu settings
+        if ($user->role?->role_slug !== 'admin') {
+            try {
+                $menuMode = \Illuminate\Support\Facades\DB::table('system_settings')
+                    ->where('setting_key', 'menu_mode')
+                    ->value('setting_value') ?: 'role';
+
+                if ($menuMode === 'custom') {
+                    $allowedSlugs = \Illuminate\Support\Facades\DB::table('user_custom_menus')
+                        ->where('user_id', $user->id)
+                        ->pluck('menu_slug')
+                        ->all();
+
+                    // Always allow dashboard
+                    $allowedSlugs[] = 'dashboard';
+
+                    $urlToSlugMap = [
+                        route('admin.users.index') => 'users',
+                        route('admin.roles.index') => 'roles',
+                        route('admin.company.edit') => 'admin-company',
+                        route('admin.machines.index') => 'admin-machines',
+                        route('admin.menu.index') => 'admin-menu',
+                        route('admin.wa_logs.index') => 'admin-wa_logs',
+
+                        route('sales.customers.index') => 'sales-customers',
+                        route('sales.quotations.index') => 'sales-quote',
+                        route('sales.orders.index') => 'sales-so',
+
+                        route('hrd.attendance.index') => 'hrd-attendance',
+                        route('hrd.payroll.index') => 'hrd-payroll',
+                        route('hrd.employees.index') => 'hrd-employees',
+
+                        route('engineering.items.index') => 'eng-items',
+                        route('engineering.boms.index') => 'eng-bom',
+                        route('engineering.partlists.index') => 'eng-partlist',
+
+                        route('ppic.spk.index') => 'ppic-spk',
+                        route('ppic.mps.index') => 'ppic-mps',
+                        route('ppic.purchase_requests.index') => 'ppic-pr',
+                        route('ppic.inventory.index') => 'ppic-inventory',
+
+                        route('procurement.orders.index') => 'purch-po',
+                        route('procurement.suppliers.index') => 'purch-vendor',
+                        route('procurement.vendor_ratings.index') => 'purch-vendor',
+                        route('procurement.rfqs.index') => 'purch-po',
+
+                        route('production.tasks.index') => 'prod-task',
+                        route('production.operator.index') => 'prod-scan',
+                        route('production.reports.index') => 'prod-report',
+
+                        route('warehouse.receipts.index') => 'whse-receive',
+                        route('warehouse.material_issues.index') => 'whse-issue',
+                        route('warehouse.delivery_notes.index') => 'whse-sj',
+                        route('warehouse.material_returns.index') => 'whse-return',
+                        route('warehouse.batch_expiry.index') => 'whse-expiry',
+                        route('warehouse.cycle_counting.index') => 'whse-counting',
+
+                        route('qc.incoming.index') => 'qc-incoming',
+                        route('qc.production.index') => 'qc-production',
+                        route('qc.ncr.index') => 'qc-ncr',
+
+                        route('finance.ar.index') => 'fin-ar',
+                        route('finance.tax.index') => 'fin-ar',
+                        route('finance.ap.index') => 'fin-ap',
+                        route('finance.cash.index') => 'fin-cash',
+                        route('accounting.coa.index') => 'acc-coa',
+                        route('accounting.journal.index') => 'acc-journal',
+                        route('accounting.ledger.index') => 'acc-journal',
+                        route('accounting.reports.index') => 'acc-report',
+                        route('accounting.assets.index') => 'acc-report',
+
+                        route('tv.lobby') => 'tv-lobby',
+                        route('tv.executive') => 'tv-exec',
+                        route('tv.production') => 'tv-prod',
+                    ];
+
+                    $filteredMenus = [];
+                    foreach ($menus as $menu) {
+                        if (isset($menu['submenu'])) {
+                            $filteredSubmenu = [];
+                            foreach ($menu['submenu'] as $sub) {
+                                $url = $sub['url'] ?? '';
+                                $slug = $urlToSlugMap[$url] ?? null;
+                                if ($slug === null || in_array($slug, $allowedSlugs, true)) {
+                                    $filteredSubmenu[] = $sub;
+                                }
+                            }
+                            if (count($filteredSubmenu) > 0) {
+                                $menu['submenu'] = $filteredSubmenu;
+                                $filteredMenus[] = $menu;
+                            }
+                        } else {
+                            $url = $menu['url'] ?? '';
+                            $slug = $urlToSlugMap[$url] ?? 'dashboard';
+                            if (in_array($slug, $allowedSlugs, true)) {
+                                $filteredMenus[] = $menu;
+                            }
+                        }
+                    }
+                    $menus = $filteredMenus;
+                }
+            } catch (\Throwable $e) {
+                // Fail-safe
+            }
+        }
+
         return $menus;
     }
 

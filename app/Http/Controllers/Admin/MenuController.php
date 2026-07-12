@@ -79,6 +79,11 @@ class MenuController extends Controller
                 ['slug' => 'sales-quote', 'label' => 'Penawaran'],
                 ['slug' => 'sales-so', 'label' => 'Sales Order'],
             ]],
+            ['type' => 'group', 'label' => 'HRD', 'children' => [
+                ['slug' => 'hrd-attendance', 'label' => 'Absensi'],
+                ['slug' => 'hrd-payroll', 'label' => 'Payroll'],
+                ['slug' => 'hrd-employees', 'label' => 'Karyawan'],
+            ]],
             ['type' => 'group', 'label' => 'Engineering', 'children' => [
                 ['slug' => 'eng-items', 'label' => 'Master Barang'],
                 ['slug' => 'eng-bom', 'label' => 'BOM'],
@@ -98,6 +103,14 @@ class MenuController extends Controller
                 ['slug' => 'prod-task', 'label' => 'Task Assignment'],
                 ['slug' => 'prod-scan', 'label' => 'Operator Scan'],
                 ['slug' => 'prod-report', 'label' => 'Laporan Harian'],
+            ]],
+            ['type' => 'group', 'label' => 'Warehouse', 'children' => [
+                ['slug' => 'whse-receive', 'label' => 'Penerimaan Barang'],
+                ['slug' => 'whse-issue', 'label' => 'Material Issue'],
+                ['slug' => 'whse-sj', 'label' => 'Surat Jalan'],
+                ['slug' => 'whse-return', 'label' => 'Material Return'],
+                ['slug' => 'whse-expiry', 'label' => 'Batch Expiry'],
+                ['slug' => 'whse-counting', 'label' => 'Cycle Counting'],
             ]],
             ['type' => 'group', 'label' => 'QC', 'children' => [
                 ['slug' => 'qc-incoming', 'label' => 'QC Incoming'],
