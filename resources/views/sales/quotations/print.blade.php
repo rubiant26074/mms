@@ -108,7 +108,7 @@
 
         <table class="summary-table">
             <tr><td class="lbl">Subtotal</td><td class="text-right">Rp {{ number_format($totalBruto, 0, ',', '.') }}</td></tr>
-            <tr><td class="lbl">Discount</td><td class="text-right">Rp {{ number_format((float) $quotation->discount_amount, 0, ',', '.') }}</td></tr>
+            <tr><td class="lbl">{{ $quotation->discount_type === 'percent' ? 'Discount (' . ($quotation->discount_value + 0) . '%)' : 'Discount' }}</td><td class="text-right">Rp {{ number_format((float) $quotation->discount_amount, 0, ',', '.') }}</td></tr>
             <tr><td class="lbl">PPN ({{ $quotation->ppn_percent + 0 }}%)</td><td class="text-right">Rp {{ number_format((float) $quotation->tax_amount, 0, ',', '.') }}</td></tr>
             <tr class="grand"><td>GRAND TOTAL</td><td class="text-right">Rp {{ number_format((float) $quotation->grand_total, 0, ',', '.') }}</td></tr>
         </table>

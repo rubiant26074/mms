@@ -20,10 +20,24 @@
                         <div class="col-md-2"><label>Attachment</label><input type="file" name="attachment" class="form-control">@if($quotation->attachment)<small><a href="{{ asset($quotation->attachment) }}" target="_blank">Lihat lampiran</a></small>@endif</div>
                     </div>
                     <div class="row g-3 mb-3">
-                        <div class="col-md-2"><label>Mode PPN</label><select name="tax_mode" id="taxMode" class="form-select"><option value="exclude" @selected(!old('tax_mode') && !$quotation->tax_included || old('tax_mode') === 'exclude')>Exclude PPN</option><option value="include" @selected(old('tax_mode') === 'include' || (!old('tax_mode') && $quotation->tax_included))>Include PPN</option></select></div>
-                        <div class="col-md-2"><label>PPN (%)</label><input type="number" name="ppn_percent" id="ppnPercent" class="form-control" min="0.01" max="100" step="0.01" value="{{ old('ppn_percent', $quotation->ppn_percent ?: 11) }}"></div>
-                        <div class="col-md-2"><label>Discount</label><input type="number" name="discount_amount" id="discountAmount" class="form-control" min="0" step="0.01" value="{{ old('discount_amount', $quotation->discount_amount ?: 0) }}"></div>
-                        <div class="col-md-6"><label>Notes</label><input type="text" name="notes" class="form-control" value="{{ old('notes', $quotation->notes) }}"></div>
+                        <div class="col-md-3"><label>Mode PPN</label><select name="tax_mode" id="taxMode" class="form-select"><option value="exclude" @selected(!old('tax_mode') && !$quotation->tax_included || old('tax_mode') === 'exclude')>Exclude PPN</option><option value="include" @selected(old('tax_mode') === 'include' || (!old('tax_mode') && $quotation->tax_included))>Include PPN</option></select></div>
+                        <div class="col-md-3"><label>PPN (%)</label><input type="number" name="ppn_percent" id="ppnPercent" class="form-control" min="0.01" max="100" step="0.01" value="{{ old('ppn_percent', $quotation->ppn_percent ?: 11) }}"></div>
+                        <div class="col-md-3">
+                            <label>Discount</label>
+                            <div class="input-group">
+                                <select name="discount_type" id="discountType" class="form-select calc" style="max-width: 85px;">
+                                    <option value="fixed" @selected(old('discount_type', $quotation->discount_type ?? 'fixed') === 'fixed')>Rp</option>
+                                    <option value="percent" @selected(old('discount_type', $quotation->discount_type ?? 'fixed') === 'percent')>%</option>
+                                </select>
+                                <input type="number" name="discount_value" id="discountValue" class="form-control calc" min="0" step="0.01" value="{{ old('discount_value', $quotation->discount_value ?? ($quotation->discount_amount ?: 0)) }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-12">
+                            <label>Notes</label>
+                            <textarea name="notes" class="form-control" rows="3" placeholder="Contoh:&#10;- Harga termasuk material&#10;- Harga tidak termasuk pengiriman&#10;- Lama pekerjaan 2 minggu">{{ old('notes', $quotation->notes) }}</textarea>
+                        </div>
                     </div>
                     <div class="table-responsive mb-3">
                         <table class="table table-bordered align-middle" id="itemsTable">
@@ -129,7 +143,15 @@
             total += sub;
             row.querySelector('.row-subtotal').textContent = rupiah(sub);
         });
-        const discount = Math.min(Math.max(parseFloat(document.getElementById('discountAmount').value || 0), 0), total);
+        const discType = document.getElementById('discountType').value;
+        const discValue = parseFloat(document.getElementById('discountValue').value || 0);
+        let discount = 0;
+        if (discType === 'percent') {
+            discount = total * (discValue / 100);
+        } else {
+            discount = discValue;
+        }
+        discount = Math.min(Math.max(discount, 0), total);
         const subtotal = Math.max(0, total - discount);
         const tax = document.getElementById('taxMode').value === 'include' ? subtotal * (parseFloat(document.getElementById('ppnPercent').value || 11) / 100) : 0;
         document.getElementById('txtSubtotal').textContent = rupiah(total);
@@ -137,8 +159,8 @@
         document.getElementById('txtTax').textContent = rupiah(tax);
         document.getElementById('txtGrand').textContent = rupiah(subtotal + tax);
     }
-    document.addEventListener('input', e => { if (e.target.matches('.calc,#discountAmount,#taxMode,#ppnPercent')) recalc(); });
-    document.addEventListener('change', e => { if (e.target.matches('#taxMode')) recalc(); });
+    document.addEventListener('input', e => { if (e.target.matches('.calc,#taxMode,#ppnPercent')) recalc(); });
+    document.addEventListener('change', e => { if (e.target.matches('#taxMode,.calc')) recalc(); });
     document.getElementById('addRow')?.addEventListener('click', () => {
         addRow();
         recalc();

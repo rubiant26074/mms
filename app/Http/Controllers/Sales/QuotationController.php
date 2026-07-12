@@ -73,7 +73,7 @@ class QuotationController extends Controller
         $taxIncluded = $payload['tax_mode'] === 'include';
 
         DB::transaction(function () use ($payload, $computed, $attachment, $taxIncluded): void {
-            unset($payload['tax_mode'], $payload['discount_amount']);
+            unset($payload['tax_mode']);
             $quotation = Quotation::query()->create($payload + [
                 'quote_number' => $this->nextQuoteNumber(),
                 'tax_included' => $taxIncluded,
@@ -121,7 +121,7 @@ class QuotationController extends Controller
         $taxIncluded = $payload['tax_mode'] === 'include';
 
         DB::transaction(function () use ($quotation, $payload, $computed, $attachment, $taxIncluded): void {
-            unset($payload['tax_mode'], $payload['discount_amount']);
+            unset($payload['tax_mode']);
             $quotation->update($payload + [
                 'tax_included' => $taxIncluded,
                 'subtotal' => $computed['subtotal'],
@@ -204,7 +204,8 @@ class QuotationController extends Controller
             'payment_terms' => ['nullable', 'string', 'max:100'],
             'ppn_percent' => ['required', 'numeric', 'min:0.01', 'max:100'],
             'tax_mode' => ['required', 'in:include,exclude'],
-            'discount_amount' => ['nullable', 'numeric', 'min:0'],
+            'discount_type' => ['required', 'in:fixed,percent'],
+            'discount_value' => ['nullable', 'numeric', 'min:0'],
             'notes' => ['nullable', 'string'],
             'attachment' => ['nullable', 'file', 'max:5120', 'mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx'],
         ]);
@@ -256,7 +257,14 @@ class QuotationController extends Controller
             ];
         }
 
-        $discount = min(max((float) $request->input('discount_amount', 0), 0), $total);
+        $discType = $request->input('discount_type', 'fixed');
+        $discVal = (float) $request->input('discount_value', 0);
+        if ($discType === 'percent') {
+            $discount = $total * ($discVal / 100);
+        } else {
+            $discount = $discVal;
+        }
+        $discount = min(max($discount, 0), $total);
         $subtotal = max(0, $total - $discount);
         $tax = $request->input('tax_mode') === 'include' ? $subtotal * ((float) $request->input('ppn_percent', 11) / 100) : 0.0;
 
