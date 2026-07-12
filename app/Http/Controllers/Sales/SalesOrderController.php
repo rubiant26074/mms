@@ -180,7 +180,10 @@ class SalesOrderController extends Controller
 
     public function print(SalesOrder $order): View
     {
-        return view('sales.orders.print', ['order' => $order->load(['customer', 'items.item', 'creator', 'approver'])]);
+        return view('sales.orders.print', [
+            'order' => $order->load(['customer', 'items.item', 'creator', 'approver']),
+            'company' => app(\App\Services\MmsContext::class)->company(),
+        ]);
     }
 
     private function formView(SalesOrder $order, $items, bool $isEdit): View
