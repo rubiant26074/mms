@@ -41,8 +41,34 @@
                                 <option value="{{ $so->id }}" @selected((int) old('sales_order_id', $salesOrder?->id) === $so->id)>{{ $so->so_number }} - {{ $so->customer?->name }}</option>
                             @endforeach
                         </select>
-                        @if($isEdit && old('ref_type', $refType ?? 'sj') === 'so')<input type="hidden" name="sales_order_id" value="{{ $salesOrder?->id }}">@endif
                     </div>
+
+                    <div class="mb-2">
+                        <label>Tipe Tagihan</label>
+                        <select id="invoiceType" name="invoice_type" class="form-select" @disabled($isEdit) onchange="updateInvoiceTypeFields()">
+                            <option value="normal" @selected(old('invoice_type', $invoice->invoice_type ?? 'normal') === 'normal')>Normal / Pelunasan</option>
+                            <option value="dp" @selected(old('invoice_type', $invoice->invoice_type ?? 'normal') === 'dp')>Uang Muka (DP)</option>
+                        </select>
+                    </div>
+
+                    <div id="dpFieldsSection" style="display: {{ old('invoice_type', $invoice->invoice_type ?? 'normal') === 'dp' ? 'block' : 'none' }}">
+                        <div class="mb-2">
+                            <label>Tipe Uang Muka</label>
+                            <select id="dpType" name="dp_type" class="form-select" @disabled($isEdit) onchange="updateDpCalculations()">
+                                <option value="percent" @selected(old('dp_type', $invoice->dp_percent ? 'percent' : 'nominal') === 'percent')>Persentase (%)</option>
+                                <option value="nominal" @selected(old('dp_type', $invoice->dp_percent ? 'percent' : 'nominal') === 'nominal')>Nominal Rupiah (Rp)</option>
+                            </select>
+                        </div>
+                        <div class="mb-2" id="dpPercentGroup" style="display: {{ old('dp_type', $invoice->dp_percent ? 'percent' : 'nominal') === 'percent' ? 'block' : 'none' }};">
+                            <label>Nilai Uang Muka (%)</label>
+                            <input type="number" name="dp_percent" id="dpPercentInput" class="form-control" min="0" max="100" step="0.01" value="{{ old('dp_percent', $invoice->dp_percent ? $invoice->dp_percent + 0 : '') }}" @disabled($isEdit) oninput="updateDpCalculations()">
+                        </div>
+                        <div class="mb-2" id="dpAmountGroup" style="display: {{ old('dp_type', $invoice->dp_percent ? 'percent' : 'nominal') === 'nominal' ? 'block' : 'none' }};">
+                            <label>Nilai Uang Muka (Rp)</label>
+                            <input type="text" name="dp_amount" id="dpAmountInput" class="form-control text-end" value="{{ old('dp_amount', $invoice->invoice_type === 'dp' ? number_format($invoice->subtotal, 0, ',', '.') : '') }}" @disabled($isEdit) oninput="updateDpCalculations()">
+                        </div>
+                    </div>
+
                     <div class="mb-2"><label>Tanggal Invoice</label><input type="date" name="invoice_date" class="form-control" value="{{ old('invoice_date', optional($invoice->invoice_date)->format('Y-m-d') ?: now()->toDateString()) }}" required></div>
                     <div class="mb-2"><label>Jatuh Tempo</label><input type="date" name="due_date" class="form-control" value="{{ old('due_date', optional($invoice->due_date)->format('Y-m-d') ?: now()->addDays(30)->toDateString()) }}" required></div>
                     <div class="mb-2"><label>Catatan</label><textarea name="notes" class="form-control" rows="2">{{ old('notes', $invoice->notes) }}</textarea></div>
@@ -63,10 +89,14 @@
                         @endforelse
                         </tbody>
                         <tfoot>
-                            <tr><td colspan="3" class="text-end">Subtotal :</td><td class="text-end fw-bold">Rp {{ number_format($totals['subtotal'], 0, ',', '.') }}</td></tr>
-                            <tr><td colspan="3" class="text-end align-middle">Diskon (Rp) :</td><td><input type="text" name="discount_amount" class="form-control text-end" value="{{ old('discount_amount', number_format($totals['discount'], 0, ',', '.')) }}"></td></tr>
-                            <tr><td colspan="3" class="text-end">PPN :</td><td class="text-end">Rp {{ number_format($totals['tax'], 0, ',', '.') }}</td></tr>
-                            <tr class="bg-primary text-white"><td colspan="3" class="text-end fw-bold">GRAND TOTAL :</td><td class="text-end fw-bold fs-5">Rp {{ number_format($totals['grand'], 0, ',', '.') }}</td></tr>
+                            <tr><td colspan="3" class="text-end">Subtotal :</td><td class="text-end fw-bold">Rp <span id="lblSubtotal">{{ number_format($totals['subtotal'], 0, ',', '.') }}</span></td></tr>
+                            <tr id="dpSubtractionRow" style="display: {{ ($totals['dp_subtraction'] ?? 0) > 0 ? 'table-row' : 'none' }}">
+                                <td colspan="3" class="text-end text-danger fw-bold">Uang Muka (DP) :</td>
+                                <td class="text-end text-danger fw-bold">-Rp <span id="lblDpSubtraction">{{ number_format($totals['dp_subtraction'] ?? 0, 0, ',', '.') }}</span></td>
+                            </tr>
+                            <tr><td colspan="3" class="text-end align-middle">Diskon (Rp) :</td><td><input type="text" name="discount_amount" id="discountInput" class="form-control text-end" value="{{ old('discount_amount', number_format($totals['discount'], 0, ',', '.')) }}" oninput="recalc()"></td></tr>
+                            <tr><td colspan="3" class="text-end">PPN :</td><td class="text-end">Rp <span id="lblPpn">{{ number_format($totals['tax'], 0, ',', '.') }}</span></td></tr>
+                            <tr class="bg-primary text-white"><td colspan="3" class="text-end fw-bold">GRAND TOTAL :</td><td class="text-end fw-bold fs-5">Rp <span id="lblGrandTotal">{{ number_format($totals['grand'], 0, ',', '.') }}</span></td></tr>
                         </tfoot>
                     </table>
                 </div>
@@ -77,6 +107,19 @@
 </form>
 
 <script>
+const baseSubtotal = {{ (float) ($refType === 'sj' && $deliveryNote ? $lines->sum('total') : ($refType === 'so' && $salesOrder ? $lines->sum('total') : 0)) }};
+const existingDpAmount = {{ (float) ($existingDp ?? 0) }};
+const ppnPercent = 11;
+
+function cleanNumber(str) {
+    if (!str) return 0;
+    return parseFloat(str.replace(/[^0-9,-]/g, '').replace(',', '.')) || 0;
+}
+
+function formatNumber(num) {
+    return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num);
+}
+
 function updateRefFields() {
     const refType = document.getElementById('refType').value;
     const sjSection = document.getElementById('sjFieldSection');
@@ -98,6 +141,94 @@ function updateRefFields() {
         sjSelect.value = '';
     }
 }
+
+function updateInvoiceTypeFields() {
+    const type = document.getElementById('invoiceType').value;
+    const dpFieldsSection = document.getElementById('dpFieldsSection');
+    const tableBody = document.querySelector('table tbody');
+
+    if (type === 'dp') {
+        dpFieldsSection.style.display = 'block';
+        if (tableBody && !{{ $isEdit ? 'true' : 'false' }}) {
+            tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted font-italic">Uang Muka (DP) - Detail barang disembunyikan</td></tr>`;
+        }
+    } else {
+        dpFieldsSection.style.display = 'none';
+    }
+    recalc();
+}
+
+// Keep it globally bound for element actions
+window.updateInvoiceTypeFields = updateInvoiceTypeFields;
+
+function updateDpCalculations() {
+    const dpType = document.getElementById('dpType').value;
+    const dpPercentGroup = document.getElementById('dpPercentGroup');
+    const dpAmountGroup = document.getElementById('dpAmountGroup');
+    const dpPercentInput = document.getElementById('dpPercentInput');
+    const dpAmountInput = document.getElementById('dpAmountInput');
+
+    if (dpType === 'percent') {
+        dpPercentGroup.style.display = 'block';
+        dpAmountGroup.style.display = 'none';
+        dpPercentInput.required = true;
+        dpAmountInput.required = false;
+    } else {
+        dpPercentGroup.style.display = 'none';
+        dpAmountGroup.style.display = 'block';
+        dpPercentInput.required = false;
+        dpAmountInput.required = true;
+    }
+    recalc();
+}
+
+window.updateDpCalculations = updateDpCalculations;
+
+function recalc() {
+    const type = document.getElementById('invoiceType').value;
+    const discountInput = document.getElementById('discountInput');
+    
+    let discountVal = discountInput.value;
+    let discountNum = cleanNumber(discountVal);
+    discountInput.value = formatNumber(discountNum);
+
+    let subtotal = baseSubtotal;
+    let dpSubtraction = 0;
+
+    if (type === 'dp') {
+        const dpType = document.getElementById('dpType').value;
+        if (dpType === 'percent') {
+            const dpPercent = parseFloat(document.getElementById('dpPercentInput').value) || 0;
+            subtotal = baseSubtotal * (dpPercent / 100);
+        } else {
+            const dpAmountInput = document.getElementById('dpAmountInput');
+            let dpAmountVal = dpAmountInput.value;
+            let dpAmountNum = cleanNumber(dpAmountVal);
+            dpAmountInput.value = formatNumber(dpAmountNum);
+            subtotal = dpAmountNum;
+        }
+    } else {
+        dpSubtraction = existingDpAmount;
+    }
+
+    const dpp = Math.max(0, subtotal - discountNum - dpSubtraction);
+    const tax = dpp * (ppnPercent / 100);
+    const grand = dpp + tax;
+
+    document.getElementById('lblSubtotal').innerText = formatNumber(subtotal);
+    document.getElementById('lblDpSubtraction').innerText = formatNumber(dpSubtraction);
+    document.getElementById('dpSubtractionRow').style.display = dpSubtraction > 0 ? 'table-row' : 'none';
+    document.getElementById('lblPpn').innerText = formatNumber(tax);
+    document.getElementById('lblGrandTotal').innerText = formatNumber(grand);
+}
+
+window.recalc = recalc;
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateInvoiceTypeFields();
+    updateDpCalculations();
+    recalc();
+});
 </script>
         </div>
     </div>

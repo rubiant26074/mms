@@ -25,7 +25,15 @@
     <table>
         <thead><tr><th>Barang</th><th class="text-right">Qty</th><th class="text-right">Harga</th><th class="text-right">Total</th></tr></thead>
         <tbody>@foreach($lines as $line)<tr><td><strong>{{ $line['item_name'] }}</strong><br><small>{{ $line['item_code'] }}</small></td><td class="text-right">{{ $line['qty_sent'] + 0 }} {{ $line['unit'] }}</td><td class="text-right">Rp {{ number_format($line['unit_price'], 0, ',', '.') }}</td><td class="text-right">Rp {{ number_format($line['total'], 0, ',', '.') }}</td></tr>@endforeach</tbody>
-        <tfoot><tr><td colspan="3" class="text-right">Subtotal</td><td class="text-right">Rp {{ number_format($invoice->subtotal, 0, ',', '.') }}</td></tr><tr><td colspan="3" class="text-right">Diskon</td><td class="text-right">Rp {{ number_format($invoice->discount_amount, 0, ',', '.') }}</td></tr><tr><td colspan="3" class="text-right">PPN</td><td class="text-right">Rp {{ number_format($invoice->tax_amount, 0, ',', '.') }}</td></tr><tr><td colspan="3" class="text-right"><strong>Grand Total</strong></td><td class="text-right"><strong>Rp {{ number_format($invoice->grand_total, 0, ',', '.') }}</strong></td></tr></tfoot>
+        <tfoot>
+            <tr><td colspan="3" class="text-right">Subtotal</td><td class="text-right">Rp {{ number_format($invoice->subtotal, 0, ',', '.') }}</td></tr>
+            @if($invoice->invoice_type === 'normal' && (float) $invoice->dp_amount > 0)
+                <tr><td colspan="3" class="text-right" style="color:red;">Uang Muka (DP)</td><td class="text-right" style="color:red;">-Rp {{ number_format($invoice->dp_amount, 0, ',', '.') }}</td></tr>
+            @endif
+            <tr><td colspan="3" class="text-right">Diskon</td><td class="text-right">Rp {{ number_format($invoice->discount_amount, 0, ',', '.') }}</td></tr>
+            <tr><td colspan="3" class="text-right">PPN</td><td class="text-right">Rp {{ number_format($invoice->tax_amount, 0, ',', '.') }}</td></tr>
+            <tr><td colspan="3" class="text-right"><strong>Grand Total</strong></td><td class="text-right"><strong>Rp {{ number_format($invoice->grand_total, 0, ',', '.') }}</strong></td></tr>
+        </tfoot>
     </table>
 </div>
 </body>

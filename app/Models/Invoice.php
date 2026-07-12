@@ -26,6 +26,9 @@ class Invoice extends Model
         'status',
         'notes',
         'created_by',
+        'invoice_type',
+        'dp_percent',
+        'dp_amount',
     ];
 
     protected function casts(): array
