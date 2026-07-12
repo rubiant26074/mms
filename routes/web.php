@@ -86,7 +86,11 @@ Route::get('/run-migration-discount', function () {
             '--path' => 'database/migrations/2026_07_12_152555_add_fin_cash_manage_permission.php',
             '--force' => true
         ]);
-        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . '<br><br><span style="color:green;font-weight:bold;">Tabel berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
+        $res3 = \Illuminate\Support\Facades\Artisan::call('migrate', [
+            '--path' => 'database/migrations/2026_07_12_153316_add_sales_order_id_to_invoices_table.php',
+            '--force' => true
+        ]);
+        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . ' / ' . $res3 . '<br><br><span style="color:green;font-weight:bold;">Tabel berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
     } catch (\Exception $e) {
         return 'Migration failed: ' . $e->getMessage();
     }

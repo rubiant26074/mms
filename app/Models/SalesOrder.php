@@ -67,6 +67,11 @@ class SalesOrder extends Model
         return $this->hasMany(DeliveryNote::class);
     }
 
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

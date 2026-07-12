@@ -45,9 +45,26 @@ class AccountsReceivableController extends Controller
 
     public function create(Request $request): View
     {
-        $deliveryNote = $request->integer('sj_id')
-            ? DeliveryNote::query()->with(['salesOrder.customer', 'salesOrder.items.item', 'items.item'])->find($request->integer('sj_id'))
-            : null;
+        $refType = $request->query('ref_type', $request->has('so_id') ? 'so' : 'sj');
+
+        $deliveryNote = null;
+        $salesOrder = null;
+        $lines = collect();
+        $totals = ['subtotal' => 0, 'discount' => 0, 'tax' => 0, 'grand' => 0];
+
+        if ($refType === 'sj' && $request->has('sj_id')) {
+            $deliveryNote = DeliveryNote::query()->with(['salesOrder.customer', 'salesOrder.items.item', 'items.item'])->find($request->integer('sj_id'));
+            if ($deliveryNote) {
+                $lines = $this->invoiceLines($deliveryNote);
+                $totals = $this->calculateTotals($deliveryNote, 0);
+            }
+        } elseif ($refType === 'so' && $request->has('so_id')) {
+            $salesOrder = \App\Models\SalesOrder::query()->with(['customer', 'items.item'])->find($request->integer('so_id'));
+            if ($salesOrder) {
+                $lines = $this->invoiceLinesForSo($salesOrder);
+                $totals = $this->calculateTotalsForSo($salesOrder, 0);
+            }
+        }
 
         return view('finance.ar.form', [
             'invoice' => new Invoice([
@@ -56,26 +73,45 @@ class AccountsReceivableController extends Controller
                 'due_date' => now()->addDays(30)->toDateString(),
                 'status' => 'draft',
             ]),
+            'refType' => $refType,
             'deliveryNote' => $deliveryNote,
             'deliveryNotes' => $this->availableDeliveryNotes($deliveryNote?->id),
-            'lines' => $deliveryNote ? $this->invoiceLines($deliveryNote) : collect(),
-            'totals' => $deliveryNote ? $this->calculateTotals($deliveryNote, 0) : ['subtotal' => 0, 'discount' => 0, 'tax' => 0, 'grand' => 0],
+            'salesOrder' => $salesOrder,
+            'salesOrders' => $this->availableSalesOrders($salesOrder?->id),
+            'lines' => $lines,
+            'totals' => $totals,
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validatedInvoice($request);
-        $deliveryNote = DeliveryNote::query()->with(['salesOrder.customer', 'salesOrder.items', 'items'])->findOrFail($data['delivery_note_id']);
-        $totals = $this->calculateTotals($deliveryNote, $this->money($data['discount_amount'] ?? '0'));
         $this->validateTaxNumber($data['tax_invoice_number'] ?? null);
 
-        DB::transaction(function () use ($data, $deliveryNote, $totals): void {
+        $refType = $data['ref_type'];
+        $deliveryNoteId = null;
+        $salesOrderId = null;
+        $customerId = null;
+
+        if ($refType === 'sj') {
+            $deliveryNote = DeliveryNote::query()->with(['salesOrder.customer', 'salesOrder.items', 'items'])->findOrFail($data['delivery_note_id']);
+            $deliveryNoteId = $deliveryNote->id;
+            $customerId = $deliveryNote->salesOrder?->customer_id;
+            $totals = $this->calculateTotals($deliveryNote, $this->money($data['discount_amount'] ?? '0'));
+        } else {
+            $salesOrder = \App\Models\SalesOrder::query()->with(['customer', 'items'])->findOrFail($data['sales_order_id']);
+            $salesOrderId = $salesOrder->id;
+            $customerId = $salesOrder->customer_id;
+            $totals = $this->calculateTotalsForSo($salesOrder, $this->money($data['discount_amount'] ?? '0'));
+        }
+
+        DB::transaction(function () use ($data, $deliveryNoteId, $salesOrderId, $customerId, $totals): void {
             Invoice::query()->create([
                 'invoice_number' => $this->nextInvoiceNumber(),
                 'tax_invoice_number' => $this->cleanTaxNumber($data['tax_invoice_number'] ?? null),
-                'delivery_note_id' => $deliveryNote->id,
-                'customer_id' => $deliveryNote->salesOrder?->customer_id,
+                'delivery_note_id' => $deliveryNoteId,
+                'sales_order_id' => $salesOrderId,
+                'customer_id' => $customerId,
                 'invoice_date' => $data['invoice_date'],
                 'due_date' => $data['due_date'],
                 'subtotal' => $totals['subtotal'],
@@ -98,14 +134,29 @@ class AccountsReceivableController extends Controller
             abort(403, 'Hanya invoice draft yang dapat diedit.');
         }
 
-        $invoice->load(['deliveryNote.salesOrder.customer', 'deliveryNote.salesOrder.items.item', 'deliveryNote.items.item']);
+        $invoice->load(['deliveryNote.salesOrder.customer', 'deliveryNote.salesOrder.items.item', 'deliveryNote.items.item', 'salesOrder.customer', 'salesOrder.items.item']);
+
+        $refType = $invoice->sales_order_id ? 'so' : 'sj';
+        $lines = collect();
+        $totals = ['subtotal' => 0, 'discount' => 0, 'tax' => 0, 'grand' => 0];
+
+        if ($refType === 'sj' && $invoice->deliveryNote) {
+            $lines = $this->invoiceLines($invoice->deliveryNote);
+            $totals = $this->calculateTotals($invoice->deliveryNote, (float) $invoice->discount_amount);
+        } elseif ($refType === 'so' && $invoice->salesOrder) {
+            $lines = $this->invoiceLinesForSo($invoice->salesOrder);
+            $totals = $this->calculateTotalsForSo($invoice->salesOrder, (float) $invoice->discount_amount);
+        }
 
         return view('finance.ar.form', [
             'invoice' => $invoice,
+            'refType' => $refType,
             'deliveryNote' => $invoice->deliveryNote,
             'deliveryNotes' => $this->availableDeliveryNotes($invoice->delivery_note_id),
-            'lines' => $invoice->deliveryNote ? $this->invoiceLines($invoice->deliveryNote) : collect(),
-            'totals' => $invoice->deliveryNote ? $this->calculateTotals($invoice->deliveryNote, (float) $invoice->discount_amount) : ['subtotal' => 0, 'discount' => 0, 'tax' => 0, 'grand' => 0],
+            'salesOrder' => $invoice->salesOrder,
+            'salesOrders' => $this->availableSalesOrders($invoice->sales_order_id),
+            'lines' => $lines,
+            'totals' => $totals,
         ]);
     }
 
@@ -116,14 +167,30 @@ class AccountsReceivableController extends Controller
         }
 
         $data = $this->validatedInvoice($request, $invoice->id);
-        $deliveryNote = DeliveryNote::query()->with(['salesOrder.customer', 'salesOrder.items', 'items'])->findOrFail($data['delivery_note_id']);
-        $totals = $this->calculateTotals($deliveryNote, $this->money($data['discount_amount'] ?? '0'));
         $this->validateTaxNumber($data['tax_invoice_number'] ?? null, $invoice->id);
+
+        $refType = $data['ref_type'];
+        $deliveryNoteId = null;
+        $salesOrderId = null;
+        $customerId = null;
+
+        if ($refType === 'sj') {
+            $deliveryNote = DeliveryNote::query()->with(['salesOrder.customer', 'salesOrder.items', 'items'])->findOrFail($data['delivery_note_id']);
+            $deliveryNoteId = $deliveryNote->id;
+            $customerId = $deliveryNote->salesOrder?->customer_id;
+            $totals = $this->calculateTotals($deliveryNote, $this->money($data['discount_amount'] ?? '0'));
+        } else {
+            $salesOrder = \App\Models\SalesOrder::query()->with(['customer', 'items'])->findOrFail($data['sales_order_id']);
+            $salesOrderId = $salesOrder->id;
+            $customerId = $salesOrder->customer_id;
+            $totals = $this->calculateTotalsForSo($salesOrder, $this->money($data['discount_amount'] ?? '0'));
+        }
 
         $invoice->update([
             'tax_invoice_number' => $this->cleanTaxNumber($data['tax_invoice_number'] ?? null),
-            'delivery_note_id' => $deliveryNote->id,
-            'customer_id' => $deliveryNote->salesOrder?->customer_id,
+            'delivery_note_id' => $deliveryNoteId,
+            'sales_order_id' => $salesOrderId,
+            'customer_id' => $customerId,
             'invoice_date' => $data['invoice_date'],
             'due_date' => $data['due_date'],
             'subtotal' => $totals['subtotal'],
@@ -219,8 +286,12 @@ class AccountsReceivableController extends Controller
                 ['account' => '1-1201', 'debit' => 0, 'credit' => $amount],
             ], 'receipt');
 
-            if ($newStatus === 'paid' && in_array((string) ($locked->deliveryNote?->status ?? ''), ['approved', 'sent'], true)) {
-                $locked->deliveryNote?->salesOrder?->update(['status' => 'completed']);
+            if ($newStatus === 'paid') {
+                if ($locked->deliveryNote?->salesOrder) {
+                    $locked->deliveryNote->salesOrder->update(['status' => 'completed']);
+                } elseif ($locked->salesOrder) {
+                    $locked->salesOrder->update(['status' => 'completed']);
+                }
             }
         });
 
@@ -229,32 +300,88 @@ class AccountsReceivableController extends Controller
 
     public function print(Invoice $invoice): View
     {
+        $lines = collect();
+        if ($invoice->delivery_note_id && $invoice->deliveryNote) {
+            $lines = $this->invoiceLines($invoice->deliveryNote);
+        } elseif ($invoice->sales_order_id && $invoice->salesOrder) {
+            $lines = $this->invoiceLinesForSo($invoice->salesOrder);
+        }
+
         return view('finance.ar.print', [
-            'invoice' => $invoice->load(['customer', 'deliveryNote.salesOrder', 'deliveryNote.items.item']),
+            'invoice' => $invoice->load(['customer', 'deliveryNote.salesOrder', 'deliveryNote.items.item', 'salesOrder.customer', 'salesOrder.items.item']),
             'company' => app(MmsContext::class)->company(),
-            'lines' => $invoice->deliveryNote ? $this->invoiceLines($invoice->deliveryNote) : collect(),
+            'lines' => $lines,
         ]);
     }
 
     public function printTax(Invoice $invoice): View
     {
+        $lines = collect();
+        if ($invoice->delivery_note_id && $invoice->deliveryNote) {
+            $lines = $this->invoiceLines($invoice->deliveryNote);
+        } elseif ($invoice->sales_order_id && $invoice->salesOrder) {
+            $lines = $this->invoiceLinesForSo($invoice->salesOrder);
+        }
+
         return view('finance.ar.print-tax', [
-            'invoice' => $invoice->load(['customer', 'deliveryNote.salesOrder', 'deliveryNote.items.item']),
+            'invoice' => $invoice->load(['customer', 'deliveryNote.salesOrder', 'deliveryNote.items.item', 'salesOrder.customer', 'salesOrder.items.item']),
             'company' => app(MmsContext::class)->company(),
-            'lines' => $invoice->deliveryNote ? $this->invoiceLines($invoice->deliveryNote) : collect(),
+            'lines' => $lines,
         ]);
     }
 
     private function validatedInvoice(Request $request, ?int $invoiceId = null): array
     {
         return $request->validate([
-            'delivery_note_id' => ['required', 'integer', 'exists:delivery_notes,id'],
+            'ref_type' => ['required', 'in:sj,so'],
+            'delivery_note_id' => ['required_if:ref_type,sj', 'nullable', 'integer', 'exists:delivery_notes,id'],
+            'sales_order_id' => ['required_if:ref_type,so', 'nullable', 'integer', 'exists:sales_orders,id'],
             'tax_invoice_number' => ['nullable', 'string', 'max:40'],
             'invoice_date' => ['required', 'date'],
             'due_date' => ['required', 'date'],
             'discount_amount' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
         ]);
+    }
+
+    private function availableSalesOrders(?int $selectedId = null)
+    {
+        return \App\Models\SalesOrder::query()
+            ->with('customer')
+            ->whereIn('status', ['approved', 'in_production', 'ready_for_delivery', 'sent', 'won'])
+            ->where(function ($query) use ($selectedId): void {
+                $query->whereDoesntHave('invoices', fn ($inv) => $inv->where('status', '!=', 'cancelled'));
+                if ($selectedId) {
+                    $query->orWhereKey($selectedId);
+                }
+            })
+            ->latest('id')
+            ->get();
+    }
+
+    private function invoiceLinesForSo(\App\Models\SalesOrder $salesOrder)
+    {
+        return $salesOrder->items->map(function ($line): array {
+            return [
+                'item_code' => $line->item?->item_code,
+                'item_name' => $line->item?->item_name ?: $line->item_name_manual,
+                'unit' => $line->item?->unit ?: $line->unit_manual,
+                'qty_sent' => (float) $line->qty,
+                'unit_price' => (float) $line->unit_price,
+                'total' => (float) $line->qty * (float) $line->unit_price,
+            ];
+        });
+    }
+
+    private function calculateTotalsForSo(\App\Models\SalesOrder $salesOrder, float $discount): array
+    {
+        $subtotal = $this->invoiceLinesForSo($salesOrder)->sum('total');
+        $discount = min(max(0, $discount), $subtotal);
+        $taxPercent = (float) ($salesOrder->ppn_percent ?? 11);
+        $dpp = max(0, $subtotal - $discount);
+        $tax = $dpp * ($taxPercent / 100);
+
+        return ['subtotal' => $subtotal, 'discount' => $discount, 'tax' => $tax, 'grand' => $dpp + $tax];
     }
 
     private function availableDeliveryNotes(?int $selectedId = null)

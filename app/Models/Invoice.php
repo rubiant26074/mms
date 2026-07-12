@@ -14,6 +14,7 @@ class Invoice extends Model
         'invoice_number',
         'tax_invoice_number',
         'delivery_note_id',
+        'sales_order_id',
         'customer_id',
         'invoice_date',
         'due_date',
@@ -43,6 +44,11 @@ class Invoice extends Model
     public function deliveryNote(): BelongsTo
     {
         return $this->belongsTo(DeliveryNote::class);
+    }
+
+    public function salesOrder(): BelongsTo
+    {
+        return $this->belongsTo(SalesOrder::class);
     }
 
     public function customer(): BelongsTo
