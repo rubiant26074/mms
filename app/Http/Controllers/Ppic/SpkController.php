@@ -7,6 +7,7 @@ use App\Models\Bom;
 use App\Models\PurchaseRequest;
 use App\Models\SalesOrder;
 use App\Models\Spk;
+use App\Services\MmsContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -168,6 +169,7 @@ class SpkController extends Controller
     {
         return view('ppic.spk.print', [
             'spk' => $spk->load(['salesOrder.customer', 'salesOrder.items.item', 'materials.item', 'creator']),
+            'company' => app(MmsContext::class)->company(),
         ]);
     }
 
