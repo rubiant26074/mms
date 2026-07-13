@@ -94,7 +94,11 @@ Route::get('/run-migration-discount', function () {
             '--path' => 'database/migrations/2026_07_12_154923_add_dp_columns_to_invoices_table.php',
             '--force' => true
         ]);
-        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . ' / ' . $res3 . ' / ' . $res4 . '<br><br><span style="color:green;font-weight:bold;">Tabel berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
+        $res5 = \Illuminate\Support\Facades\Artisan::call('migrate', [
+            '--path' => 'database/migrations/2026_07_13_142738_add_sales_name_to_customers_table.php',
+            '--force' => true
+        ]);
+        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . ' / ' . $res3 . ' / ' . $res4 . ' / ' . $res5 . '<br><br><span style="color:green;font-weight:bold;">Tabel berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
     } catch (\Exception $e) {
         return 'Migration failed: ' . $e->getMessage();
     }
