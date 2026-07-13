@@ -88,7 +88,7 @@ class BomController extends Controller
     {
         $fgItems = Item::query()
             ->whereIn('item_type', ['finish_good', 'wip'])
-            ->when($isEdit, fn ($query) => $query->orWhereKey($bom->item_id))
+            ->when($isEdit, fn ($query) => $query->orWhere('id', $bom->item_id))
             ->orderBy('item_code')
             ->get();
         $materials = Item::query()

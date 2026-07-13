@@ -225,7 +225,7 @@ class DeliveryNoteController extends Controller
                             ->where('spk.status', 'closed');
                     });
                 if ($selectedId) {
-                    $query->orWhereKey($selectedId);
+                    $query->orWhere('id', $selectedId);
                 }
             })
             ->latest('id')

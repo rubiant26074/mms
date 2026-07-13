@@ -139,13 +139,13 @@ class MaterialIssueController extends Controller
             ->where(function ($query) use ($selectedId): void {
                 $query->whereIn('status', ['released', 'in_production']);
                 if ($selectedId) {
-                    $query->orWhereKey($selectedId);
+                    $query->orWhere('id', $selectedId);
                 }
             })
             ->where(function ($query) use ($selectedId): void {
                 $query->whereDoesntHave('materialIssues', fn ($q) => $q->where('status', '!=', 'rejected'));
                 if ($selectedId) {
-                    $query->orWhereKey($selectedId);
+                    $query->orWhere('id', $selectedId);
                 }
             })
             ->latest('id')

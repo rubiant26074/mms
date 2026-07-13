@@ -287,7 +287,7 @@ class AccountsPayableController extends Controller
             ->where(function ($query) use ($selectedId): void {
                 $query->whereIn('status', ['approved', 'sent']);
                 if ($selectedId) {
-                    $query->orWhereKey($selectedId);
+                    $query->orWhere('id', $selectedId);
                 }
             })
             ->latest('id')
