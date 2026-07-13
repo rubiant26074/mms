@@ -30,11 +30,11 @@
                         <td><input name="item_no[]" class="form-control" value="{{ $part->item_no }}"></td>
                         <td><input name="drawing_no[]" class="form-control" value="{{ $part->drawing_no }}"></td>
                         <td><input name="part_name[]" class="form-control" value="{{ $part->part_name }}"></td>
-                        <td><input name="qty[]" type="number" step="0.01" class="form-control" value="{{ $part->qty + 0 }}"></td>
+                        <td><input name="qty[]" type="number" step="0.01" class="form-control" value="{{ $part->qty !== null ? $part->qty + 0 : '' }}"></td>
                         <td><input name="material[]" class="form-control" value="{{ $part->material }}"></td>
                         <td><input name="thickness[]" class="form-control" value="{{ $part->thickness }}"></td>
-                        <td><input name="length[]" type="number" step="0.01" class="form-control" value="{{ $part->length + 0 }}"></td>
-                        <td><input name="width[]" type="number" step="0.01" class="form-control" value="{{ $part->width + 0 }}"></td>
+                        <td><input name="length[]" type="number" step="0.01" class="form-control" value="{{ $part->length !== null ? $part->length + 0 : '' }}"></td>
+                        <td><input name="width[]" type="number" step="0.01" class="form-control" value="{{ $part->width !== null ? $part->width + 0 : '' }}"></td>
                         <td><input name="process[]" class="form-control" value="{{ $part->process }}"></td>
                         <td><input name="notes[]" class="form-control" value="{{ $part->notes }}"></td>
                         <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-row">X</button></td>

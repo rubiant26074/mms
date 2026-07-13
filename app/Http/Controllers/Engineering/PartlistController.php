@@ -92,15 +92,19 @@ class PartlistController extends Controller
             if (trim((string) $itemNo) === '' && $partName === '') {
                 continue;
             }
+            $thicknessVal = trim((string) $request->input("thickness.{$i}"));
+            $lengthVal = trim((string) $request->input("length.{$i}"));
+            $widthVal = trim((string) $request->input("width.{$i}"));
+
             $rows[] = [
                 'item_no' => trim((string) $itemNo),
                 'drawing_no' => trim((string) ($request->input("drawing_no.{$i}") ?? '')),
                 'part_name' => $partName,
-                'qty' => (float) ($request->input("qty.{$i}") ?? 0),
+                'qty' => trim((string) $request->input("qty.{$i}")) !== '' ? (float) $request->input("qty.{$i}") : 0,
                 'material' => trim((string) ($request->input("material.{$i}") ?? '')),
-                'thickness' => trim((string) ($request->input("thickness.{$i}") ?? '')),
-                'length' => (float) ($request->input("length.{$i}") ?? 0),
-                'width' => (float) ($request->input("width.{$i}") ?? 0),
+                'thickness' => $thicknessVal !== '' ? (float) $thicknessVal : null,
+                'length' => $lengthVal !== '' ? (float) $lengthVal : null,
+                'width' => $widthVal !== '' ? (float) $widthVal : null,
                 'process' => trim((string) ($request->input("process.{$i}") ?? '')),
                 'notes' => trim((string) ($request->input("notes.{$i}") ?? '')),
             ];
