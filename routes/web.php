@@ -490,6 +490,7 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::get('/delivery-notes/{deliveryNote}/print', [DeliveryNoteController::class, 'print'])
             ->middleware(RequirePermission::class . ':whse_sj_view')
             ->name('delivery_notes.print');
+        Route::middleware(RequirePermission::class . ':whse_sj_manage')->group(function (): void {
             Route::get('/delivery-notes/{deliveryNote}/sign', [DeliveryNoteController::class, 'signForm'])->name('delivery_notes.sign');
             Route::post('/delivery-notes/{deliveryNote}/sign', [DeliveryNoteController::class, 'storeSign'])->name('delivery_notes.sign.store');
             Route::get('/delivery-notes/create', [DeliveryNoteController::class, 'create'])->name('delivery_notes.create');
