@@ -47,7 +47,16 @@
                 </tbody>
             </table>
         </div>
-        <div class="card-footer bg-white"><button type="button" id="addRow" class="btn btn-success btn-sm">+ Tambah Baris</button></div>
+        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+            <div>
+                <button type="button" id="addRow" class="btn btn-success btn-sm"><i class="bi bi-plus-lg"></i> Tambah Baris</button>
+            </div>
+            @if($spk->salesOrder && $spk->salesOrder->items->isNotEmpty())
+                <div>
+                    <button type="button" id="pullSoBtn" class="btn btn-info btn-sm fw-bold"><i class="bi bi-download"></i> Tarik Data dari SO</button>
+                </div>
+            @endif
+        </div>
     </div>
     <div class="text-end mt-4">
         <a href="{{ route('engineering.partlists.index') }}" class="btn btn-outline-secondary">Batal & Kembali</a>
@@ -55,16 +64,85 @@
         <button name="submit_action" value="approve" class="btn btn-success px-4" onclick="return confirm('Approve partlist dan ubah SPK menjadi FINAL?')">Approve Final</button>
     </div>
 </form>
+
+@if($spk->salesOrder)
+    <script id="so-items-json" type="application/json">
+        @json($spk->salesOrder->items->map(fn($item) => [
+            'item_code' => $item->item?->item_code ?: $item->item_code_manual,
+            'item_name' => $item->item?->item_name ?: $item->item_name_manual,
+            'qty' => $item->qty + 0,
+            'material' => $item->material_manual ?: $item->item?->description ?: '',
+            'unit' => $item->unit_manual ?: $item->item?->unit ?: '',
+        ]))
+    </script>
+@endif
+
 @push('scripts')
 <script>
 (function () {
     const tbody = document.querySelector('#partTable tbody');
+    
+    // Cache a clean template row
+    const templateRow = tbody.querySelector('tr').cloneNode(true);
+    templateRow.querySelectorAll('input').forEach(input => input.value = '');
+
     document.getElementById('addRow')?.addEventListener('click', () => {
-        const row = tbody.querySelector('tr').cloneNode(true);
-        row.querySelectorAll('input').forEach(input => input.value = '');
+        const row = templateRow.cloneNode(true);
         tbody.appendChild(row);
     });
-    document.addEventListener('click', e => { if (e.target.closest('.remove-row') && tbody.querySelectorAll('tr').length > 1) e.target.closest('tr').remove(); });
+
+    document.addEventListener('click', e => {
+        if (e.target.closest('.remove-row')) {
+            if (tbody.querySelectorAll('tr').length > 1) {
+                e.target.closest('tr').remove();
+            } else {
+                tbody.querySelectorAll('tr input').forEach(input => input.value = '');
+            }
+        }
+    });
+
+    const pullSoBtn = document.getElementById('pullSoBtn');
+    if (pullSoBtn) {
+        pullSoBtn.addEventListener('click', () => {
+            const jsonEl = document.getElementById('so-items-json');
+            if (!jsonEl) return;
+            
+            const items = JSON.parse(jsonEl.textContent || '[]');
+            if (items.length === 0) {
+                alert('Tidak ada item pada Sales Order ini.');
+                return;
+            }
+
+            let hasInput = false;
+            tbody.querySelectorAll('input').forEach(input => {
+                if (input.value.trim() !== '') hasInput = true;
+            });
+
+            if (hasInput && !confirm('Menarik data dari SO akan menimpa part list saat ini. Lanjutkan?')) {
+                return;
+            }
+
+            tbody.innerHTML = '';
+
+            items.forEach((item, index) => {
+                const row = templateRow.cloneNode(true);
+                
+                const itemNoInput = row.querySelector('input[name="item_no[]"]');
+                const partNameInput = row.querySelector('input[name="part_name[]"]');
+                const qtyInput = row.querySelector('input[name="qty[]"]');
+                const materialInput = row.querySelector('input[name="material[]"]');
+                const notesInput = row.querySelector('input[name="notes[]"]');
+                
+                if (itemNoInput) itemNoInput.value = index + 1;
+                if (partNameInput) partNameInput.value = item.item_name;
+                if (qtyInput) qtyInput.value = item.qty;
+                if (materialInput) materialInput.value = item.material;
+                if (notesInput && item.unit) notesInput.value = 'Satuan: ' + item.unit;
+                
+                tbody.appendChild(row);
+            });
+        });
+    }
 })();
 </script>
 @endpush

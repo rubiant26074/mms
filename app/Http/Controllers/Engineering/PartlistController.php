@@ -40,7 +40,7 @@ class PartlistController extends Controller
 
     public function create(Request $request): View
     {
-        $spk = Spk::query()->with(['salesOrder', 'partlists'])->findOrFail($request->integer('spk_id'));
+        $spk = Spk::query()->with(['salesOrder.items.item', 'partlists'])->findOrFail($request->integer('spk_id'));
 
         return view('engineering.partlists.form', ['spk' => $spk, 'parts' => $spk->partlists]);
     }
