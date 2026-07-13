@@ -30,6 +30,11 @@
                             <div class="mb-3"><label>PIC (Contact Person)</label><input type="text" name="pic" class="form-control" value="{{ old('pic', $customer->pic) }}"></div>
                             <div class="mb-3"><label>No. Telepon / HP</label><input type="text" name="phone" class="form-control" value="{{ old('phone', $customer->phone) }}"></div>
                             <div class="mb-3"><label>Email</label><input type="email" name="email" class="form-control" value="{{ old('email', $customer->email) }}"></div>
+                            <div class="mb-3">
+                                <label>Nama Sales</label>
+                                <input type="text" name="sales_name" class="form-control" value="{{ old('sales_name', $customer->sales_name ?: ($customer->creator?->fullname ?: $customer->creator?->username)) }}" placeholder="Nama Sales">
+                                <div class="form-text small">Kosongkan jika ingin menggunakan nama Anda secara otomatis.</div>
+                            </div>
                         </div>
                     </div>
                     <hr>

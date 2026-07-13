@@ -16,10 +16,10 @@ class CustomerController extends Controller
     public function index(Request $request): View
     {
         $search = trim((string) $request->query('search', ''));
-        $salesBy = (int) $request->query('sales_by', 0);
+        $salesFilter = trim((string) $request->query('sales', ''));
         $customers = Customer::query()
             ->with('creator:id,fullname,username')
-            ->when($salesBy > 0, fn ($query) => $query->where('created_by', $salesBy))
+            ->when($salesFilter !== '', fn ($query) => $query->where('sales_name', $salesFilter))
             ->when($search !== '', function ($query) use ($search): void {
                 $term = "%{$search}%";
                 $query->where(function ($sub) use ($term): void {
@@ -32,12 +32,15 @@ class CustomerController extends Controller
             })
             ->latest('id')
             ->get();
-        $salesUsers = User::query()
-            ->whereIn('id', Customer::query()->whereNotNull('created_by')->select('created_by'))
-            ->orderBy('fullname')
-            ->get(['id', 'fullname', 'username']);
+        $salesNames = Customer::query()
+            ->whereNotNull('sales_name')
+            ->where('sales_name', '!=', '')
+            ->distinct()
+            ->orderBy('sales_name')
+            ->pluck('sales_name')
+            ->toArray();
 
-        return view('sales.customers.index', compact('customers', 'search', 'salesBy', 'salesUsers'));
+        return view('sales.customers.index', compact('customers', 'search', 'salesFilter', 'salesNames'));
     }
 
     public function create(): View
@@ -59,6 +62,7 @@ class CustomerController extends Controller
         $data['customer_code'] = $data['customer_code'] ?: $this->nextCustomerCode();
         $data['code'] = $data['customer_code'];
         $data['created_by'] = auth()->id();
+        $data['sales_name'] = $data['sales_name'] ?: auth()->user()->fullname ?: auth()->user()->username;
         Customer::query()->create($data);
 
         return redirect()->route('sales.customers.index')->with('success', 'Data Customer berhasil disimpan!');
@@ -95,6 +99,7 @@ class CustomerController extends Controller
             'email' => ['nullable', 'email', 'max:100'],
             'tax_id' => ['nullable', 'string', 'max:50'],
             'tax_invoice_number' => ['nullable', 'regex:/^\d{3}\.\d{3}-\d{2}\.\d{8}$/'],
+            'sales_name' => ['nullable', 'string', 'max:100'],
         ]);
 
         $code = $this->nextCustomerCode();
@@ -102,6 +107,7 @@ class CustomerController extends Controller
             'customer_code' => $code,
             'code' => $code,
             'created_by' => auth()->id(),
+            'sales_name' => $request->input('sales_name') ?: auth()->user()->fullname ?: auth()->user()->username,
         ]);
 
         return response()->json([
@@ -155,6 +161,7 @@ class CustomerController extends Controller
                 'email' => trim((string) ($row['email'] ?? '')),
                 'tax_id' => trim((string) ($row['tax_id'] ?? '')),
                 'tax_invoice_number' => $nsfp !== '' ? $nsfp : null,
+                'sales_name' => trim((string) ($row['sales_name'] ?? $row['sales'] ?? '')),
             ];
 
             if ($existing) {
@@ -165,6 +172,10 @@ class CustomerController extends Controller
                     $skipped++;
                 }
                 continue;
+            }
+
+            if (empty($data['sales_name'])) {
+                $data['sales_name'] = auth()->user()->fullname ?: auth()->user()->username;
             }
 
             Customer::query()->create($data + ['created_by' => auth()->id()]);
@@ -188,6 +199,7 @@ class CustomerController extends Controller
             'email' => ['nullable', 'email', 'max:100'],
             'tax_id' => ['nullable', 'string', 'max:50'],
             'tax_invoice_number' => ['nullable', 'regex:/^\d{3}\.\d{3}-\d{2}\.\d{8}$/'],
+            'sales_name' => ['nullable', 'string', 'max:100'],
         ]);
     }
 

@@ -24,7 +24,7 @@
             </div>
             <div class="modal-body">
                 <div class="alert alert-info small mb-3">
-                    <strong>Format kolom:</strong> <code>customer_code, name, address, phone, pic, email, tax_id</code>
+                    <strong>Format kolom:</strong> <code>customer_code, name, address, phone, pic, email, tax_id, sales_name</code>
                 </div>
                 <div class="row g-2 align-items-end">
                     <div class="col-md-6">
@@ -62,10 +62,10 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <select name="sales_by" class="form-select" title="Filter Sales by">
-                    <option value="0">Semua Sales by</option>
-                    @foreach($salesUsers as $salesUser)
-                        <option value="{{ $salesUser->id }}" @selected($salesBy === $salesUser->id)>{{ $salesUser->fullname ?: $salesUser->username }}</option>
+                <select name="sales" class="form-select" title="Filter Sales">
+                    <option value="">Semua Sales</option>
+                    @foreach($salesNames as $name)
+                        <option value="{{ $name }}" @selected($salesFilter === $name)>{{ $name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -88,7 +88,7 @@
                         <td><span class="badge bg-secondary">{{ $row->customer_code ?: '-' }}</span></td>
                         <td>
                             <div class="fw-bold text-primary">{{ $row->name }}</div>
-                            <small class="text-muted d-block">Sales by: {{ $row->creator?->fullname ?: ($row->creator?->username ?: '-') }}</small>
+                            <small class="text-muted d-block">Sales: {{ $row->sales_name ?: ($row->creator?->fullname ?: ($row->creator?->username ?: '-')) }}</small>
                         </td>
                         <td><strong>{{ $row->pic }}</strong><br><small class="text-muted"><i class="bi bi-telephone"></i> {{ $row->phone }}</small></td>
                         <td>
@@ -119,10 +119,10 @@
 (function () {
     const form = document.getElementById('customer-filter-form');
     const search = form?.querySelector('input[name="search"]');
-    const salesBy = form?.querySelector('select[name="sales_by"]');
+    const sales = form?.querySelector('select[name="sales"]');
     let t;
     search?.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => form.requestSubmit ? form.requestSubmit() : form.submit(), 400); });
-    salesBy?.addEventListener('change', () => form.requestSubmit ? form.requestSubmit() : form.submit());
+    sales?.addEventListener('change', () => form.requestSubmit ? form.requestSubmit() : form.submit());
 })();
 function normalizeHeader(val) { return String(val || '').toLowerCase().trim().replace(/\s+/g, '_'); }
 function detectHeaderRow(row) { return row.map(normalizeHeader).includes('name'); }
@@ -137,7 +137,7 @@ document.getElementById('btnCustImport')?.addEventListener('click', function () 
         const hasHeader = detectHeaderRow(rows[0] || []);
         const headerMap = {};
         if (hasHeader) rows[0].forEach((h, idx) => { const key = normalizeHeader(h); if (key) headerMap[key] = idx; });
-        else ['customer_code','name','address','phone','pic','email','tax_id'].forEach((k, i) => headerMap[k] = i);
+        else ['customer_code','name','address','phone','pic','email','tax_id','sales_name'].forEach((k, i) => headerMap[k] = i);
         const items = [];
         for (let i = hasHeader ? 1 : 0; i < rows.length; i++) {
             const obj = {};
