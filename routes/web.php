@@ -695,3 +695,12 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         });
     });
 });
+
+Route::get('/run-migration-secret-xyz', function () {
+    try {
+        $exitCode = Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return "Migrasi berhasil dijalankan dengan kode status: " . $exitCode . "<br><pre>" . Illuminate\Support\Facades\Artisan::output() . "</pre>";
+    } catch (\Exception $e) {
+        return "Gagal menjalankan migrasi: " . $e->getMessage();
+    }
+});
