@@ -45,7 +45,7 @@ class SpkController extends Controller
             'deadline_date' => now()->addDays(7)->toDateString(),
             'sales_order_id' => $request->query('so_id'),
             'priority' => 'normal',
-            'status' => 'preliminary',
+            'status' => 'draft',
         ]);
 
         return $this->form($spk, false);
@@ -65,7 +65,7 @@ class SpkController extends Controller
             $spk = Spk::query()->create($data + [
                 'spk_number' => $this->nextSpkNumber($data['spk_date']),
                 'required_processes' => implode(',', $processes),
-                'status' => 'preliminary',
+                'status' => 'draft',
                 'created_by' => auth()->id(),
             ]);
             $spk->materials()->createMany($materials);
@@ -114,7 +114,7 @@ class SpkController extends Controller
     public function workflow(Request $request, Spk $spk, string $action): RedirectResponse
     {
         $user = $request->user();
-        if ($action === 'submit' && $spk->status === 'draft') {
+        if ($action === 'submit' && in_array($spk->status, ['draft', 'preliminary'], true)) {
             $spk->update(['status' => 'waiting_eng']);
             return back()->with('success', 'SPK diajukan ke Engineering.');
         }

@@ -55,8 +55,8 @@
                             @if(in_array($row->status, ['draft','preliminary'], true))
                                 <a href="{{ route('ppic.spk.edit', $row) }}" class="btn btn-warning text-dark"><i class="bi bi-pencil"></i></a>
                             @endif
-                            @if($row->status === 'draft')
-                                <form method="POST" action="{{ route('ppic.spk.workflow', [$row, 'submit']) }}">@csrf<button class="btn btn-outline-success"><i class="bi bi-send"></i></button></form>
+                            @if(in_array($row->status, ['draft', 'preliminary'], true))
+                                <form method="POST" action="{{ route('ppic.spk.workflow', [$row, 'submit']) }}" class="d-inline">@csrf<button class="btn btn-outline-success" title="Kirim ke Engineering"><i class="bi bi-send"></i></button></form>
                             @endif
                             @if(in_array($row->status, ['waiting_mgr','final'], true) && in_array(auth()->user()?->role?->role_slug, ['manager','admin'], true))
                                 <form method="POST" action="{{ route('ppic.spk.workflow', [$row, 'approve_mgr']) }}" onsubmit="return confirm('Rilis SPK ke produksi?')">@csrf<button class="btn btn-success fw-bold">RILIS MANAGER</button></form>
