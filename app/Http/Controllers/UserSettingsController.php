@@ -146,7 +146,7 @@ class UserSettingsController extends Controller
     private function storeUploadedImage(Request $request, string $type, string $field, string $base64Field, string $prefix, int $maxKb): ?string
     {
         if ($request->filled($base64Field)) {
-            return $this->storeBase64Image($request->string($base64Field)->toString(), $type, $prefix, $maxKb);
+            return $this->storeBase64Image((string) $request->input($base64Field), $type, $prefix, $maxKb);
         }
 
         if (! $request->hasFile($field)) {

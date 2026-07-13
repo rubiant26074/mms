@@ -124,7 +124,7 @@ class CompanyController extends Controller
     private function storeLogo(Request $request): string
     {
         if ($request->filled('logo_base64')) {
-            return $this->storeBase64Logo($request->string('logo_base64')->toString());
+            return $this->storeBase64Logo((string) $request->input('logo_base64'));
         }
 
         if (! $request->hasFile('logo')) {
