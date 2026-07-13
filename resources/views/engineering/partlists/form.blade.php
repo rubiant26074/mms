@@ -67,13 +67,13 @@
 
 @if($spk->salesOrder)
     <script id="so-items-json" type="application/json">
-        @json($spk->salesOrder->items->map(fn($item) => [
+        {!! json_encode($spk->salesOrder->items->map(fn($item) => [
             'item_code' => $item->item?->item_code ?: $item->item_code_manual,
             'item_name' => $item->item?->item_name ?: $item->item_name_manual,
             'qty' => $item->qty + 0,
             'material' => $item->material_manual ?: $item->item?->description ?: '',
             'unit' => $item->unit_manual ?: $item->item?->unit ?: '',
-        ]))
+        ])->toArray()) !!}
     </script>
 @endif
 
