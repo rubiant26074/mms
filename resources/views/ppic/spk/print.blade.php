@@ -29,6 +29,24 @@
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         .no-print { text-align:center; margin-bottom:20px; }
+        
+        .footer { 
+            margin-top: 40px; 
+            border-top: 1px solid #cbd5e0; 
+            padding-top: 15px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+        }
+        .footer-left {
+            color:#718096;
+            line-height: 1.4;
+            text-align: left;
+        }
+        .footer-right {
+            text-align: right;
+        }
+        
         @media print { 
             .no-print { display:none; } 
             .box { border:none; box-shadow:none; padding:0; } 
@@ -43,13 +61,9 @@
 <div class="box">
     <!-- Header -->
     <div class="header">
-        <div>
-            <strong style="font-size:16px; color:#1a365d;">{{ $company['company_name'] ?? 'MMS SYSTEM' }}</strong><br>
-            <span style="color:#718096; line-height:1.4;">{!! nl2br(e($company['address'] ?? '-')) !!}</span>
-        </div>
+        <div style="font-size:24px; font-weight:bold; color:#1a365d; align-self: center;">SURAT PERINTAH KERJA</div>
         <div class="doc-title">
-            SURAT PERINTAH KERJA<br>
-            <small>{{ $spk->spk_number }}</small>
+            <small style="font-size:16px; color:#4a5568; font-weight:bold;">{{ $spk->spk_number }}</small>
         </div>
     </div>
 
@@ -182,6 +196,19 @@
         <div class="sig-box">
             <div>Diterima Workshop,</div>
             <div class="sig-line">Supervisor / SPV</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-left">
+            <strong style="color:#1a365d; font-size: 13px;">{{ $company['company_name'] ?? 'MMS SYSTEM' }}</strong><br>
+            <span>{!! nl2br(e($company['address'] ?? '-')) !!}</span>
+        </div>
+        <div class="footer-right">
+            @if(!empty($company['logo_path']))
+                <img src="{{ asset($company['logo_path']) }}" style="max-height: 40px; object-fit: contain;" alt="Logo">
+            @endif
         </div>
     </div>
 </div>
