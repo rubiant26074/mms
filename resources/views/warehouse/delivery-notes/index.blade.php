@@ -54,12 +54,15 @@
                         <td>{{ $note->salesOrder?->so_number ?? '-' }}</td>
                         <td><span class="badge {{ $badge }}">{{ strtoupper($note->status) }}</span></td>
                         <td class="text-center">
-                            <div class="btn-group">
-                                <a href="{{ route('warehouse.delivery_notes.print', $note) }}" target="_blank" class="btn btn-sm btn-outline-dark"><i class="bi bi-printer"></i></a>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ route('warehouse.delivery_notes.print', $note) }}" target="_blank" class="btn btn-outline-dark" title="Cetak Surat Jalan"><i class="bi bi-printer"></i></a>
                                 @if($note->status === 'draft')
-                                    <a href="{{ route('warehouse.delivery_notes.edit', $note) }}" class="btn btn-sm btn-warning text-dark"><i class="bi bi-pencil"></i></a>
-                                    <form method="POST" action="{{ route('warehouse.delivery_notes.approve', $note) }}" onsubmit="return confirm('Approve pengiriman ini? Stok akan berkurang.')">@csrf<button class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i> Approve</button></form>
-                                    <form method="POST" action="{{ route('warehouse.delivery_notes.destroy', $note) }}" onsubmit="return confirm('Hapus SJ?')">@csrf @method('DELETE')<button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button></form>
+                                    <a href="{{ route('warehouse.delivery_notes.edit', $note) }}" class="btn btn-warning text-dark" title="Edit Surat Jalan"><i class="bi bi-pencil"></i></a>
+                                    <form method="POST" action="{{ route('warehouse.delivery_notes.approve', $note) }}" onsubmit="return confirm('Approve pengiriman ini? Stok akan berkurang.')" class="d-inline">@csrf<button class="btn btn-success" title="Approve Surat Jalan"><i class="bi bi-check-lg"></i> Approve</button></form>
+                                    <form method="POST" action="{{ route('warehouse.delivery_notes.destroy', $note) }}" onsubmit="return confirm('Hapus SJ?')" class="d-inline">@csrf @method('DELETE')<button class="btn btn-danger" title="Hapus"><i class="bi bi-trash"></i></button></form>
+                                @endif
+                                @if(in_array($note->status, ['approved', 'sent'], true))
+                                    <a href="{{ route('warehouse.delivery_notes.sign', $note) }}" class="btn btn-primary" title="Tanda Tangan Penerima"><i class="bi bi-pencil-fill"></i> Tanda Tangan</a>
                                 @endif
                             </div>
                         </td>

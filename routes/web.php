@@ -98,7 +98,11 @@ Route::get('/run-migration-discount', function () {
             '--path' => 'database/migrations/2026_07_13_142738_add_sales_name_to_customers_table.php',
             '--force' => true
         ]);
-        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . ' / ' . $res3 . ' / ' . $res4 . ' / ' . $res5 . '<br><br><span style="color:green;font-weight:bold;">Tabel berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
+        $res6 = \Illuminate\Support\Facades\Artisan::call('migrate', [
+            '--path' => 'database/migrations/2026_07_13_220500_add_customer_signature_to_delivery_notes_table.php',
+            '--force' => true
+        ]);
+        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . ' / ' . $res3 . ' / ' . $res4 . ' / ' . $res5 . ' / ' . $res6 . '<br><br><span style="color:green;font-weight:bold;">Tabel berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
     } catch (\Exception $e) {
         return 'Migration failed: ' . $e->getMessage();
     }
@@ -486,7 +490,8 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
         Route::get('/delivery-notes/{deliveryNote}/print', [DeliveryNoteController::class, 'print'])
             ->middleware(RequirePermission::class . ':whse_sj_view')
             ->name('delivery_notes.print');
-        Route::middleware(RequirePermission::class . ':whse_sj_manage')->group(function (): void {
+            Route::get('/delivery-notes/{deliveryNote}/sign', [DeliveryNoteController::class, 'signForm'])->name('delivery_notes.sign');
+            Route::post('/delivery-notes/{deliveryNote}/sign', [DeliveryNoteController::class, 'storeSign'])->name('delivery_notes.sign.store');
             Route::get('/delivery-notes/create', [DeliveryNoteController::class, 'create'])->name('delivery_notes.create');
             Route::post('/delivery-notes', [DeliveryNoteController::class, 'store'])->name('delivery_notes.store');
             Route::get('/delivery-notes/{deliveryNote}/edit', [DeliveryNoteController::class, 'edit'])->name('delivery_notes.edit');

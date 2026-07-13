@@ -30,6 +30,7 @@
         .footer-sig th { border: 1px solid #000; background: #f2f2f2; padding: 5px; font-size: 10px; text-transform: uppercase; }
         .footer-sig td { border: 1px solid #000; height: 90px; text-align: center; vertical-align: bottom; padding: 5px; font-size: 10px; }
         .sig-name { display: block; font-weight: bold; text-decoration: underline; }
+        .sig-image { max-height: 55px; max-width: 140px; display: block; margin: 0 auto 5px auto; object-fit: contain; }
         
         .page-footer { margin-top: auto; text-align: center; border-top: 1px solid #ccc; padding-top: 10px; }
         .footer-comp-name { font-size: 14px; font-weight: bold; display: block; }
@@ -125,9 +126,32 @@
         </thead>
         <tbody>
             <tr>
-                <td><span class="sig-name">{{ $note->creator?->fullname ?? '-' }}</span></td>
-                <td><span class="sig-name">{{ $note->approver?->fullname ?? $note->creator?->fullname ?? '-' }}</span></td>
-                <td><span class="sig-name">&nbsp;</span></td>
+                <td>
+                    @if($note->creator?->signature_path)
+                        <img src="{{ asset($note->creator->signature_path) }}" class="sig-image" alt="Signature">
+                    @else
+                        <div style="height: 55px;"></div>
+                    @endif
+                    <span class="sig-name">{{ $note->creator?->fullname ?? '-' }}</span>
+                </td>
+                <td>
+                    @if($note->approver?->signature_path)
+                        <img src="{{ asset($note->approver->signature_path) }}" class="sig-image" alt="Signature">
+                    @elseif($note->status !== 'draft' && $note->creator?->signature_path)
+                        <img src="{{ asset($note->creator->signature_path) }}" class="sig-image" alt="Signature">
+                    @else
+                        <div style="height: 55px;"></div>
+                    @endif
+                    <span class="sig-name">{{ $note->approver?->fullname ?? $note->creator?->fullname ?? '-' }}</span>
+                </td>
+                <td>
+                    @if($note->customer_signature_path)
+                        <img src="{{ asset($note->customer_signature_path) }}" class="sig-image" alt="Signature">
+                    @else
+                        <div style="height: 55px;"></div>
+                    @endif
+                    <span class="sig-name">{{ $note->received_by_name ?? '....................' }}</span>
+                </td>
             </tr>
         </tbody>
     </table>

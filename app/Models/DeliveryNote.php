@@ -20,6 +20,9 @@ class DeliveryNote extends Model
         'notes',
         'created_by',
         'approved_by',
+        'customer_signature_path',
+        'received_by_name',
+        'received_at',
     ];
 
     protected function casts(): array
@@ -27,6 +30,7 @@ class DeliveryNote extends Model
         return [
             'dn_date' => 'date',
             'created_at' => 'datetime',
+            'received_at' => 'datetime',
         ];
     }
 

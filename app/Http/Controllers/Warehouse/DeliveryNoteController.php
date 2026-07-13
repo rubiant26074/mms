@@ -299,4 +299,55 @@ class DeliveryNoteController extends Controller
 
         return 'DN-' . $ym . '-' . str_pad((string) $count, 4, '0', STR_PAD_LEFT);
     }
+
+    public function signForm(DeliveryNote $deliveryNote): View
+    {
+        if (! in_array($deliveryNote->status, ['approved', 'sent'], true)) {
+            abort(403, 'Hanya Surat Jalan yang sudah Approved yang bisa ditandatangani.');
+        }
+
+        return view('warehouse.delivery-notes.sign', compact('deliveryNote'));
+    }
+
+    public function storeSign(Request $request, DeliveryNote $deliveryNote): RedirectResponse
+    {
+        if (! in_array($deliveryNote->status, ['approved', 'sent'], true)) {
+            return back()->withErrors('Hanya Surat Jalan yang sudah Approved yang bisa ditandatangani.');
+        }
+
+        $request->validate([
+            'received_by_name' => ['required', 'string', 'max:100'],
+            'signature_base64' => ['required', 'string'],
+        ]);
+
+        $dataUrl = (string) $request->input('signature_base64');
+        if (! preg_match('/^data:image\/(png|jpe?g);base64,([A-Za-z0-9+\/=\r\n]+)$/i', $dataUrl, $matches)) {
+            return back()->withErrors('Data gambar tanda tangan tidak valid.');
+        }
+
+        $extension = strtolower($matches[1]) === 'jpeg' ? 'jpg' : strtolower($matches[1]);
+        $binary = base64_decode(str_replace(["\r", "\n"], '', $matches[2]), true);
+        if ($binary === false) {
+            return back()->withErrors('Gagal membaca data gambar tanda tangan.');
+        }
+
+        $directory = storage_path('app/user-media/signature');
+        if (! is_dir($directory)) {
+            @mkdir($directory, 0775, true);
+        }
+
+        $filename = 'cust_sig_' . $deliveryNote->id . '_' . now()->format('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
+        if (@file_put_contents($directory . DIRECTORY_SEPARATOR . $filename, $binary) === false) {
+            return back()->withErrors('Gagal menyimpan file tanda tangan di server.');
+        }
+
+        $deliveryNote->update([
+            'customer_signature_path' => 'user-media/signature/' . $filename,
+            'received_by_name' => $request->input('received_by_name'),
+            'received_at' => now(),
+            'status' => 'sent',
+        ]);
+
+        return redirect()->route('warehouse.delivery_notes.index')->with('success', 'Tanda tangan customer berhasil disimpan. Surat Jalan telah ditandatangani.');
+    }
 }
