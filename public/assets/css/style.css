@@ -377,3 +377,31 @@ body {
         padding-top: 12px;
     }
 }
+
+/* --- Compact Table Form Fields Override (Remove Rounded Boxes) --- */
+table .form-control,
+table .form-select,
+table input[type="text"],
+table input[type="number"],
+table select,
+table textarea {
+    border: none !important;
+    border-bottom: 1px solid #cbd5e0 !important;
+    border-radius: 0 !important;
+    padding: 4px 6px !important;
+    font-size: 0.85rem !important;
+    height: auto !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+}
+
+table .form-control:focus,
+table .form-select:focus,
+table input[type="text"]:focus,
+table input[type="number"]:focus,
+table select:focus,
+table textarea:focus {
+    border-bottom: 1px solid var(--accent-color) !important;
+    background-color: #f8fafc !important;
+    outline: none !important;
+}
