@@ -13,6 +13,9 @@
     </div>
     <div class="col-md-6 text-end">
         @if($canManage)
+            <a href="{{ route('hrd.payroll_settings.edit') }}" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-gear-fill"></i> Setting Payroll
+            </a>
             <a href="{{ route('hrd.payroll.create') }}" class="btn btn-primary">
                 <i class="bi bi-plus-lg"></i> Buat Slip Gaji
             </a>

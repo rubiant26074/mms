@@ -125,6 +125,7 @@ class MmsContext
                 'submenu' => array_values(array_filter([
                     $can('hrd_attendance_view') ? ['label' => 'Absensi', 'url' => route('hrd.attendance.index'), 'icon' => 'bi-clock-history'] : null,
                     $can('hrd_payroll_view') ? ['label' => 'Payroll', 'url' => route('hrd.payroll.index'), 'icon' => 'bi-cash-stack'] : null,
+                    $can('hrd_payroll_manage') ? ['label' => 'Setting Payroll', 'url' => route('hrd.payroll_settings.edit'), 'icon' => 'bi-gear-fill'] : null,
                     $can('hrd_view') ? ['label' => 'Karyawan', 'url' => route('hrd.employees.index'), 'icon' => 'bi-person-vcard'] : null,
                 ])),
             ];

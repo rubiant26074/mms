@@ -108,7 +108,11 @@ Route::get('/run-migration-discount', function () {
             '--path' => 'database/migrations/2026_07_13_220500_add_customer_signature_to_delivery_notes_table.php',
             '--force' => true
         ]);
-        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . ' / ' . $res3 . ' / ' . $res4 . ' / ' . $res5 . ' / ' . $res6 . '<br><br><span style="color:green;font-weight:bold;">Tabel berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
+        $res7 = \Illuminate\Support\Facades\Artisan::call('migrate', [
+            '--path' => 'database/migrations/2026_07_14_201500_create_payroll_settings_table.php',
+            '--force' => true
+        ]);
+        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . ' / ' . $res3 . ' / ' . $res4 . ' / ' . $res5 . ' / ' . $res6 . ' / ' . $res7 . '<br><br><span style="color:green;font-weight:bold;">Tabel berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
     } catch (\Exception $e) {
         return 'Migration failed: ' . $e->getMessage();
     }
@@ -262,6 +266,8 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
             Route::put('/payroll/{payroll}', [PayrollController::class, 'update'])->name('payroll.update');
             Route::post('/payroll/{payroll}/pay', [PayrollController::class, 'pay'])->name('payroll.pay');
             Route::delete('/payroll/{payroll}', [PayrollController::class, 'destroy'])->name('payroll.destroy');
+            Route::get('/payroll-settings', [\App\Http\Controllers\Hrd\PayrollSettingController::class, 'edit'])->name('payroll_settings.edit');
+            Route::put('/payroll-settings', [\App\Http\Controllers\Hrd\PayrollSettingController::class, 'update'])->name('payroll_settings.update');
         });
 
         Route::get('/employees', [EmployeeController::class, 'index'])
