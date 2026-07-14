@@ -29,6 +29,7 @@
         .footer-sig{width:100%;table-layout:fixed;margin-top:10px}
         .footer-sig td{height:92px;text-align:center;vertical-align:bottom}
         .sig-name{font-weight:bold;text-decoration:underline;display:block}
+        .sig-image{max-height:50px;max-width:140px;display:block;margin:0 auto 5px auto;object-fit:contain}
         .page-footer{margin-top:auto;text-align:center;border-top:1px solid #ccc;padding-top:10px}
         .footer-comp-name{font-size:14px;font-weight:bold;display:block}
         .no-print{position:fixed;top:12px;right:12px;background:#111;color:#fff;border:0;border-radius:4px;padding:7px 12px;cursor:pointer}
@@ -121,9 +122,29 @@
             <thead><tr><th>Dibuat Oleh</th><th>Disetujui Oleh</th><th>Diterima Customer</th></tr></thead>
             <tbody>
                 <tr>
-                    <td><div style="height:55px"></div><span class="sig-name">{{ $quotation->creator?->fullname ?: 'Sales' }}</span><span>Tgl: {{ optional($quotation->quote_date)->format('d/m/Y') ?: '-' }}</span></td>
-                    <td><div style="height:55px"></div><span class="sig-name">{{ $approved ? ($quotation->approver?->fullname ?: '....................') : '....................' }}</span><span>Tgl: / /</span></td>
-                    <td><div style="height:55px"></div><span class="sig-name">{{ $quotation->customer?->name ?: 'Customer' }}</span><span>(Tanda Tangan & Stempel)</span></td>
+                    <td>
+                        @if($quotation->creator?->signature_path)
+                            <img src="{{ asset($quotation->creator->signature_path) }}" class="sig-image" alt="Signature">
+                        @else
+                            <div style="height:55px"></div>
+                        @endif
+                        <span class="sig-name">{{ $quotation->creator?->fullname ?: 'Sales' }}</span>
+                        <span>Tgl: {{ optional($quotation->quote_date)->format('d/m/Y') ?: '-' }}</span>
+                    </td>
+                    <td>
+                        @if($approved && $quotation->approver?->signature_path)
+                            <img src="{{ asset($quotation->approver->signature_path) }}" class="sig-image" alt="Signature">
+                        @else
+                            <div style="height:55px"></div>
+                        @endif
+                        <span class="sig-name">{{ $approved ? ($quotation->approver?->fullname ?: '....................') : '....................' }}</span>
+                        <span>Tgl: {{ $approved && $quotation->updated_at ? $quotation->updated_at->format('d/m/Y') : '/ /' }}</span>
+                    </td>
+                    <td>
+                        <div style="height:55px"></div>
+                        <span class="sig-name">{{ $quotation->customer?->name ?: 'Customer' }}</span>
+                        <span>(Tanda Tangan & Stempel)</span>
+                    </td>
                 </tr>
             </tbody>
         </table>
