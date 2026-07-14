@@ -4,10 +4,9 @@
 
 @section('content')
 @include('partials.alerts')
-@php($startValue = $payroll->period_start instanceof \Illuminate\Support\Carbon ? $payroll->period_start->format('Y-m-d') : $payroll->period_start)
-@php($endValue = $payroll->period_end instanceof \Illuminate\Support\Carbon ? $payroll->period_end->format('Y-m-d') : $payroll->period_end)
-
 @php
+    $startValue = $payroll->period_start instanceof \Illuminate\Support\Carbon ? $payroll->period_start->format('Y-m-d') : $payroll->period_start;
+    $endValue = $payroll->period_end instanceof \Illuminate\Support\Carbon ? $payroll->period_end->format('Y-m-d') : $payroll->period_end;
     $storedAllowances = is_array($payroll->allowance_details) ? $payroll->allowance_details : [];
     if (empty($storedAllowances) && $payroll->allowance_total > 0) {
         $storedAllowances = [['name' => 'Tunjangan', 'amount' => (float) $payroll->allowance_total]];
