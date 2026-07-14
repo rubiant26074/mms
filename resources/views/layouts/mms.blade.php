@@ -6,6 +6,7 @@
     $logoUrl = $mms->logoUrl($company);
     $notifications = $user ? $mms->notifications($user) : [];
     $unreadCount = $user ? $mms->unreadNotificationCount($user) : 0;
+    $isAndroidApp = str_contains(request()->userAgent(), 'MMS-Android-App');
 @endphp
 <!DOCTYPE html>
 <html lang="id">
@@ -46,17 +47,23 @@
 </head>
 <body class="{{ $theme['body_class'] }}">
     <div class="wrapper">
-        @include('partials.sidebar', ['company' => $company, 'logoUrl' => $logoUrl, 'menus' => $mms->sidebarMenus($user)])
-        <div id="sidebarOverlay" aria-hidden="true"></div>
-        <div id="content">
-            @include('partials.topbar', ['user' => $user, 'notifications' => $notifications, 'unreadCount' => $unreadCount])
-            <div class="container-fluid">
+        @if(!$isAndroidApp)
+            @include('partials.sidebar', ['company' => $company, 'logoUrl' => $logoUrl, 'menus' => $mms->sidebarMenus($user)])
+            <div id="sidebarOverlay" aria-hidden="true"></div>
+        @endif
+        <div id="content" @if($isAndroidApp) style="padding: 0; margin: 0; width: 100%; min-height: 100vh; display: flex; flex-direction: column;" @endif>
+            @if(!$isAndroidApp)
+                @include('partials.topbar', ['user' => $user, 'notifications' => $notifications, 'unreadCount' => $unreadCount])
+            @endif
+            <div class="container-fluid @if($isAndroidApp) py-3 @endif">
                 @yield('content')
             </div>
-            <footer class="mms-app-footer mt-auto">
-                <div class="mms-app-footer-main">Copyright &copy; 2026 {{ $company->company_name ?: 'MMS System' }}</div>
-                <div class="mms-app-footer-sub">Manufacturing Management System (Supported by CCT-NET)</div>
-            </footer>
+            @if(!$isAndroidApp)
+                <footer class="mms-app-footer mt-auto">
+                    <div class="mms-app-footer-main">Copyright &copy; 2026 {{ $company->company_name ?: 'MMS System' }}</div>
+                    <div class="mms-app-footer-sub">Manufacturing Management System (Supported by CCT-NET)</div>
+                </footer>
+            @endif
         </div>
     </div>
 

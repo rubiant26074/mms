@@ -25,9 +25,9 @@ import com.example.mmsabsensi.theme.MMSAbsensiTheme
 class MainActivity : ComponentActivity() {
 
     // TARGET SERVER URL: Change this URL to your production server URL.
-    // For local emulator testing: "http://10.0.2.2:8000"
-    // For local physical device testing: Use your computer's local IP (e.g., "http://192.168.1.X:8000")
-    private val TARGET_URL = "https://m.promindolaser.com"
+    // For local emulator testing: "http://10.0.2.2:8000/hrd/attendance"
+    // For local physical device testing: Use your computer's local IP (e.g., "http://192.168.1.X:8000/hrd/attendance")
+    private val TARGET_URL = "https://m.promindolaser.com/hrd/attendance"
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
