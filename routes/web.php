@@ -116,6 +116,10 @@ Route::get('/run-migration-discount', function () {
             '--path' => 'database/migrations/2026_07_14_203500_add_details_to_payrolls_table.php',
             '--force' => true
         ]);
+        $res9 = \Illuminate\Support\Facades\Artisan::call('migrate', [
+            '--path' => 'database/migrations/2026_07_14_215500_create_wa_message_logs_table.php',
+            '--force' => true
+        ]);
         
         // Clear Laravel caches to reflect updates instantly
         \Illuminate\Support\Facades\Artisan::call('view:clear');
@@ -123,11 +127,15 @@ Route::get('/run-migration-discount', function () {
         \Illuminate\Support\Facades\Artisan::call('config:clear');
         \Illuminate\Support\Facades\Artisan::call('cache:clear');
 
-        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . ' / ' . $res3 . ' / ' . $res4 . ' / ' . $res5 . ' / ' . $res6 . ' / ' . $res7 . ' / ' . $res8 . '<br><br><span style="color:green;font-weight:bold;">Tabel & Cache berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
+        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . ' / ' . $res3 . ' / ' . $res4 . ' / ' . $res5 . ' / ' . $res6 . ' / ' . $res7 . ' / ' . $res8 . ' / ' . $res9 . '<br><br><span style="color:green;font-weight:bold;">Tabel & Cache berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
     } catch (\Exception $e) {
         return 'Migration failed: ' . $e->getMessage();
     }
 });
+
+// Publicly accessible print layouts for customer access (e.g. via WhatsApp)
+Route::get('/public/sales-orders/{order}/print', [SalesOrderController::class, 'print'])->name('sales.orders.print.public');
+Route::get('/public/quotations/{quotation}/print', [QuotationController::class, 'print'])->name('sales.quotations.print.public');
 
 Route::middleware(MmsAuthenticate::class)->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

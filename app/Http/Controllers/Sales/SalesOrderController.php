@@ -172,7 +172,35 @@ class SalesOrderController extends Controller
             $message = 'Sales Order dibatalkan.';
         } elseif ($action === 'mark_sent' && in_array($order->status, ['confirmed', 'in_production', 'delivered', 'completed'], true)) {
             $order->update(['sent_to_client_at' => now(), 'sent_to_client_by' => auth()->id()]);
-            $message = 'SO dikirim ke client untuk TTD.';
+            
+            $phone = $order->customer?->phone;
+            if (!empty($phone)) {
+                $compName = app(\App\Services\MmsContext::class)->company()->company_name ?? 'MMS Promindo';
+                $soNum = $order->so_number;
+                $soDate = optional($order->so_date)->format('d/m/Y') ?: '-';
+                $custPo = $order->cust_po_number ?: '-';
+                
+                $msg = "Halo *{$order->customer->name}*,\n\n";
+                $msg .= "Berikut kami kirimkan *Sales Order (SO)* dari {$compName}:\n";
+                $msg .= "- No. SO: {$soNum}\n";
+                $msg .= "- Tanggal SO: {$soDate}\n";
+                $msg .= "- PO Customer: {$custPo}\n";
+                $msg .= "- Total: Rp " . number_format((float)$order->grand_total, 0, ',', '.') . "\n\n";
+                $msg .= "Anda dapat melihat dokumen cetak Sales Order dengan membuka link berikut:\n";
+                $msg .= route('sales.orders.print.public', $order) . "\n\n";
+                $msg .= "Terima kasih atas kerja samanya.";
+
+                $waService = app(\App\Services\WhatsappService::class);
+                list($waSuccess, $waError) = $waService->sendMessage($phone, $msg);
+
+                if ($waSuccess) {
+                    $message = 'Sales Order berhasil ditandai Terkirim dan WhatsApp terkirim ke customer.';
+                } else {
+                    $message = 'Sales Order ditandai Terkirim, tetapi WhatsApp gagal dikirim: ' . $waError;
+                }
+            } else {
+                $message = 'Sales Order ditandai Terkirim, tetapi nomor HP customer kosong sehingga WhatsApp tidak dikirim.';
+            }
         }
 
         return redirect()->route('sales.orders.index')->with('success', $message);
