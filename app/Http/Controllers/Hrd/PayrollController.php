@@ -57,6 +57,7 @@ class PayrollController extends Controller
             'deduction_total' => 0,
             'net_salary' => 0,
             'total_attendance' => 0,
+            'attendance_mode' => 'auto',
             'status' => 'draft',
         ]), false);
     }
@@ -164,8 +165,6 @@ class PayrollController extends Controller
     {
         $request->merge([
             'basic_salary' => $this->money($request->input('basic_salary')),
-            'allowance_total' => $this->money($request->input('allowance_total')),
-            'deduction_total' => $this->money($request->input('deduction_total')),
         ]);
 
         $data = $request->validate([
@@ -173,12 +172,54 @@ class PayrollController extends Controller
             'period_start' => ['required', 'date'],
             'period_end' => ['required', 'date', 'after_or_equal:period_start'],
             'basic_salary' => ['required', 'numeric', 'min:0'],
-            'allowance_total' => ['nullable', 'numeric', 'min:0'],
-            'deduction_total' => ['nullable', 'numeric', 'min:0'],
             'total_attendance' => ['required', 'integer', 'min:0'],
+            'attendance_mode' => ['required', 'in:auto,manual'],
             'notes' => ['nullable', 'string'],
             'status' => ['nullable', Rule::in(['draft', 'paid'])],
+
+            'allowance_names' => ['nullable', 'array'],
+            'allowance_names.*' => ['nullable', 'string'],
+            'allowance_amounts' => ['nullable', 'array'],
+            'allowance_amounts.*' => ['nullable', 'string'],
+
+            'deduction_names' => ['nullable', 'array'],
+            'deduction_names.*' => ['nullable', 'string'],
+            'deduction_amounts' => ['nullable', 'array'],
+            'deduction_amounts.*' => ['nullable', 'string'],
         ]);
+
+        // Build allowances details
+        $allowances = [];
+        $allowanceTotal = 0;
+        foreach ($request->input('allowance_names', []) as $idx => $name) {
+            $name = trim((string) $name);
+            $amountStr = $request->input("allowance_amounts.{$idx}", '0');
+            $amount = $this->money($amountStr);
+            if ($name !== '') {
+                $allowances[] = ['name' => $name, 'amount' => $amount];
+                $allowanceTotal += $amount;
+            }
+        }
+        $data['allowance_details'] = $allowances;
+        $data['allowance_total'] = $allowanceTotal;
+
+        // Build deductions details
+        $deductions = [];
+        $deductionTotal = 0;
+        foreach ($request->input('deduction_names', []) as $idx => $name) {
+            $name = trim((string) $name);
+            $amountStr = $request->input("deduction_amounts.{$idx}", '0');
+            $amount = $this->money($amountStr);
+            if ($name !== '') {
+                $deductions[] = ['name' => $name, 'amount' => $amount];
+                $deductionTotal += $amount;
+            }
+        }
+        $data['deduction_details'] = $deductions;
+        $data['deduction_total'] = $deductionTotal;
+
+        // Unset unused array inputs so they aren't inserted directly
+        unset($data['allowance_names'], $data['allowance_amounts'], $data['deduction_names'], $data['deduction_amounts']);
 
         return $data;
     }

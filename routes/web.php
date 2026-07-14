@@ -112,7 +112,11 @@ Route::get('/run-migration-discount', function () {
             '--path' => 'database/migrations/2026_07_14_201500_create_payroll_settings_table.php',
             '--force' => true
         ]);
-        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . ' / ' . $res3 . ' / ' . $res4 . ' / ' . $res5 . ' / ' . $res6 . ' / ' . $res7 . '<br><br><span style="color:green;font-weight:bold;">Tabel berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
+        $res8 = \Illuminate\Support\Facades\Artisan::call('migrate', [
+            '--path' => 'database/migrations/2026_07_14_203500_add_details_to_payrolls_table.php',
+            '--force' => true
+        ]);
+        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . ' / ' . $res3 . ' / ' . $res4 . ' / ' . $res5 . ' / ' . $res6 . ' / ' . $res7 . ' / ' . $res8 . '<br><br><span style="color:green;font-weight:bold;">Tabel berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
     } catch (\Exception $e) {
         return 'Migration failed: ' . $e->getMessage();
     }

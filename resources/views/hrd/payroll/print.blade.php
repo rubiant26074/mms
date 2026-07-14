@@ -54,8 +54,46 @@
             <div class="divider"></div>
 
             <div class="row"><span class="label">Gaji Pokok:</span> <span class="nominal">Rp {{ number_format((float) $payroll->basic_salary, 0, ',', '.') }}</span></div>
-            <div class="row"><span class="label">Tunjangan:</span> <span class="nominal">Rp {{ number_format((float) $payroll->allowance_total, 0, ',', '.') }}</span></div>
-            <div class="row"><span class="label">Potongan:</span> <span class="nominal">(Rp {{ number_format((float) $payroll->deduction_total, 0, ',', '.') }})</span></div>
+            
+            <div class="row" style="margin-top: 10px; margin-bottom: 2px;"><span class="label">Tunjangan (+)</span></div>
+            @php
+                $allowances = is_array($payroll->allowance_details) ? $payroll->allowance_details : [];
+            @endphp
+            @forelse($allowances as $allowance)
+                <div class="row" style="padding-left: 15px; color: #555;">
+                    <span>- {{ $allowance['name'] }}</span>
+                    <span class="nominal">Rp {{ number_format((float) ($allowance['amount'] ?? 0), 0, ',', '.') }}</span>
+                </div>
+            @empty
+                <div class="row" style="padding-left: 15px; color: #777;">
+                    <span>- Tidak ada tunjangan</span>
+                    <span class="nominal">Rp 0</span>
+                </div>
+            @endforelse
+            <div class="row" style="padding-left: 15px; font-weight: bold; border-top: 1px solid #eee; margin-top: 2px; padding-top: 2px;">
+                <span>Total Tunjangan:</span>
+                <span class="nominal">Rp {{ number_format((float) $payroll->allowance_total, 0, ',', '.') }}</span>
+            </div>
+
+            <div class="row" style="margin-top: 10px; margin-bottom: 2px;"><span class="label">Potongan (-)</span></div>
+            @php
+                $deductions = is_array($payroll->deduction_details) ? $payroll->deduction_details : [];
+            @endphp
+            @forelse($deductions as $deduction)
+                <div class="row" style="padding-left: 15px; color: #555;">
+                    <span>- {{ $deduction['name'] }}</span>
+                    <span class="nominal">(Rp {{ number_format((float) ($deduction['amount'] ?? 0), 0, ',', '.') }})</span>
+                </div>
+            @empty
+                <div class="row" style="padding-left: 15px; color: #777;">
+                    <span>- Tidak ada potongan</span>
+                    <span class="nominal">Rp 0</span>
+                </div>
+            @endforelse
+            <div class="row" style="padding-left: 15px; font-weight: bold; border-top: 1px solid #eee; margin-top: 2px; padding-top: 2px;">
+                <span>Total Potongan:</span>
+                <span class="nominal">(Rp {{ number_format((float) $payroll->deduction_total, 0, ',', '.') }})</span>
+            </div>
 
             <div class="total-box row">
                 <span>TAKE HOME PAY:</span>
