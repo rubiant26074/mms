@@ -103,8 +103,17 @@ class UserController extends Controller
             return null;
         }
 
-        $path = $request->file('signature')->store('uploads/signatures', 'public_root');
+        $file = $request->file('signature');
+        $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'jpg');
+        
+        $directory = public_path('uploads/signatures');
+        if (! is_dir($directory) && ! @mkdir($directory, 0775, true) && ! is_dir($directory)) {
+            return null;
+        }
 
-        return str_replace('\\', '/', $path);
+        $filename = 'sig_' . uniqid() . '_' . now()->format('YmdHis') . '.' . $extension;
+        $file->move($directory, $filename);
+
+        return 'uploads/signatures/' . $filename;
     }
 }
