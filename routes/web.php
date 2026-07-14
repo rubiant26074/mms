@@ -116,7 +116,14 @@ Route::get('/run-migration-discount', function () {
             '--path' => 'database/migrations/2026_07_14_203500_add_details_to_payrolls_table.php',
             '--force' => true
         ]);
-        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . ' / ' . $res3 . ' / ' . $res4 . ' / ' . $res5 . ' / ' . $res6 . ' / ' . $res7 . ' / ' . $res8 . '<br><br><span style="color:green;font-weight:bold;">Tabel berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
+        
+        // Clear Laravel caches to reflect updates instantly
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        \Illuminate\Support\Facades\Artisan::call('route:clear');
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+
+        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . ' / ' . $res3 . ' / ' . $res4 . ' / ' . $res5 . ' / ' . $res6 . ' / ' . $res7 . ' / ' . $res8 . '<br><br><span style="color:green;font-weight:bold;">Tabel & Cache berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
     } catch (\Exception $e) {
         return 'Migration failed: ' . $e->getMessage();
     }
