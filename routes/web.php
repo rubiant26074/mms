@@ -58,9 +58,15 @@ use App\Http\Controllers\Warehouse\MaterialIssueController;
 use App\Http\Controllers\Warehouse\MaterialReturnController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => auth()->check()
-    ? redirect()->route('dashboard')
-    : app(AuthController::class)->showLogin(app(\App\Services\MmsContext::class)));
+Route::get('/', function () {
+    if (auth()->check()) {
+        if (str_contains(request()->userAgent(), 'MMS-Android-App')) {
+            return redirect()->route('hrd.attendance.index');
+        }
+        return redirect()->route('dashboard');
+    }
+    return app(AuthController::class)->showLogin(app(\App\Services\MmsContext::class));
+});
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.store');

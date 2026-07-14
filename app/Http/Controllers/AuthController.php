@@ -48,6 +48,10 @@ class AuthController extends Controller
         $request->session()->regenerate();
         $context->syncLegacySession($user);
 
+        if (str_contains($request->userAgent(), 'MMS-Android-App')) {
+            return redirect()->route('hrd.attendance.index');
+        }
+
         return redirect()->intended(route('dashboard'));
     }
 
