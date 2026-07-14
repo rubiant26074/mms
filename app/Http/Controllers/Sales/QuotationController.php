@@ -170,9 +170,37 @@ class QuotationController extends Controller
             } elseif ($action === 'reject' && $quotation->status === 'waiting_approval') {
                 $quotation->update(['status' => 'rejected']);
                 $message = 'Rejected.';
-            } elseif ($action === 'mark_sent' && $quotation->status === 'approved') {
-                $quotation->update(['status' => 'sent', 'sent_to_client_at' => now(), 'sent_to_client_by' => auth()->id()]);
-                $message = 'Status: Sent to Customer.';
+            } elseif ($action === 'mark_sent' && in_array($quotation->status, ['approved', 'sent', 'won'], true)) {
+                if ($quotation->status === 'approved') {
+                    $quotation->update(['status' => 'sent', 'sent_to_client_at' => now(), 'sent_to_client_by' => auth()->id()]);
+                }
+                
+                $phone = $quotation->customer?->phone;
+                if (!empty($phone)) {
+                    $compName = app(\App\Services\MmsContext::class)->company()->company_name ?? 'MMS Promindo';
+                    $quoteNum = $quotation->quote_number;
+                    $quoteDate = optional($quotation->quote_date)->format('d/m/Y') ?: '-';
+                    
+                    $msg = "Halo *{$quotation->customer->name}*,\n\n";
+                    $msg .= "Berikut kami kirimkan *Quotation (Penawaran Harga)* dari {$compName}:\n";
+                    $msg .= "- No. Quotation: {$quoteNum}\n";
+                    $msg .= "- Tanggal: {$quoteDate}\n";
+                    $msg .= "- Total: Rp " . number_format((float)$quotation->grand_total, 0, ',', '.') . "\n\n";
+                    $msg .= "Anda dapat melihat dokumen cetak penawaran dengan membuka link berikut:\n";
+                    $msg .= route('sales.quotations.print.public', $quotation) . "\n\n";
+                    $msg .= "Terima kasih atas perhatian dan kerja samanya.";
+
+                    $waService = app(\App\Services\WhatsappService::class);
+                    list($waSuccess, $waError) = $waService->sendMessage($phone, $msg);
+
+                    if ($waSuccess) {
+                        $message = 'Quotation berhasil dikirim ke customer via WhatsApp menggunakan Fonnte.';
+                    } else {
+                        $message = 'Quotation berhasil ditandai terkirim, tetapi WhatsApp gagal dikirim: ' . $waError;
+                    }
+                } else {
+                    $message = 'Quotation ditandai terkirim, tetapi nomor HP customer kosong sehingga WhatsApp tidak dikirim.';
+                }
             } elseif ($action === 'won' && $quotation->status === 'sent') {
                 $quotation->update(['status' => 'won']);
                 $message = 'Selamat! Quotation WON.';

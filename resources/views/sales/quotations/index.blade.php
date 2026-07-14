@@ -83,8 +83,8 @@
                                     <form method="POST" action="{{ route('sales.quotations.workflow', [$row, 'approve']) }}">@csrf<button class="btn btn-success" title="Approve"><i class="bi bi-check-lg"></i></button></form>
                                     <form method="POST" action="{{ route('sales.quotations.workflow', [$row, 'reject']) }}">@csrf<button class="btn btn-danger" title="Reject"><i class="bi bi-x-lg"></i></button></form>
                                 @endif
-                                @if($row->status === 'approved')
-                                    <form method="POST" action="{{ route('sales.quotations.workflow', [$row, 'mark_sent']) }}" onsubmit="return confirm('Submit quotation ke client?')">@csrf<button class="btn btn-primary" title="Sent"><i class="bi bi-whatsapp"></i></button></form>
+                                @if(in_array($row->status, ['approved', 'sent', 'won'], true))
+                                    <form method="POST" action="{{ route('sales.quotations.workflow', [$row, 'mark_sent']) }}" onsubmit="return confirm('Kirim/Kirim ulang quotation ke client via WhatsApp?')">@csrf<button class="btn btn-primary" title="Kirim WA"><i class="bi bi-whatsapp"></i></button></form>
                                 @endif
                                 @if($row->status === 'sent')
                                     <form method="POST" action="{{ route('sales.quotations.workflow', [$row, 'won']) }}" onsubmit="return confirm('Won?')">@csrf<button class="btn btn-success fw-bold">Won</button></form>
