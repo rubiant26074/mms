@@ -169,7 +169,14 @@ class UserSettingsController extends Controller
         $filename = $prefix . '_' . now()->format('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
         $file->move($directory, $filename);
 
-        return 'user-media/' . $type . '/' . $filename;
+        $sub = match ($type) {
+            'signature' => 'signatures',
+            'avatar' => 'avatars',
+            'face_reference' => 'face-reference',
+            default => $type,
+        };
+
+        return 'uploads/' . $sub . '/' . $filename;
     }
 
     private function storeBase64Image(string $dataUrl, string $type, string $prefix, int $maxKb): string
@@ -187,10 +194,17 @@ class UserSettingsController extends Controller
         $directory = $this->ensureMediaDirectory($type);
         $filename = $prefix . '_' . now()->format('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $extension;
         if (@file_put_contents($directory . DIRECTORY_SEPARATOR . $filename, $binary) === false) {
-            throw ValidationException::withMessages([$type . '_file' => 'Server tidak bisa menulis file ke storage/app/user-media.']);
+            throw ValidationException::withMessages([$type . '_file' => 'Server tidak bisa menulis file ke public/uploads.']);
         }
 
-        return 'user-media/' . $type . '/' . $filename;
+        $sub = match ($type) {
+            'signature' => 'signatures',
+            'avatar' => 'avatars',
+            'face_reference' => 'face-reference',
+            default => $type,
+        };
+
+        return 'uploads/' . $sub . '/' . $filename;
     }
 
     private function deletePublicFile(?string $path): void
@@ -213,17 +227,24 @@ class UserSettingsController extends Controller
             return;
         }
 
-        Storage::disk('public_root')->delete($relativePath);
+        $file = public_path($relativePath);
+        if (is_file($file)) {
+            @unlink($file);
+        }
     }
 
     private function ensureMediaDirectory(string $type): string
     {
-        $directory = storage_path('app/user-media/' . $type);
+        $sub = match ($type) {
+            'signature' => 'signatures',
+            'avatar' => 'avatars',
+            'face_reference' => 'face-reference',
+            default => $type,
+        };
+
+        $directory = public_path('uploads/' . $sub);
         if (! is_dir($directory) && ! @mkdir($directory, 0775, true) && ! is_dir($directory)) {
-            throw ValidationException::withMessages([$type . '_file' => 'Folder storage/app/user-media/' . $type . ' tidak bisa dibuat di server.']);
-        }
-        if (! is_writable($directory)) {
-            throw ValidationException::withMessages([$type . '_file' => 'Folder storage/app/user-media/' . $type . ' tidak writable. Set permission storage ke 775.']);
+            throw ValidationException::withMessages([$type . '_file' => 'Folder public/uploads/' . $sub . ' tidak bisa dibuat di server.']);
         }
 
         return $directory;
