@@ -2,8 +2,10 @@ package com.example.mmsabsensi
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.webkit.PermissionRequest
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -22,13 +24,28 @@ import com.example.mmsabsensi.theme.MMSAbsensiTheme
 
 class MainActivity : ComponentActivity() {
 
-    // TARGET SERVER URL: Change this URL to your cPanel URL (e.g., https://mms-yourdomain.com) for production build.
-    private val TARGET_URL = "http://10.0.2.2:8000" // Default Emulator local server address
+    // TARGET SERVER URL: Change this URL to your production server URL.
+    // For local emulator testing: "http://10.0.2.2:8000"
+    // For local physical device testing: Use your computer's local IP (e.g., "http://192.168.1.X:8000")
+    private val TARGET_URL = "https://m.promindolaser.com"
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         // Handle permissions response dynamically if required
+    }
+
+    private var filePathCallback: ValueCallback<Array<Uri>>? = null
+
+    private val fileChooserLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (filePathCallback != null) {
+            val data = result.data
+            val results = WebChromeClient.FileChooserParams.parseResult(result.resultCode, data)
+            filePathCallback?.onReceiveValue(results)
+            filePathCallback = null
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +82,26 @@ class MainActivity : ComponentActivity() {
                                         callback: GeolocationPermissions.Callback?
                                     ) {
                                         callback?.invoke(origin, true, false)
+                                    }
+
+                                    // Handle file chooser (camera selfie / file upload)
+                                    override fun onShowFileChooser(
+                                        webView: WebView?,
+                                        filePathCallback: ValueCallback<Array<Uri>>?,
+                                        fileChooserParams: FileChooserParams?
+                                    ): Boolean {
+                                        this@MainActivity.filePathCallback?.onReceiveValue(null)
+                                        this@MainActivity.filePathCallback = filePathCallback
+
+                                        try {
+                                            val intent = fileChooserParams?.createIntent()
+                                            fileChooserLauncher.launch(intent)
+                                        } catch (e: Exception) {
+                                            this@MainActivity.filePathCallback?.onReceiveValue(null)
+                                            this@MainActivity.filePathCallback = null
+                                            return false
+                                        }
+                                        return true
                                     }
                                 }
 
