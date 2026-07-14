@@ -95,7 +95,13 @@ class MainActivity : ComponentActivity() {
 
                                         try {
                                             val intent = fileChooserParams?.createIntent()
-                                            fileChooserLauncher.launch(intent)
+                                            if (intent != null) {
+                                                fileChooserLauncher.launch(intent)
+                                            } else {
+                                                this@MainActivity.filePathCallback?.onReceiveValue(null)
+                                                this@MainActivity.filePathCallback = null
+                                                return false
+                                            }
                                         } catch (e: Exception) {
                                             this@MainActivity.filePathCallback?.onReceiveValue(null)
                                             this@MainActivity.filePathCallback = null
