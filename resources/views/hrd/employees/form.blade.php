@@ -20,7 +20,8 @@
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label>NIK <span class="text-danger">*</span></label>
-                            <input type="text" name="nik" class="form-control" value="{{ old('nik', $employee->nik) }}" required placeholder="KRY-001">
+                            <input type="text" name="nik" class="form-control" value="{{ old('nik', $employee->nik ?? 'AUTO') }}" required placeholder="AUTO">
+                            <small class="text-muted">Ketik <strong>AUTO</strong> untuk otomatis.</small>
                         </div>
                         <div class="col-md-8 mb-3">
                             <label>Nama Lengkap <span class="text-danger">*</span></label>

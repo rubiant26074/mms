@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Illuminate\Support\Carbon;
 
 class EmployeeController extends Controller
 {
@@ -47,6 +48,7 @@ class EmployeeController extends Controller
             'join_date' => now()->toDateString(),
             'employee_status' => 'probation',
             'basic_salary' => 0,
+            'nik' => 'AUTO',
         ]), false);
     }
 
@@ -54,6 +56,10 @@ class EmployeeController extends Controller
     {
         $data = $this->validated($request);
         $data['password'] = Hash::make($data['password']);
+
+        if (empty($data['nik']) || strtoupper($data['nik']) === 'AUTO') {
+            $data['nik'] = $this->generateNik($data['join_date'] ?? now()->toDateString());
+        }
 
         User::query()->create($data);
 
@@ -74,9 +80,29 @@ class EmployeeController extends Controller
             unset($data['password']);
         }
 
+        if (empty($data['nik']) || strtoupper($data['nik']) === 'AUTO') {
+            $data['nik'] = $this->generateNik($data['join_date'] ?? now()->toDateString());
+        }
+
         $employee->update($data);
 
         return redirect()->route('hrd.employees.index')->with('success', 'Data Karyawan berhasil disimpan!');
+    }
+
+    private function generateNik(string $joinDate): string
+    {
+        $ym = Carbon::parse($joinDate)->format('ym'); // e.g. "2607"
+        $count = User::query()->where('nik', 'like', "{$ym}%")->count() + 1;
+        
+        do {
+            $nik = $ym . str_pad((string) $count, 4, '0', STR_PAD_LEFT);
+            $exists = User::query()->where('nik', $nik)->exists();
+            if ($exists) {
+                $count++;
+            }
+        } while ($exists);
+
+        return $nik;
     }
 
     public function destroy(User $employee): RedirectResponse
@@ -113,12 +139,17 @@ class EmployeeController extends Controller
             'basic_salary' => $this->normalizeNumber($request->input('basic_salary')),
         ]);
 
+        $nikRules = ['nullable', 'string', 'max:50'];
+        if (strtoupper((string) $request->input('nik')) !== 'AUTO') {
+            $nikRules[] = Rule::unique('users', 'nik')->ignore($employee);
+        }
+
         return $request->validate([
             'username' => ['required', 'string', 'max:50', Rule::unique('users', 'username')->ignore($employee)],
             'fullname' => ['required', 'string', 'max:100'],
             'role_id' => ['required', 'exists:roles,id'],
             'password' => [$employee ? 'nullable' : 'required', 'string', 'min:4'],
-            'nik' => ['nullable', 'string', 'max:50'],
+            'nik' => $nikRules,
             'phone' => ['nullable', 'string', 'max:50'],
             'address' => ['nullable', 'string'],
             'department' => ['nullable', 'string', 'max:50'],
