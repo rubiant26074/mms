@@ -18,13 +18,13 @@ class WhatsappService
      */
     public function sendMessage(string $phone, string $message, ?string $mediaUrl = null): array
     {
-        $token = config('services.fonnte.token');
+        $token = \App\Models\CompanyProfile::query()->value('fonte_token') ?: config('services.fonnte.token');
         
         // Clean phone number: remove non-digit characters, replace leading '0' or '+62' with '62'
         $cleanedPhone = $this->cleanPhoneNumber($phone);
         
         if (empty($token)) {
-            $error = 'Fonnte API Token tidak terkonfigurasi. Set FONNTE_TOKEN di file .env.';
+            $error = 'Fonnte API Token tidak terkonfigurasi. Silakan isi Token WA Fonte di halaman Pengaturan Identitas Perusahaan.';
             $this->logMessage('failed', $cleanedPhone, $phone, $message, $mediaUrl, $error, null);
             return [false, $error, null];
         }
