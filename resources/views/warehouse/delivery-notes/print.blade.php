@@ -39,6 +39,10 @@
             .box { border: none; }
             body { padding: 20px; }
             .page-footer { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #fff; }
+            tr { page-break-inside: avoid; break-inside: avoid; }
+            .summary-table { page-break-inside: avoid; break-inside: avoid; }
+            .footer-sig { page-break-inside: avoid; break-inside: avoid; }
+            .notes-box { page-break-inside: avoid; break-inside: avoid; }
         }
     </style>
 </head>
