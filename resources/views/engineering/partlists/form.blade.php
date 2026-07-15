@@ -15,15 +15,32 @@
     @csrf
     <input type="hidden" name="spk_id" value="{{ $spk->id }}">
 
+    <style>
+        /* Remove underline (border-bottom) of table inputs inside partTable */
+        #partTable input.form-control,
+        #partTable select.form-select,
+        #partTable input[type="text"],
+        #partTable input[type="number"] {
+            border-bottom: none !important;
+        }
+        #partTable input.form-control:focus,
+        #partTable select.form-select:focus,
+        #partTable input[type="text"]:focus,
+        #partTable input[type="number"]:focus {
+            border-bottom: none !important;
+            background-color: #f8fafc !important;
+        }
+    </style>
+
     <div class="card shadow-sm">
         <div class="card-body p-0 table-responsive">
             <table class="table table-bordered mb-0" id="partTable">
-                <thead class="table-light"><tr><th>Item No</th><th>Drawing No</th><th>Part Name</th><th width="90">Qty</th><th>Material</th><th width="100">Thick</th><th width="100">Length</th><th width="100">Width</th><th>Process</th><th>Notes</th><th>Drawing File</th><th width="60"></th></tr></thead>
+                <thead class="table-light"><tr><th width="65" class="text-center">Item No</th><th>Drawing No</th><th>Part Name</th><th width="90">Qty</th><th>Material</th><th width="100">Thick</th><th width="100">Length</th><th width="100">Width</th><th>Process</th><th>Notes</th><th>Drawing File</th><th width="60"></th></tr></thead>
                 <tbody>
                 @forelse($parts as $part)
                     <tr>
                         <input type="hidden" name="row_index[]" value="{{ $loop->index }}">
-                        <td><input name="item_no[]" class="form-control" value="{{ $part->item_no }}"></td>
+                        <td><input name="item_no[]" class="form-control text-center" value="{{ $part->item_no }}"></td>
                         <td><input name="drawing_no[]" class="form-control" value="{{ $part->drawing_no }}"></td>
                         <td><input name="part_name[]" class="form-control" value="{{ $part->part_name }}"></td>
                         <td><input name="qty[]" type="number" step="0.01" class="form-control" value="{{ $part->qty !== null ? $part->qty + 0 : '' }}"></td>
@@ -65,7 +82,7 @@
                 @empty
                     <tr>
                         <input type="hidden" name="row_index[]" value="0">
-                        <td><input name="item_no[]" class="form-control"></td><td><input name="drawing_no[]" class="form-control"></td><td><input name="part_name[]" class="form-control"></td><td><input name="qty[]" type="number" step="0.01" class="form-control"></td><td><input name="material[]" class="form-control"></td><td><input name="thickness[]" class="form-control"></td><td><input name="length[]" type="number" step="0.01" class="form-control"></td><td><input name="width[]" type="number" step="0.01" class="form-control"></td><td><input name="process[]" class="form-control"></td><td><input name="notes[]" class="form-control"></td>
+                        <td><input name="item_no[]" class="form-control text-center"></td><td><input name="drawing_no[]" class="form-control"></td><td><input name="part_name[]" class="form-control"></td><td><input name="qty[]" type="number" step="0.01" class="form-control"></td><td><input name="material[]" class="form-control"></td><td><input name="thickness[]" class="form-control"></td><td><input name="length[]" type="number" step="0.01" class="form-control"></td><td><input name="width[]" type="number" step="0.01" class="form-control"></td><td><input name="process[]" class="form-control"></td><td><input name="notes[]" class="form-control"></td>
                         <td>
                             <div class="d-flex align-items-center gap-1">
                                 <!-- text input for link -->
