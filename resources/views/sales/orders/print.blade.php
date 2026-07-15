@@ -66,6 +66,7 @@
                 <td width="55%">
                     <strong>Customer:</strong><br>
                     <strong>{{ strtoupper($order->customer?->name ?: '-') }}</strong><br>
+                    {{ $order->customer?->pic ?: '-' }}<br>
                     {!! nl2br(e($order->customer?->address ?: '-')) !!}<br>
                     Telp: {{ $order->customer?->phone ?: '-' }}
                 </td>

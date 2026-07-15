@@ -65,7 +65,7 @@
                 <td width="55%">
                     <strong>Kepada:</strong><br>
                     <strong>{{ strtoupper($quotation->customer?->name ?: '-') }}</strong><br>
-                    U.p. Bpk/Ibu: {{ $quotation->customer?->pic ?: '-' }}<br>
+                    {{ $quotation->customer?->pic ?: '-' }}<br>
                     {!! nl2br(e($quotation->customer?->address ?: '-')) !!}<br>
                     Telp: {{ $quotation->customer?->phone ?: '-' }}
                 </td>
