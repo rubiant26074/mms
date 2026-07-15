@@ -15,22 +15,7 @@
     @csrf
     <input type="hidden" name="spk_id" value="{{ $spk->id }}">
 
-    <style>
-        /* Remove underline (border-bottom) of table inputs inside partTable */
-        #partTable input.form-control,
-        #partTable select.form-select,
-        #partTable input[type="text"],
-        #partTable input[type="number"] {
-            border-bottom: none !important;
-        }
-        #partTable input.form-control:focus,
-        #partTable select.form-select:focus,
-        #partTable input[type="text"]:focus,
-        #partTable input[type="number"]:focus {
-            border-bottom: none !important;
-            background-color: #f8fafc !important;
-        }
-    </style>
+
 
     <div class="card shadow-sm">
         <div class="card-body p-0 table-responsive">

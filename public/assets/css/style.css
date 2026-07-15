@@ -386,7 +386,7 @@ table input[type="number"],
 table select,
 table textarea {
     border: none !important;
-    border-bottom: 1px solid #cbd5e0 !important;
+    border-bottom: none !important;
     border-radius: 0 !important;
     padding: 4px 6px !important;
     font-size: 0.85rem !important;
@@ -401,7 +401,7 @@ table input[type="text"]:focus,
 table input[type="number"]:focus,
 table select:focus,
 table textarea:focus {
-    border-bottom: 1px solid var(--accent-color) !important;
+    border-bottom: none !important;
     background-color: #f8fafc !important;
     outline: none !important;
 }
