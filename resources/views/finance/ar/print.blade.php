@@ -27,7 +27,12 @@
         .no-print { text-align: center; margin-bottom: 20px; }
         .page-footer { margin-top: auto; text-align: center; border-top: 1px solid #ccc; padding-top: 10px; }
         .footer-comp-name { font-size: 14px; font-weight: bold; display: block; }
-        @media print { .no-print { display: none; } .box { border: none; } }
+        @media print {
+            .no-print { display: none; }
+            .box { border: none; }
+            body { padding: 20px; }
+            .page-footer { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #fff; }
+        }
     </style>
 </head>
 <body onload="window.print()">
@@ -104,7 +109,7 @@
             </tfoot>
     </div>
 </td></tr></tbody>
-<tfoot><tr><td style="border:none;padding:0;">
+<tfoot><tr><td style="border:none;padding:0;height:40px;">
     <div class="page-footer">
         <span class="footer-comp-name">{{ strtoupper($compName ?? '-') }}</span>
         <span>{{ $compAddress ?? '-' }}</span>

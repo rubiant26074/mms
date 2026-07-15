@@ -40,6 +40,8 @@
         @media print { 
             .no-print { display:none; } 
             .box { border:none; padding:0; } 
+            body { padding: 20px; }
+            .page-footer { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #fff; }
         }
     </style>
 </head>
@@ -207,7 +209,7 @@
         </div>
     </div>
 </td></tr></tbody>
-<tfoot><tr><td style="border:none;padding:0;">
+<tfoot><tr><td style="border:none;padding:0;height:40px;">
     <!-- Footer -->
     <div class="page-footer">
         <span class="footer-comp-name">{{ strtoupper($compName ?? '-') }}</span>

@@ -33,7 +33,11 @@
         .page-footer{margin-top:auto;text-align:center;border-top:1px solid #ccc;padding-top:10px}
         .footer-comp-name{font-size:14px;font-weight:bold;display:block}
         .no-print{position:fixed;top:12px;right:12px;background:#111;color:#fff;border:0;border-radius:4px;padding:7px 12px;cursor:pointer}
-        @media print{body{padding:20px}.no-print{display:none}}
+        @media print{
+            body{padding:20px}
+            .no-print{display:none}
+            .page-footer{position:fixed;bottom:20px;left:20px;right:20px;background:#fff}
+        }
     </style>
 </head>
 <body onload="window.print()">
@@ -158,7 +162,7 @@
             </tbody>
     </div>
 </td></tr></tbody>
-<tfoot><tr><td style="border:none;padding:0;">
+<tfoot><tr><td style="border:none;padding:0;height:40px;">
     <div class="page-footer"><span class="footer-comp-name">{{ strtoupper($company->company_name ?? '-') }}</span><span>{{ $company->address ?? '-' }}</span></div>
 </td></tr></tfoot>
 </table>

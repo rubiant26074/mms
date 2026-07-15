@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Verifikasi QC Produksi - {{ $qc->qc_number }}</title>
     <style>
-        @page{size:A4 portrait;margin:0}body{font-family:Arial,sans-serif;font-size:11px;margin:0;padding:20px;color:#000}.box{max-width:800px;margin:auto}.header{border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:15px;display:flex;justify-content:space-between}.doc-title-box{border:none;padding:5px;display:inline-block;text-align:center}.doc-title{font-size:18px;font-weight:bold;letter-spacing:1px}.info-table,.data-table,.footer-sig{width:100%;border-collapse:collapse;margin-bottom:12px}.info-table td{vertical-align:top;padding:2px}.section-header{font-weight:bold;font-size:11px;margin-bottom:5px;text-transform:uppercase;background:#f8f9fa;padding:4px;border:1px solid #ccc}.data-table th,.data-table td,.footer-sig th,.footer-sig td{border:1px solid #000;padding:6px}.data-table th,.footer-sig th{background:#f2f2f2;font-size:10px}.footer-sig{table-layout:fixed;margin-top:20px}.footer-sig td{height:100px;text-align:center;vertical-align:bottom}.no-print{text-align:center;margin-bottom:15px}@media print{.no-print{display:none}}
+        @page{size:A4 portrait;margin:0}body{font-family:Arial,sans-serif;font-size:11px;margin:0;padding:20px;color:#000}.box{max-width:800px;margin:auto}.header{border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:15px;display:flex;justify-content:space-between}.doc-title-box{border:none;padding:5px;display:inline-block;text-align:center}.doc-title{font-size:18px;font-weight:bold;letter-spacing:1px}.info-table,.data-table,.footer-sig{width:100%;border-collapse:collapse;margin-bottom:12px}.info-table td{vertical-align:top;padding:2px}.section-header{font-weight:bold;font-size:11px;margin-bottom:5px;text-transform:uppercase;background:#f8f9fa;padding:4px;border:1px solid #ccc}.data-table th,.data-table td,.footer-sig th,.footer-sig td{border:1px solid #000;padding:6px}.data-table th,.footer-sig th{background:#f2f2f2;font-size:10px}.footer-sig{table-layout:fixed;margin-top:20px}.footer-sig td{height:100px;text-align:center;vertical-align:bottom}.no-print{text-align:center;margin-bottom:15px}@media print{.no-print{display:none}.page-footer{position:fixed;bottom:20px;left:20px;right:20px;background:#fff}}
     </style>
 </head>
 <body onload="window.print()">
@@ -43,8 +43,8 @@
     <table class="footer-sig"><thead><tr><th>Inspector QC</th><th>Diketahui</th></tr></thead><tbody><tr><td><strong>{{ $qc->inspector?->fullname ?: 'QC Inspector' }}</strong><br>{{ optional($qc->qc_date)->format('d/m/Y') }}</td><td><strong>{{ $qc->approver?->fullname ?: 'QC Manager' }}</strong><br>__/__/____</td></tr></tbody></table>
     </div>
 </td></tr></tbody>
-<tfoot><tr><td style="border:none;padding:0;">
-    <div style="margin-top:14px;text-align:center;border-top:1px solid #ccc;padding-top:10px"><strong>{{ strtoupper($company->company_name ?? '-') }}</strong><br><span style="font-size:9px;color:#555">{{ $company->address ?? '-' }}</span></div>
+<tfoot><tr><td style="border:none;padding:0;height:40px;">
+    <div class="page-footer" style="margin-top:14px;text-align:center;border-top:1px solid #ccc;padding-top:10px"><strong>{{ strtoupper($company->company_name ?? '-') }}</strong><br><span style="font-size:9px;color:#555">{{ $company->address ?? '-' }}</span></div>
 </td></tr></tfoot>
 </table>
 </div>
