@@ -18,16 +18,26 @@
 @endphp
 <div class="box">
     @if(! $approved)<div class="watermark">DRAFT</div>@endif
-    <div class="header">
-        <div>@if($company->logo_path)<img src="{{ asset($company->logo_path) }}" style="max-height:45px;object-fit:contain" alt="Logo">@endif</div>
-        <div style="text-align:right"><div class="doc-title-box"><div class="doc-title">PURCHASE ORDER</div><div style="font-size:9px;letter-spacing:1px">FORM PEMBELIAN MATERIAL</div></div><div style="font-size:13px;font-weight:bold;margin-top:8px">{{ $order->po_number }}</div></div>
-    </div>
+    <table style="width:100%;border-collapse:collapse;border:none;">
+    <thead><tr><td style="border:none;padding:0;">
+        <div class="header">
+            <div>@if($company->logo_path)<img src="{{ asset($company->logo_path) }}" style="max-height:45px;object-fit:contain" alt="Logo">@endif</div>
+            <div style="text-align:right"><div class="doc-title-box"><div class="doc-title">PURCHASE ORDER</div><div style="font-size:9px;letter-spacing:1px">FORM PEMBELIAN MATERIAL</div></div><div style="font-size:13px;font-weight:bold;margin-top:8px">{{ $order->po_number }}</div></div>
+        </div>
+    </td></tr></thead>
+    <tbody><tr><td style="border:none;padding:0;">
+        <div class="content" style="padding-top: 10px;">
     <table class="info-table"><tr><td width="55%"><strong>Supplier:</strong><br><strong>{{ strtoupper($order->supplier?->name ?: '-') }}</strong><br>Attn: {{ $order->supplier?->contact_person ?: '-' }}<br>{!! nl2br(e($order->supplier?->address ?: '-')) !!}<br>Telp: {{ $order->supplier?->phone ?: '-' }}</td><td width="45%" align="right"><strong>Tgl PO :</strong> {{ optional($order->po_date)->format('d F Y') ?: '-' }}<br><strong>Tgl Kirim (Est) :</strong> {{ optional($order->delivery_date)->format('d F Y') ?: '-' }}<br><strong>Terms :</strong> {{ $order->payment_terms ?: '-' }}<br><strong>Status :</strong> {{ strtoupper(str_replace('_', ' ', $order->status)) }}</td></tr></table>
     <table class="data-table"><thead><tr><th>No</th><th>Kode Barang</th><th>Deskripsi Barang</th><th>Qty</th><th>Unit</th><th>Harga Satuan</th><th>Subtotal</th></tr></thead><tbody>@forelse($order->items as $row)<tr><td class="text-center">{{ $loop->iteration }}</td><td class="text-center">{{ $row->item?->item_code ?: 'ITEM-'.$row->item_id }}</td><td><strong>{{ $row->item?->item_name ?: 'Item #'.$row->item_id }}</strong>@if($row->notes)<br><small><i>Ket: {{ $row->notes }}</i></small>@endif</td><td class="text-center"><strong>{{ $row->qty + 0 }}</strong></td><td class="text-center">{{ $row->item?->unit ?: '-' }}</td><td class="text-right">{{ number_format((float) $row->unit_price, 0, ',', '.') }}</td><td class="text-right">{{ number_format((float) $row->subtotal, 0, ',', '.') }}</td></tr>@empty<tr><td colspan="7" class="text-center">Tidak ada detail item PO.</td></tr>@endforelse</tbody></table>
     <table class="summary-table"><tr><td class="lbl">Subtotal</td><td class="text-right">Rp {{ number_format($totalBruto, 0, ',', '.') }}</td></tr><tr><td class="lbl">Diskon</td><td class="text-right">Rp {{ number_format((float) $order->discount_amount, 0, ',', '.') }}</td></tr><tr><td class="lbl">PPN ({{ $order->ppn_percent + 0 }}%)</td><td class="text-right">Rp {{ number_format($ppn, 0, ',', '.') }}</td></tr><tr class="grand"><td>GRAND TOTAL</td><td class="text-right">Rp {{ number_format((float) $order->grand_total, 0, ',', '.') }}</td></tr></table>
     @if($order->notes)<div class="notes-box"><strong>Catatan:</strong><br>{!! nl2br(e($order->notes)) !!}</div>@endif
     <table class="footer-sig"><thead><tr><th>Dibuat (Purchasing)</th><th>Disetujui (Plant Manager)</th><th>Disetujui (Finance)</th><th>Dikonfirmasi (Supplier)</th></tr></thead><tbody><tr><td><div style="height:55px"></div><span class="sig-name">{{ $order->creator?->fullname ?: 'Staff Purchasing' }}</span><span>Tgl: {{ optional($order->po_date)->format('d/m/Y') ?: '-' }}</span></td><td><div style="height:55px"></div><span class="sig-name">{{ $pmApproved ? ($order->approver?->fullname ?: '....................') : '....................' }}</span><span>Tgl: {{ $pmApproved && $order->approved_at ? $order->approved_at->format('d/m/Y') : '/ /' }}</span></td><td><div style="height:55px"></div><span class="sig-name">{{ $finApproved ? ($order->financeApprover?->fullname ?: '....................') : '....................' }}</span><span>Tgl: {{ $finApproved && $order->finance_approved_at ? $order->finance_approved_at->format('d/m/Y') : '/ /' }}</span></td><td><div style="height:55px"></div><span class="sig-name">Supplier</span><span>(Tanda Tangan & Stempel)</span></td></tr></tbody></table>
+    </div>
+</td></tr></tbody>
+<tfoot><tr><td style="border:none;padding:0;">
     <div class="page-footer"><span class="footer-comp-name">{{ strtoupper($company->company_name ?? '-') }}</span><span>{{ $company->address ?? '-' }}</span></div>
+</td></tr></tfoot>
+</table>
 </div>
 </body>
 </html>

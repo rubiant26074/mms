@@ -8,7 +8,12 @@
 <body onload="window.print()">
 @php $gr = $qc->goodsReceipt; @endphp
 <div class="box">
-    <div class="header"><div>@if($company->logo_path)<img src="{{ asset($company->logo_path) }}" style="max-height:45px;object-fit:contain" alt="Logo">@endif</div><div style="text-align:right"><div class="doc-title-box"><div class="doc-title">INCOMING INSPECTION</div><div style="font-size:9px;letter-spacing:1px">LAPORAN PEMERIKSAAN BARANG MASUK</div></div><div style="font-size:13px;font-weight:bold;margin-top:8px">{{ $qc->qc_number }}</div></div></div>
+    <table style="width:100%;border-collapse:collapse;border:none;">
+    <thead><tr><td style="border:none;padding:0;">
+        <div class="header"><div>@if($company->logo_path)<img src="{{ asset($company->logo_path) }}" style="max-height:45px;object-fit:contain" alt="Logo">@endif</div><div style="text-align:right"><div class="doc-title-box"><div class="doc-title">INCOMING INSPECTION</div><div style="font-size:9px;letter-spacing:1px">LAPORAN PEMERIKSAAN BARANG MASUK</div></div><div style="font-size:13px;font-weight:bold;margin-top:8px">{{ $qc->qc_number }}</div></div></div>
+    </td></tr></thead>
+    <tbody><tr><td style="border:none;padding:0;">
+        <div class="content" style="padding-top: 10px;">
     <table class="info-table">
         <tr><td width="15%"><strong>Sumber</strong></td><td width="35%">: {{ $gr->receipt_type === 'consignment' ? (($gr->customer?->name ?: '-') . ' (Customer)') : ($gr->purchaseOrder?->supplier?->name ?: '-') }}</td><td width="15%"><strong>Tgl Inspeksi</strong></td><td width="35%">: {{ optional($qc->qc_date)->format('d F Y') }}</td></tr>
         <tr><td><strong>Ref. GR</strong></td><td>: {{ $gr->gr_number }}</td><td><strong>No. SJ</strong></td><td>: {{ $gr->delivery_note_number }}</td></tr>
@@ -23,7 +28,12 @@
     </tbody></table>
     <div style="border:1px solid #000;padding:5px;min-height:40px;margin-bottom:15px"><strong>Catatan / Kesimpulan:</strong><br>{!! nl2br(e($qc->notes)) !!}</div>
     <table class="footer-sig"><thead><tr><th>Diperiksa Oleh (Inspector)</th><th>Disetujui (QC Manager)</th><th>Gudang (Serah Terima)</th></tr></thead><tbody><tr><td><div style="height:55px"></div><span class="sig-name">{{ $qc->inspector?->fullname ?: 'Inspector' }}</span><span>Tgl: {{ optional($qc->qc_date)->format('d/m/Y') }}</span></td><td><div style="height:55px"></div><span class="sig-name">{{ $qc->approver?->fullname ?: '....................' }}</span><span>Tgl: {{ $qc->approved_at ? $qc->approved_at->format('d/m/Y') : '____ / ____ / ______' }}</span></td><td><div style="height:55px"></div><span class="sig-name">{{ $qc->handoverUser?->fullname ?: '( Staff Gudang )' }}</span><span>Tgl: {{ $qc->handover_at ? $qc->handover_at->format('d/m/Y') : '____ / ____ / ______' }}</span></td></tr></tbody></table>
+    </div>
+</td></tr></tbody>
+<tfoot><tr><td style="border:none;padding:0;">
     <div class="page-footer"><span class="footer-comp-name">{{ strtoupper($company->company_name ?? '-') }}</span><span>{{ $company->address ?? '-' }}</span></div>
+</td></tr></tfoot>
+</table>
 </div>
 </body>
 </html>

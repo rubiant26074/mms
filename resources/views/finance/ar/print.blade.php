@@ -38,7 +38,8 @@
 @endphp
 <div class="no-print"><button onclick="window.print()" style="padding: 8px 16px; background-color: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Cetak Invoice</button></div>
 <div class="box">
-    <div class="content">
+    <table style="width:100%;border-collapse:collapse;border:none;">
+    <thead><tr><td style="border:none;padding:0;">
         <div class="header">
             <div>
                 @if($compLogo)
@@ -53,6 +54,9 @@
                 <div class="doc-number">{{ $invoice->invoice_number }}</div>
             </div>
         </div>
+    </td></tr></thead>
+    <tbody><tr><td style="border:none;padding:0;">
+        <div class="content">
 
         <table class="info-table">
             <tr>
@@ -98,13 +102,15 @@
                 <tr><td colspan="3" class="text-right">PPN</td><td class="text-right">Rp {{ number_format($invoice->tax_amount, 0, ',', '.') }}</td></tr>
                 <tr style="font-weight: bold; border-top: 2px solid #000;"><td colspan="3" class="text-right">Grand Total</td><td class="text-right">Rp {{ number_format($invoice->grand_total, 0, ',', '.') }}</td></tr>
             </tfoot>
-        </table>
     </div>
-
+</td></tr></tbody>
+<tfoot><tr><td style="border:none;padding:0;">
     <div class="page-footer">
         <span class="footer-comp-name">{{ strtoupper($compName ?? '-') }}</span>
         <span>{{ $compAddress ?? '-' }}</span>
     </div>
+</td></tr></tfoot>
+</table>
 </div>
 </body>
 </html>

@@ -45,7 +45,8 @@
 <button class="no-print" onclick="window.print()">Print</button>
 <div class="box">
     @if(! $confirmed)<div class="watermark">DRAFT</div>@endif
-    <div class="content">
+    <table style="width:100%;border-collapse:collapse;border:none;">
+    <thead><tr><td style="border:none;padding:0;">
         <div class="header">
             <div>
                 @if($company->logo_path)
@@ -60,6 +61,9 @@
                 <div class="doc-number">{{ $order->so_number }}</div>
             </div>
         </div>
+    </td></tr></thead>
+    <tbody><tr><td style="border:none;padding:0;">
+        <div class="content">
 
         <table class="info-table">
             <tr>
@@ -152,9 +156,12 @@
                     </td>
                 </tr>
             </tbody>
-        </table>
     </div>
+</td></tr></tbody>
+<tfoot><tr><td style="border:none;padding:0;">
     <div class="page-footer"><span class="footer-comp-name">{{ strtoupper($company->company_name ?? '-') }}</span><span>{{ $company->address ?? '-' }}</span></div>
+</td></tr></tfoot>
+</table>
 </div>
 </body>
 </html>

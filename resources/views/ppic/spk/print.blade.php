@@ -53,7 +53,8 @@
     <button onclick="window.print()" style="padding:8px 16px; background-color:#333; color:#fff; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">Cetak SPK</button>
 </div>
 <div class="box">
-    <div class="content">
+    <table style="width:100%;border-collapse:collapse;border:none;">
+    <thead><tr><td style="border:none;padding:0;">
         <!-- Header -->
         <div class="header">
             <div>
@@ -69,6 +70,9 @@
                 <div class="doc-number">{{ $spk->spk_number }}</div>
             </div>
         </div>
+    </td></tr></thead>
+    <tbody><tr><td style="border:none;padding:0;">
+        <div class="content">
 
         <!-- Metadata -->
         <table class="meta-table">
@@ -202,12 +206,15 @@
             </div>
         </div>
     </div>
-
+</td></tr></tbody>
+<tfoot><tr><td style="border:none;padding:0;">
     <!-- Footer -->
     <div class="page-footer">
         <span class="footer-comp-name">{{ strtoupper($compName ?? '-') }}</span>
         <span>{{ $compAddress ?? '-' }}</span>
     </div>
+</td></tr></tfoot>
+</table>
 </div>
 </body>
 </html>

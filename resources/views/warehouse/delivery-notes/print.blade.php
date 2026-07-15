@@ -48,7 +48,8 @@
 </div>
 
 <div class="box">
-    <div class="content">
+    <table style="width:100%;border-collapse:collapse;border:none;">
+    <thead><tr><td style="border:none;padding:0;">
         <!-- Header -->
         <div class="header">
             <div>
@@ -64,6 +65,9 @@
                 <div class="doc-number">{{ $note->dn_number }}</div>
             </div>
         </div>
+    </td></tr></thead>
+    <tbody><tr><td style="border:none;padding:0;">
+        <div class="content">
 
         <table class="info-table">
             <tr>
@@ -155,11 +159,15 @@
             </tr>
         </tbody>
     </table>
-    
+    </div>
+</td></tr></tbody>
+<tfoot><tr><td style="border:none;padding:0;">
     <div class="page-footer">
         <span class="footer-comp-name">{{ strtoupper($compName ?? '-') }}</span>
         <span>{{ $compAddress ?? '-' }}</span>
     </div>
+</td></tr></tfoot>
+</table>
 </div>
 </body>
 </html>

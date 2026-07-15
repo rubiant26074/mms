@@ -10,10 +10,15 @@
 <body onload="window.print()">
 <div class="no-print"><button onclick="window.print()">Cetak</button> <button onclick="window.close()">Tutup</button></div>
 <div class="box">
-    <div class="header">
-        <div>@if($company->logo_path)<img src="{{ asset($company->logo_path) }}" style="max-height:45px;object-fit:contain" alt="Logo">@endif</div>
-        <div style="text-align:right"><div class="doc-title-box"><div class="doc-title">QC FINAL PRODUCTION</div><div style="font-size:9px;letter-spacing:1px">VERIFIKASI HASIL PEMERIKSAAN</div></div><div style="font-size:13px;font-weight:bold;margin-top:8px">{{ $qc->qc_number }}</div></div>
-    </div>
+    <table style="width:100%;border-collapse:collapse;border:none;">
+    <thead><tr><td style="border:none;padding:0;">
+        <div class="header">
+            <div>@if($company->logo_path)<img src="{{ asset($company->logo_path) }}" style="max-height:45px;object-fit:contain" alt="Logo">@endif</div>
+            <div style="text-align:right"><div class="doc-title-box"><div class="doc-title">QC FINAL PRODUCTION</div><div style="font-size:9px;letter-spacing:1px">VERIFIKASI HASIL PEMERIKSAAN</div></div><div style="font-size:13px;font-weight:bold;margin-top:8px">{{ $qc->qc_number }}</div></div>
+        </div>
+    </td></tr></thead>
+    <tbody><tr><td style="border:none;padding:0;">
+        <div class="content" style="padding-top: 10px;">
     <table class="info-table">
         <tr><td width="15%"><strong>No. SPK</strong></td><td width="35%">: {{ $qc->spk?->spk_number }}</td><td width="15%"><strong>Tgl QC</strong></td><td width="35%">: {{ optional($qc->qc_date)->format('d F Y') }}</td></tr>
         <tr><td><strong>Project</strong></td><td>: {{ $qc->spk?->project_name ?: '-' }}</td><td><strong>Inspector</strong></td><td>: {{ $qc->inspector?->fullname ?: '-' }}</td></tr>
@@ -36,7 +41,12 @@
     <table class="data-table"><thead><tr><th>No</th><th>Kode</th><th>Nama Barang</th><th>Qty Plan</th><th>Unit</th></tr></thead><tbody>@forelse($items as $row)<tr><td align="center">{{ $loop->iteration }}</td><td>{{ $row->item?->item_code ?: $row->item_code_manual }}</td><td>{{ $row->item?->item_name ?: $row->item_name_manual }}</td><td align="right">{{ (float) $row->qty + 0 }}</td><td>{{ $row->item?->unit ?: $row->unit_manual }}</td></tr>@empty<tr><td colspan="5" align="center">Item tidak tersedia.</td></tr>@endforelse</tbody></table>
     @if($qc->notes)<div class="section-header">4. Catatan</div><div style="border:1px solid #000;padding:8px;margin-bottom:12px;white-space:pre-line">{{ $qc->notes }}</div>@endif
     <table class="footer-sig"><thead><tr><th>Inspector QC</th><th>Diketahui</th></tr></thead><tbody><tr><td><strong>{{ $qc->inspector?->fullname ?: 'QC Inspector' }}</strong><br>{{ optional($qc->qc_date)->format('d/m/Y') }}</td><td><strong>{{ $qc->approver?->fullname ?: 'QC Manager' }}</strong><br>__/__/____</td></tr></tbody></table>
+    </div>
+</td></tr></tbody>
+<tfoot><tr><td style="border:none;padding:0;">
     <div style="margin-top:14px;text-align:center;border-top:1px solid #ccc;padding-top:10px"><strong>{{ strtoupper($company->company_name ?? '-') }}</strong><br><span style="font-size:9px;color:#555">{{ $company->address ?? '-' }}</span></div>
+</td></tr></tfoot>
+</table>
 </div>
 </body>
 </html>

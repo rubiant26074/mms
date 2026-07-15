@@ -42,7 +42,8 @@
 @endphp
 <div class="box">
     <div class="no-print"><button onclick="window.print()" style="padding: 8px 16px; background-color: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Cetak Bukti</button></div>
-    <div class="content">
+    <table style="width:100%;border-collapse:collapse;border:none;">
+    <thead><tr><td style="border:none;padding:0;">
         <!-- Header -->
         <div class="header">
             <div>
@@ -58,6 +59,9 @@
                 <div class="doc-number">{{ $issue->itr_number }}</div>
             </div>
         </div>
+    </td></tr></thead>
+    <tbody><tr><td style="border:none;padding:0;">
+        <div class="content">
 
         <table class="info-table">
             <tr>
@@ -123,12 +127,15 @@
             </tbody>
         </table>
     </div>
-
+</td></tr></tbody>
+<tfoot><tr><td style="border:none;padding:0;">
     <!-- Footer -->
     <div class="page-footer">
         <span class="footer-comp-name">{{ strtoupper($compName ?? '-') }}</span>
         <span>{{ $compAddress ?? '-' }}</span>
     </div>
+</td></tr></tfoot>
+</table>
 </div>
 </body>
 </html>
