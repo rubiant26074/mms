@@ -14,12 +14,7 @@
 <form method="POST" action="{{ route('engineering.partlists.store') }}" enctype="multipart/form-data">
     @csrf
     <input type="hidden" name="spk_id" value="{{ $spk->id }}">
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <label class="fw-bold">Drawing Link</label>
-            <input type="text" name="drawing_link" class="form-control" value="{{ old('drawing_link', $spk->drawing_link) }}" placeholder="https://drive.google.com/...">
-        </div>
-    </div>
+
     <div class="card shadow-sm">
         <div class="card-body p-0 table-responsive">
             <table class="table table-bordered mb-0" id="partTable">

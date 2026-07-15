@@ -56,7 +56,9 @@ class PartlistController extends Controller
 
         DB::transaction(function () use ($data, $parts, $request): void {
             $spk = Spk::query()->lockForUpdate()->findOrFail($data['spk_id']);
-            $spk->update(['drawing_link' => $data['drawing_link'] ?? null]);
+            if ($request->has('drawing_link')) {
+                $spk->update(['drawing_link' => $data['drawing_link'] ?? null]);
+            }
             $spk->partlists()->delete();
             $spk->partlists()->createMany($parts);
             if ($request->input('submit_action') === 'approve' && $request->user()?->hasPermission('eng_partlist_approve')) {
