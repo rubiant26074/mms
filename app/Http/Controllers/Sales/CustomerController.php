@@ -59,7 +59,6 @@ class CustomerController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validated($request);
-        $data['customer_code'] = $data['customer_code'] ?: $this->nextCustomerCode();
         $data['code'] = $data['customer_code'];
         $data['created_by'] = auth()->id();
         $data['sales_name'] = $data['sales_name'] ?: auth()->user()->fullname ?: auth()->user()->username;
@@ -71,7 +70,7 @@ class CustomerController extends Controller
     public function update(Request $request, Customer $customer): RedirectResponse
     {
         $data = $this->validated($request, $customer);
-        $data['code'] = $data['customer_code'] ?: $customer->code;
+        $data['code'] = $data['customer_code'];
         $customer->update($data);
 
         return redirect()->route('sales.customers.index')->with('success', 'Data Customer berhasil disimpan!');
@@ -191,7 +190,7 @@ class CustomerController extends Controller
     private function validated(Request $request, ?Customer $customer = null): array
     {
         return $request->validate([
-            'customer_code' => ['nullable', 'string', 'max:20', Rule::unique('customers', 'customer_code')->ignore($customer)],
+            'customer_code' => ['required', 'string', 'max:20', Rule::unique('customers', 'customer_code')->ignore($customer)],
             'name' => ['required', 'string', 'max:100', Rule::unique('customers', 'name')->ignore($customer)],
             'address' => ['nullable', 'string'],
             'phone' => ['nullable', 'string', 'max:20'],

@@ -17,8 +17,8 @@
                             <h6 class="text-primary mb-3">Identitas Perusahaan</h6>
                             <div class="mb-3">
                                 <label class="fw-bold">Kode Customer <span class="text-danger">*</span></label>
-                                <input type="text" name="customer_code" class="form-control bg-light fw-bold text-primary" value="{{ old('customer_code', $customer->customer_code) }}" readonly>
-                                <div class="form-text small">Auto Generate (CT-XXX).</div>
+                                <input type="text" name="customer_code" class="form-control" value="{{ old('customer_code', $customer->customer_code) }}" placeholder="Contoh: CT-001" required>
+                                <div class="form-text small">Masukkan kode customer secara unik.</div>
                             </div>
                             <div class="mb-3"><label>Nama Perusahaan <span class="text-danger">*</span></label><input type="text" name="name" class="form-control" value="{{ old('name', $customer->name) }}" required></div>
                             <div class="mb-3"><label>NPWP (Tax ID)</label><input type="text" name="tax_id" class="form-control" value="{{ old('tax_id', $customer->tax_id) }}"></div>
