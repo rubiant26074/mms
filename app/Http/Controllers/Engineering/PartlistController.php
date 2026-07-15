@@ -87,6 +87,9 @@ class PartlistController extends Controller
     private function partsFromRequest(Request $request): array
     {
         $rows = [];
+        $rowIndices = $request->input('row_index', []);
+        $existingPaths = $request->input('existing_drawing_path', []);
+
         foreach ($request->input('item_no', []) as $i => $itemNo) {
             $partName = trim((string) ($request->input("part_name.{$i}") ?? ''));
             if (trim((string) $itemNo) === '' && $partName === '') {
@@ -95,6 +98,24 @@ class PartlistController extends Controller
             $thicknessVal = trim((string) $request->input("thickness.{$i}"));
             $lengthVal = trim((string) $request->input("length.{$i}"));
             $widthVal = trim((string) $request->input("width.{$i}"));
+
+            // Check if there is an uploaded file for this specific row index
+            $rowIndex = $rowIndices[$i] ?? $i;
+            $drawingPath = $existingPaths[$i] ?? null;
+
+            if ($request->hasFile("drawing_file_{$rowIndex}")) {
+                $file = $request->file("drawing_file_{$rowIndex}");
+                if ($file->isValid()) {
+                    // Save file to public/uploads/drawings/
+                    $filename = 'drw_' . uniqid() . '_' . now()->format('YmdHis') . '.' . strtolower($file->getClientOriginalExtension());
+                    $directory = public_path('uploads/drawings');
+                    if (!is_dir($directory)) {
+                        @mkdir($directory, 0775, true);
+                    }
+                    $file->move($directory, $filename);
+                    $drawingPath = 'uploads/drawings/' . $filename;
+                }
+            }
 
             $rows[] = [
                 'item_no' => trim((string) $itemNo),
@@ -107,6 +128,7 @@ class PartlistController extends Controller
                 'width' => $widthVal !== '' ? (float) $widthVal : null,
                 'process' => trim((string) ($request->input("process.{$i}") ?? '')),
                 'notes' => trim((string) ($request->input("notes.{$i}") ?? '')),
+                'drawing_path' => $drawingPath,
             ];
         }
 

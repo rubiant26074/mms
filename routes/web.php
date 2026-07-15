@@ -124,6 +124,10 @@ Route::get('/run-migration-discount', function () {
             '--path' => 'database/migrations/2026_07_15_125940_create_hrd1_role.php',
             '--force' => true
         ]);
+        $res11 = \Illuminate\Support\Facades\Artisan::call('migrate', [
+            '--path' => 'database/migrations/2026_07_15_213000_add_drawing_path_to_spk_partlists_table.php',
+            '--force' => true
+        ]);
         
         // Clear Laravel caches to reflect updates instantly
         \Illuminate\Support\Facades\Artisan::call('view:clear');
@@ -131,7 +135,7 @@ Route::get('/run-migration-discount', function () {
         \Illuminate\Support\Facades\Artisan::call('config:clear');
         \Illuminate\Support\Facades\Artisan::call('cache:clear');
 
-        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . ' / ' . $res3 . ' / ' . $res4 . ' / ' . $res5 . ' / ' . $res6 . ' / ' . $res7 . ' / ' . $res8 . ' / ' . $res9 . ' / ' . $res10 . '<br><br><span style="color:green;font-weight:bold;">Tabel & Cache berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
+        return 'Migration successful! Result: ' . $res1 . ' / ' . $res2 . ' / ' . $res3 . ' / ' . $res4 . ' / ' . $res5 . ' / ' . $res6 . ' / ' . $res7 . ' / ' . $res8 . ' / ' . $res9 . ' / ' . $res10 . ' / ' . $res11 . '<br><br><span style="color:green;font-weight:bold;">Tabel & Cache berhasil diperbarui! Silakan kembali ke aplikasi.</span>';
     } catch (\Exception $e) {
         return 'Migration failed: ' . $e->getMessage();
     }

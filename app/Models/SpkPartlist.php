@@ -23,6 +23,7 @@ class SpkPartlist extends Model
         'width',
         'process',
         'notes',
+        'drawing_path',
     ];
 
     public function spk(): BelongsTo
