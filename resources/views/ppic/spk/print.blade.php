@@ -10,8 +10,8 @@
         .content { position: relative; z-index: 1; flex: 1 1 auto; }
         
         .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-start; }
-        .logo { max-height: 60px; object-fit: contain; }
-        .doc-title-box { border: 1.5px solid #000; padding: 5px; display: inline-block; text-align: center; min-width: 250px; }
+        .logo { max-height: 45px; object-fit: contain; }
+        .doc-title-box { border: none; padding: 5px; display: inline-block; text-align: center; min-width: 250px; }
         .doc-title { font-size: 18px; font-weight: bold; letter-spacing: 1px; }
         .doc-subtitle { font-size: 9px; letter-spacing: 1px; }
         .doc-number { font-size: 13px; font-weight: bold; margin-top: 8px; text-align: right; }

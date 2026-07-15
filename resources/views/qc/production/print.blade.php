@@ -4,14 +4,14 @@
     <meta charset="utf-8">
     <title>Verifikasi QC Produksi - {{ $qc->qc_number }}</title>
     <style>
-        @page{size:A4 portrait;margin:0}body{font-family:Arial,sans-serif;font-size:11px;margin:0;padding:20px;color:#000}.box{max-width:800px;margin:auto}.header{border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:15px;display:flex;justify-content:space-between}.doc-title-box{border:1.5px solid #000;padding:5px;display:inline-block;text-align:center;min-width:280px}.doc-title{font-size:18px;font-weight:bold;letter-spacing:1px}.info-table,.data-table,.footer-sig{width:100%;border-collapse:collapse;margin-bottom:12px}.info-table td{vertical-align:top;padding:2px}.section-header{font-weight:bold;font-size:11px;margin-bottom:5px;text-transform:uppercase;background:#f8f9fa;padding:4px;border:1px solid #ccc}.data-table th,.data-table td,.footer-sig th,.footer-sig td{border:1px solid #000;padding:6px}.data-table th,.footer-sig th{background:#f2f2f2;font-size:10px}.footer-sig{table-layout:fixed;margin-top:20px}.footer-sig td{height:100px;text-align:center;vertical-align:bottom}.no-print{text-align:center;margin-bottom:15px}@media print{.no-print{display:none}}
+        @page{size:A4 portrait;margin:0}body{font-family:Arial,sans-serif;font-size:11px;margin:0;padding:20px;color:#000}.box{max-width:800px;margin:auto}.header{border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:15px;display:flex;justify-content:space-between}.doc-title-box{border:none;padding:5px;display:inline-block;text-align:center;min-width:280px}.doc-title{font-size:18px;font-weight:bold;letter-spacing:1px}.info-table,.data-table,.footer-sig{width:100%;border-collapse:collapse;margin-bottom:12px}.info-table td{vertical-align:top;padding:2px}.section-header{font-weight:bold;font-size:11px;margin-bottom:5px;text-transform:uppercase;background:#f8f9fa;padding:4px;border:1px solid #ccc}.data-table th,.data-table td,.footer-sig th,.footer-sig td{border:1px solid #000;padding:6px}.data-table th,.footer-sig th{background:#f2f2f2;font-size:10px}.footer-sig{table-layout:fixed;margin-top:20px}.footer-sig td{height:100px;text-align:center;vertical-align:bottom}.no-print{text-align:center;margin-bottom:15px}@media print{.no-print{display:none}}
     </style>
 </head>
 <body onload="window.print()">
 <div class="no-print"><button onclick="window.print()">Cetak</button> <button onclick="window.close()">Tutup</button></div>
 <div class="box">
     <div class="header">
-        <div>@if($company->logo_path)<img src="{{ asset($company->logo_path) }}" style="max-height:55px;object-fit:contain" alt="Logo">@endif</div>
+        <div>@if($company->logo_path)<img src="{{ asset($company->logo_path) }}" style="max-height:45px;object-fit:contain" alt="Logo">@endif</div>
         <div style="text-align:right"><div class="doc-title-box"><div class="doc-title">QC FINAL PRODUCTION</div><div style="font-size:9px;letter-spacing:1px">VERIFIKASI HASIL PEMERIKSAAN</div></div><div style="font-size:13px;font-weight:bold;margin-top:8px">{{ $qc->qc_number }}</div></div>
     </div>
     <table class="info-table">

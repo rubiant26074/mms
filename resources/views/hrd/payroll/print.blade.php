@@ -10,7 +10,7 @@
         .doc-content { flex: 1 1 auto; }
         .header { border-bottom: 2px solid #333; margin-bottom: 18px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; }
         .logo-area { width: 50%; }
-        .logo-area img { max-height: 55px; object-fit: contain; }
+        .logo-area img { max-height: 45px; object-fit: contain; }
         .header-right { text-align: right; width: 45%; }
         .doc-title { font-size: 22px; font-weight: bold; color: #555; letter-spacing: 1px; }
         .doc-number { font-size: 13px; font-weight: bold; margin-top: 5px; color: #333; }

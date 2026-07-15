@@ -9,7 +9,7 @@
         .box { border: 1px solid #ccc; padding: 20px; max-width: 800px; margin: auto; min-height: 96vh; display: flex; flex-direction: column; }
         .doc-content { flex: 1 1 auto; }
         .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
-        .logo-area { width: 50%; } .logo-area img { max-height: 60px; object-fit: contain; }
+        .logo-area { width: 50%; } .logo-area img { max-height: 45px; object-fit: contain; }
         .header-right { text-align: right; width: 45%; }
         .doc-title { font-size: 22px; font-weight: bold; color: #555; letter-spacing: 2px; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
