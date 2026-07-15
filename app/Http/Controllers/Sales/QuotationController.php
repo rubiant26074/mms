@@ -230,6 +230,7 @@ class QuotationController extends Controller
             'customer_id' => ['required', Rule::exists('customers', 'id')],
             'quote_date' => ['required', 'date'],
             'payment_terms' => ['nullable', 'string', 'max:100'],
+            'validity' => ['nullable', 'string', 'max:100'],
             'ppn_percent' => ['required', 'numeric', 'min:0.01', 'max:100'],
             'tax_mode' => ['required', 'in:include,exclude'],
             'discount_type' => ['required', 'in:fixed,percent'],

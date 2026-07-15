@@ -32,6 +32,10 @@
                                 <input type="number" name="discount_value" id="discountValue" class="form-control calc" min="0" step="0.01" value="{{ old('discount_value', $quotation->discount_value ?? ($quotation->discount_amount ?: 0)) }}">
                             </div>
                         </div>
+                        <div class="col-md-3">
+                            <label>Validity</label>
+                            <input type="text" name="validity" class="form-control" value="{{ old('validity', $quotation->validity ?: '14 Hari') }}" placeholder="Contoh: 14 Hari / 30 Hari">
+                        </div>
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-12">

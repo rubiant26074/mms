@@ -15,6 +15,7 @@ class Quotation extends Model
         'customer_id',
         'quote_date',
         'payment_terms',
+        'validity',
         'ppn_percent',
         'tax_included',
         'subtotal',

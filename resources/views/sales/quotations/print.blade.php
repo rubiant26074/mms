@@ -65,12 +65,14 @@
                 <td width="55%">
                     <strong>Kepada:</strong><br>
                     <strong>{{ strtoupper($quotation->customer?->name ?: '-') }}</strong><br>
+                    U.p. Bpk/Ibu: {{ $quotation->customer?->pic ?: '-' }}<br>
                     {!! nl2br(e($quotation->customer?->address ?: '-')) !!}<br>
                     Telp: {{ $quotation->customer?->phone ?: '-' }}
                 </td>
                 <td width="45%" align="right">
                     <strong>Tanggal :</strong> {{ optional($quotation->quote_date)->format('d F Y') ?: '-' }}<br>
                     <strong>Terms :</strong> {{ $quotation->payment_terms ?: '-' }}<br>
+                    <strong>Validity :</strong> {{ $quotation->validity ?: '-' }}<br>
                     <strong>Status :</strong> {{ strtoupper(str_replace('_', ' ', $quotation->status)) }}
                 </td>
             </tr>
