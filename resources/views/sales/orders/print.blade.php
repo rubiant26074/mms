@@ -7,7 +7,7 @@
         @page{size:A4 portrait;margin:0}
         body{font-family:Arial,sans-serif;font-size:11px;margin:0;padding:20px;color:#000}
         .box{max-width:800px;margin:auto;min-height:96vh;display:flex;flex-direction:column;position:relative}
-        .watermark{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:82px;font-weight:bold;color:rgba(200,0,0,.13);border:4px solid rgba(200,0,0,.13);padding:8px 28px;z-index:0}
+        .watermark{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:82px;font-weight:bold;color:rgba(200,0,0,.13);border:4px solid rgba(200,0,0,.13);padding:8px 28px;z-index:9999;pointer-events:none}
         .content{position:relative;z-index:1;flex:1 1 auto}
         .header{border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:flex-start}
         .logo{max-height:45px;object-fit:contain}
