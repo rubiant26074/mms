@@ -96,14 +96,16 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label>Gaji Pokok (Basic Salary)</label>
-                        <div class="input-group">
-                            <span class="input-group-text">Rp</span>
-                            <input type="text" name="basic_salary" class="form-control fw-bold text-end" value="{{ old('basic_salary', number_format((float) $employee->basic_salary, 0, ',', '.')) }}" onkeyup="formatRibuan(this)">
+                    @if(strtolower(auth()->user()->role?->role_slug ?? '') !== 'hrd1')
+                        <div class="mb-3">
+                            <label>Gaji Pokok (Basic Salary)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">Rp</span>
+                                <input type="text" name="basic_salary" class="form-control fw-bold text-end" value="{{ old('basic_salary', number_format((float) $employee->basic_salary, 0, ',', '.')) }}" onkeyup="formatRibuan(this)">
+                            </div>
+                            <small class="text-muted">Akan digunakan sebagai default di modul Payroll.</small>
                         </div>
-                        <small class="text-muted">Akan digunakan sebagai default di modul Payroll.</small>
-                    </div>
+                    @endif
 
                     <div class="mb-3">
                         <label>Info Rekening Bank</label>

@@ -61,6 +61,10 @@ class EmployeeController extends Controller
             $data['nik'] = $this->generateNik($data['join_date'] ?? now()->toDateString());
         }
 
+        if (strtolower(auth()->user()->role?->role_slug ?? '') === 'hrd1') {
+            $data['basic_salary'] = 0;
+        }
+
         User::query()->create($data);
 
         return redirect()->route('hrd.employees.index')->with('success', 'Data Karyawan berhasil disimpan!');
@@ -82,6 +86,10 @@ class EmployeeController extends Controller
 
         if (empty($data['nik']) || strtoupper($data['nik']) === 'AUTO') {
             $data['nik'] = $this->generateNik($data['join_date'] ?? now()->toDateString());
+        }
+
+        if (strtolower(auth()->user()->role?->role_slug ?? '') === 'hrd1') {
+            unset($data['basic_salary']);
         }
 
         $employee->update($data);
