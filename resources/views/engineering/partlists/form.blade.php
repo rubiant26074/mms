@@ -23,7 +23,6 @@
                 @forelse($parts as $part)
                     <tr>
                         <input type="hidden" name="row_index[]" value="{{ $loop->index }}">
-                        <input type="hidden" name="existing_drawing_path[]" value="{{ $part->drawing_path }}">
                         <td><input name="item_no[]" class="form-control" value="{{ $part->item_no }}"></td>
                         <td><input name="drawing_no[]" class="form-control" value="{{ $part->drawing_no }}"></td>
                         <td><input name="part_name[]" class="form-control" value="{{ $part->part_name }}"></td>
@@ -35,20 +34,56 @@
                         <td><input name="process[]" class="form-control" value="{{ $part->process }}"></td>
                         <td><input name="notes[]" class="form-control" value="{{ $part->notes }}"></td>
                         <td>
-                            @if($part->drawing_path)
-                                <div class="mb-1">
-                                    <a href="{{ asset($part->drawing_path) }}" target="_blank" class="btn btn-sm btn-outline-success py-0 px-1" title="Download Drawing"><i class="bi bi-download"></i> Download</a>
-                                </div>
-                            @endif
-                            <input type="file" name="drawing_file_{{ $loop->index }}" class="form-control form-control-sm" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf">
+                            <div class="d-flex align-items-center gap-1">
+                                <!-- text input for link -->
+                                <input type="text" name="drawing_path_{{ $loop->index }}" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web)" value="{{ !str_starts_with($part->drawing_path ?? '', 'uploads/') ? $part->drawing_path : '' }}" style="min-width: 120px;">
+                                
+                                <!-- hidden file input -->
+                                <input type="file" name="drawing_file_{{ $loop->index }}" class="d-none js-drawing-file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf">
+                                
+                                <!-- small icon upload button -->
+                                <button type="button" class="btn btn-sm btn-outline-secondary px-2 js-upload-btn" title="Upload File Drawing">
+                                    <i class="bi bi-cloud-upload"></i>
+                                </button>
+
+                                <!-- file upload status / download link -->
+                                @if($part->drawing_path)
+                                    <input type="hidden" name="existing_drawing_path[]" class="js-existing-path" value="{{ $part->drawing_path }}">
+                                    @if(str_starts_with($part->drawing_path, 'uploads/'))
+                                        <a href="{{ asset($part->drawing_path) }}" target="_blank" class="btn btn-sm btn-success px-2 py-1 js-download-btn" title="Download Uploaded File"><i class="bi bi-download"></i></a>
+                                    @else
+                                        <a href="{{ $part->drawing_path }}" target="_blank" class="btn btn-sm btn-outline-success px-2 py-1 js-download-btn" title="Open Link"><i class="bi bi-link-45deg"></i></a>
+                                    @endif
+                                @else
+                                    <input type="hidden" name="existing_drawing_path[]" class="js-existing-path" value="">
+                                @endif
+                            </div>
+                            <div class="small text-success mt-1 js-file-status" style="display:none; font-size:10px; font-weight:bold;"></div>
                         </td>
                         <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-row">X</button></td>
                     </tr>
                 @empty
                     <tr>
                         <input type="hidden" name="row_index[]" value="0">
-                        <input type="hidden" name="existing_drawing_path[]" value="">
-                        <td><input name="item_no[]" class="form-control"></td><td><input name="drawing_no[]" class="form-control"></td><td><input name="part_name[]" class="form-control"></td><td><input name="qty[]" type="number" step="0.01" class="form-control"></td><td><input name="material[]" class="form-control"></td><td><input name="thickness[]" class="form-control"></td><td><input name="length[]" type="number" step="0.01" class="form-control"></td><td><input name="width[]" type="number" step="0.01" class="form-control"></td><td><input name="process[]" class="form-control"></td><td><input name="notes[]" class="form-control"></td><td><input type="file" name="drawing_file_0" class="form-control form-control-sm" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf"></td><td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-row">X</button></td>
+                        <td><input name="item_no[]" class="form-control"></td><td><input name="drawing_no[]" class="form-control"></td><td><input name="part_name[]" class="form-control"></td><td><input name="qty[]" type="number" step="0.01" class="form-control"></td><td><input name="material[]" class="form-control"></td><td><input name="thickness[]" class="form-control"></td><td><input name="length[]" type="number" step="0.01" class="form-control"></td><td><input name="width[]" type="number" step="0.01" class="form-control"></td><td><input name="process[]" class="form-control"></td><td><input name="notes[]" class="form-control"></td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1">
+                                <!-- text input for link -->
+                                <input type="text" name="drawing_path_0" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web)" style="min-width: 120px;">
+                                
+                                <!-- hidden file input -->
+                                <input type="file" name="drawing_file_0" class="d-none js-drawing-file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf">
+                                
+                                <!-- small icon upload button -->
+                                <button type="button" class="btn btn-sm btn-outline-secondary px-2 js-upload-btn" title="Upload File Drawing">
+                                    <i class="bi bi-cloud-upload"></i>
+                                </button>
+
+                                <input type="hidden" name="existing_drawing_path[]" class="js-existing-path" value="">
+                            </div>
+                            <div class="small text-success mt-1 js-file-status" style="display:none; font-size:10px; font-weight:bold;"></div>
+                        </td>
+                        <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-row">X</button></td>
                     </tr>
                 @endforelse
                 </tbody>
@@ -97,30 +132,99 @@
     // Ensure hidden inputs are also reset appropriately
     const templateRowIndex = templateRow.querySelector('input[name="row_index[]"]');
     if (templateRowIndex) templateRowIndex.value = '0';
-    const templateExistingPath = templateRow.querySelector('input[name="existing_drawing_path[]"]');
+    const templateExistingPath = templateRow.querySelector('.js-existing-path');
     if (templateExistingPath) templateExistingPath.value = '';
     
     // Remove download button/link from template if it exists
-    const downloadDiv = templateRow.querySelector('td:nth-last-child(2) div');
-    if (downloadDiv) downloadDiv.remove();
+    const downloadBtn = templateRow.querySelector('.js-download-btn');
+    if (downloadBtn) downloadBtn.remove();
 
     let rowCounter = tbody.querySelectorAll('tr').length + 10;
+
+    // Trigger file input clicking relatively
+    tbody.addEventListener('click', e => {
+        const uploadBtn = e.target.closest('.js-upload-btn');
+        if (uploadBtn) {
+            const row = uploadBtn.closest('tr');
+            const fileInput = row.querySelector('.js-drawing-file');
+            if (fileInput) {
+                fileInput.click();
+            }
+        }
+    });
+
+    // Handle file selection change
+    tbody.addEventListener('change', e => {
+        if (e.target.classList.contains('js-drawing-file')) {
+            const fileInput = e.target;
+            const row = fileInput.closest('tr');
+            const statusEl = row.querySelector('.js-file-status');
+            const pathInput = row.querySelector('.js-drawing-path');
+            const uploadBtn = row.querySelector('.js-upload-btn');
+            
+            if (fileInput.files.length > 0) {
+                const filename = fileInput.files[0].name;
+                statusEl.textContent = '✓ ' + filename;
+                statusEl.style.display = 'block';
+                // Clear the manual path input if they upload a file
+                pathInput.value = '';
+                pathInput.placeholder = 'Upload terpilih...';
+                // Highlight upload button as success
+                uploadBtn.classList.remove('btn-outline-secondary');
+                uploadBtn.classList.add('btn-success');
+            } else {
+                statusEl.textContent = '';
+                statusEl.style.display = 'none';
+                pathInput.placeholder = 'Link (Drive/Web)';
+                uploadBtn.classList.remove('btn-success');
+                uploadBtn.classList.add('btn-outline-secondary');
+            }
+        }
+    });
 
     document.getElementById('addRow')?.addEventListener('click', () => {
         const row = templateRow.cloneNode(true);
         rowCounter++;
         
         // Update name of the file input in the new row
-        const fileInput = row.querySelector('input[type="file"]');
+        const fileInput = row.querySelector('.js-drawing-file');
         if (fileInput) {
             fileInput.name = 'drawing_file_' + rowCounter;
             fileInput.value = '';
+        }
+
+        // Update name of the path input in the new row
+        const pathInput = row.querySelector('.js-drawing-path');
+        if (pathInput) {
+            pathInput.name = 'drawing_path_' + rowCounter;
+            pathInput.value = '';
+            pathInput.placeholder = 'Link (Drive/Web)';
         }
         
         // Update value of row_index hidden input
         const indexInput = row.querySelector('input[name="row_index[]"]');
         if (indexInput) {
             indexInput.value = rowCounter;
+        }
+
+        // Reset existing path input if any
+        const existingInput = row.querySelector('.js-existing-path');
+        if (existingInput) {
+            existingInput.value = '';
+        }
+
+        // Reset status element
+        const statusEl = row.querySelector('.js-file-status');
+        if (statusEl) {
+            statusEl.textContent = '';
+            statusEl.style.display = 'none';
+        }
+
+        // Reset upload button style
+        const uploadBtn = row.querySelector('.js-upload-btn');
+        if (uploadBtn) {
+            uploadBtn.classList.remove('btn-success');
+            uploadBtn.classList.add('btn-outline-secondary');
         }
 
         tbody.appendChild(row);
@@ -132,12 +236,27 @@
                 e.target.closest('tr').remove();
             } else {
                 tbody.querySelectorAll('tr input:not([type="hidden"])').forEach(input => input.value = '');
-                const fileInput = tbody.querySelector('tr input[type="file"]');
+                const fileInput = tbody.querySelector('tr .js-drawing-file');
                 if (fileInput) fileInput.value = '';
-                const downloadDiv = tbody.querySelector('tr td:nth-last-child(2) div');
-                if (downloadDiv) downloadDiv.remove();
-                const existingInput = tbody.querySelector('tr input[name="existing_drawing_path[]"]');
+                const pathInput = tbody.querySelector('tr .js-drawing-path');
+                if (pathInput) {
+                    pathInput.value = '';
+                    pathInput.placeholder = 'Link (Drive/Web)';
+                }
+                const downloadBtn = tbody.querySelector('tr .js-download-btn');
+                if (downloadBtn) downloadBtn.remove();
+                const existingInput = tbody.querySelector('tr .js-existing-path');
                 if (existingInput) existingInput.value = '';
+                const statusEl = tbody.querySelector('tr .js-file-status');
+                if (statusEl) {
+                    statusEl.textContent = '';
+                    statusEl.style.display = 'none';
+                }
+                const uploadBtn = tbody.querySelector('tr .js-upload-btn');
+                if (uploadBtn) {
+                    uploadBtn.classList.remove('btn-success');
+                    uploadBtn.classList.add('btn-outline-secondary');
+                }
             }
         }
     });
@@ -169,15 +288,39 @@
                 const row = templateRow.cloneNode(true);
                 rowCounter++;
 
-                const fileInput = row.querySelector('input[type="file"]');
+                const fileInput = row.querySelector('.js-drawing-file');
                 if (fileInput) {
                     fileInput.name = 'drawing_file_' + rowCounter;
                     fileInput.value = '';
+                }
+
+                const pathInput = row.querySelector('.js-drawing-path');
+                if (pathInput) {
+                    pathInput.name = 'drawing_path_' + rowCounter;
+                    pathInput.value = '';
+                    pathInput.placeholder = 'Link (Drive/Web)';
                 }
                 
                 const indexInput = row.querySelector('input[name="row_index[]"]');
                 if (indexInput) {
                     indexInput.value = rowCounter;
+                }
+
+                const existingInput = row.querySelector('.js-existing-path');
+                if (existingInput) {
+                    existingInput.value = '';
+                }
+
+                const statusEl = row.querySelector('.js-file-status');
+                if (statusEl) {
+                    statusEl.textContent = '';
+                    statusEl.style.display = 'none';
+                }
+
+                const uploadBtn = row.querySelector('.js-upload-btn');
+                if (uploadBtn) {
+                    uploadBtn.classList.remove('btn-success');
+                    uploadBtn.classList.add('btn-outline-secondary');
                 }
                 
                 const itemNoInput = row.querySelector('input[name="item_no[]"]');

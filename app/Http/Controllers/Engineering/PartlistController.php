@@ -105,6 +105,17 @@ class PartlistController extends Controller
             $rowIndex = $rowIndices[$i] ?? $i;
             $drawingPath = $existingPaths[$i] ?? null;
 
+            // Check manual link input
+            $manualPath = trim((string) $request->input("drawing_path_{$rowIndex}"));
+            if ($manualPath !== '') {
+                $drawingPath = $manualPath;
+            } else {
+                // If it was an external link and now it's empty, user cleared it!
+                if ($drawingPath && !str_starts_with($drawingPath, 'uploads/')) {
+                    $drawingPath = null;
+                }
+            }
+
             if ($request->hasFile("drawing_file_{$rowIndex}")) {
                 $file = $request->file("drawing_file_{$rowIndex}");
                 if ($file->isValid()) {
