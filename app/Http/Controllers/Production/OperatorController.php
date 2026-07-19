@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Production;
 
 use App\Http\Controllers\Controller;
+use App\Models\Item;
 use App\Models\ProductionAssignment;
 use App\Models\ProductionLog;
 use App\Models\ProductionPartlistProgress;
@@ -219,8 +220,49 @@ class OperatorController extends Controller
     {
         $parts = SpkPartlist::query()->where('spk_id', $assignment->spk_id)->orderBy('id')->get();
         $matched = $parts->filter(fn ($part) => $this->processMatches((string) $part->process, (string) $assignment->process_name))->values();
+        $result = $matched->isNotEmpty() ? $matched : $parts;
 
-        return $matched->isNotEmpty() ? $matched : $parts;
+        $drawingNos = $result->pluck('drawing_no')->filter()->all();
+        $itemNos = $result->pluck('item_no')->filter()->all();
+        $partNames = $result->pluck('part_name')->filter()->all();
+
+        $itemDrawings = Item::query()
+            ->whereNotNull('drawing_file')
+            ->where('drawing_file', '!=', '')
+            ->where(function ($q) use ($drawingNos, $itemNos, $partNames): void {
+                if ($drawingNos) {
+                    $q->orWhereIn('item_code', $drawingNos);
+                }
+                if ($itemNos) {
+                    $q->orWhereIn('item_code', $itemNos);
+                }
+                if ($partNames) {
+                    $q->orWhereIn('item_name', $partNames);
+                }
+            })
+            ->get(['item_code', 'item_name', 'drawing_file']);
+
+        $byCode = $itemDrawings->pluck('drawing_file', 'item_code')->mapWithKeys(fn ($file, $code) => [strtolower((string) $code) => $file]);
+        $byName = $itemDrawings->pluck('drawing_file', 'item_name')->mapWithKeys(fn ($file, $name) => [strtolower((string) $name) => $file]);
+
+        foreach ($result as $part) {
+            $rawPath = trim((string) $part->drawing_path);
+            if ($rawPath === '') {
+                $codeKey = strtolower(trim((string) ($part->drawing_no ?: $part->item_no)));
+                $nameKey = strtolower(trim((string) $part->part_name));
+                $rawPath = (string) ($byCode->get($codeKey) ?: $byName->get($nameKey) ?: '');
+            }
+
+            if ($rawPath !== '') {
+                $part->resolved_drawing_url = preg_match('/^https?:\/\//i', $rawPath)
+                    ? $rawPath
+                    : asset(ltrim($rawPath, '/'));
+            } else {
+                $part->resolved_drawing_url = null;
+            }
+        }
+
+        return $result;
     }
 
     private function partStats(Collection $partlists, Collection $progress): array

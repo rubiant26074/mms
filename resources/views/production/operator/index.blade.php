@@ -53,6 +53,18 @@
                         </div>
                     </div>
 
+                    @if($spk?->drawing_link)
+                        @php
+                            $spkLink = trim((string) $spk->drawing_link);
+                            $spkDrawingUrl = preg_match('/^https?:\/\//i', $spkLink) ? $spkLink : asset(ltrim($spkLink, '/'));
+                        @endphp
+                        <div class="mb-3">
+                            <a href="{{ $spkDrawingUrl }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-danger fw-bold shadow-sm">
+                                <i class="bi bi-file-earmark-pdf-fill fs-6 me-1"></i> Buka / Download Drawing SPK
+                            </a>
+                        </div>
+                    @endif
+
                     @if($spk?->project_name)<div class="bg-light border rounded p-3 mb-3">{{ $spk->project_name }}</div>@endif
 
                     @if($isProgress)
@@ -88,7 +100,19 @@
                                 $complete = ($row['state'] ?? '') === 'done' || ($target > 0 && $done >= $target);
                             @endphp
                             <tr>
-                                <td><strong>{{ $part->part_name ?: $part->item_no }}</strong><div class="text-muted small">{{ $part->drawing_no ?: '-' }} | {{ $part->process ?: '-' }}</div></td>
+                                <td>
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <strong>{{ $part->part_name ?: $part->item_no }}</strong>
+                                            <div class="text-muted small">{{ $part->drawing_no ?: '-' }} | {{ $part->process ?: '-' }}</div>
+                                        </div>
+                                        @if($part->resolved_drawing_url)
+                                            <a href="{{ $part->resolved_drawing_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-danger ms-2 px-2 py-1" title="Buka / Download Drawing {{ $part->part_name }}">
+                                                <i class="bi bi-file-earmark-pdf-fill"></i> Drawing
+                                            </a>
+                                        @endif
+                                    </div>
+                                </td>
                                 <td class="text-end">{{ $target + 0 }}</td>
                                 <td class="text-end">{{ $done + 0 }}</td>
                                 <td><span class="badge {{ $complete ? 'bg-success' : 'bg-warning text-dark' }}">{{ $complete ? 'DONE' : 'PENDING' }}</span></td>
@@ -154,6 +178,17 @@
                         <div class="fw-bold text-primary">{{ $task->process_name }}</div>
                         <div class="small text-muted">{{ $task->spk?->spk_number }} | {{ $task->spk?->salesOrder?->customer?->name ?: '-' }}</div>
                         <div class="small mt-1"><i class="bi bi-cpu"></i> {{ $task->machine ? ($task->machine->machine_code.' - '.$task->machine->machine_name) : 'Tanpa Mesin' }}</div>
+                        @if($task->spk?->drawing_link)
+                            @php
+                                $qLink = trim((string) $task->spk->drawing_link);
+                                $qDrawingUrl = preg_match('/^https?:\/\//i', $qLink) ? $qLink : asset(ltrim($qLink, '/'));
+                            @endphp
+                            <div class="mt-1">
+                                <a href="{{ $qDrawingUrl }}" target="_blank" rel="noopener noreferrer" class="text-danger small fw-bold">
+                                    <i class="bi bi-file-earmark-pdf-fill"></i> Drawing SPK
+                                </a>
+                            </div>
+                        @endif
                         @if(! $isViewOnly && ! $activeTask)
                             <form method="POST" action="{{ route('production.operator.start', $task) }}" class="mt-2">
                                 @csrf
