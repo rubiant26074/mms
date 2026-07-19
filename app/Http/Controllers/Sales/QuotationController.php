@@ -318,9 +318,26 @@ class QuotationController extends Controller
     private function nextQuoteNumber(): string
     {
         $ym = now()->format('ym');
-        $count = Quotation::query()->where('quote_number', 'like', "QT-{$ym}-%")->count() + 1;
+        $maxSeq = 0;
+        $existing = Quotation::query()
+            ->where('quote_number', 'like', "QT-{$ym}-%")
+            ->pluck('quote_number');
 
-        return 'QT-' . $ym . '-' . str_pad((string) $count, 4, '0', STR_PAD_LEFT);
+        foreach ($existing as $num) {
+            if (preg_match('/^QT-\d{4}-(\d+)/', (string) $num, $matches)) {
+                $seq = (int) $matches[1];
+                if ($seq > $maxSeq) {
+                    $maxSeq = $seq;
+                }
+            }
+        }
+
+        $next = $maxSeq + 1;
+        while (Quotation::query()->where('quote_number', 'QT-' . $ym . '-' . str_pad((string) $next, 4, '0', STR_PAD_LEFT))->exists()) {
+            $next++;
+        }
+
+        return 'QT-' . $ym . '-' . str_pad((string) $next, 4, '0', STR_PAD_LEFT);
     }
 
     private function makeRevision(Quotation $quotation): Quotation

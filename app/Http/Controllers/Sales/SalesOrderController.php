@@ -348,8 +348,25 @@ class SalesOrderController extends Controller
     private function nextSoNumber(): string
     {
         $ym = now()->format('ym');
-        $count = SalesOrder::query()->where('so_number', 'like', "SO-{$ym}-%")->count() + 1;
+        $maxSeq = 0;
+        $existing = SalesOrder::query()
+            ->where('so_number', 'like', "SO-{$ym}-%")
+            ->pluck('so_number');
 
-        return 'SO-' . $ym . '-' . str_pad((string) $count, 4, '0', STR_PAD_LEFT);
+        foreach ($existing as $num) {
+            if (preg_match('/^SO-\d{4}-(\d+)/', (string) $num, $matches)) {
+                $seq = (int) $matches[1];
+                if ($seq > $maxSeq) {
+                    $maxSeq = $seq;
+                }
+            }
+        }
+
+        $next = $maxSeq + 1;
+        while (SalesOrder::query()->where('so_number', 'SO-' . $ym . '-' . str_pad((string) $next, 4, '0', STR_PAD_LEFT))->exists()) {
+            $next++;
+        }
+
+        return 'SO-' . $ym . '-' . str_pad((string) $next, 4, '0', STR_PAD_LEFT);
     }
 }
