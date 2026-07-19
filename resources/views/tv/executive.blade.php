@@ -19,6 +19,7 @@
         .tbl{width:100%;border-collapse:collapse;font-size:.8rem}.tbl th,.tbl td{padding:5px 4px;border-bottom:1px solid rgba(148,163,184,.12)}.tbl th{font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:#b9cae0}.tbl td{color:#edf5ff}.r{text-align:right}.nw{white-space:nowrap}.pill{display:inline-block;padding:.15rem .45rem;border-radius:999px;font-size:.66rem;border:1px solid rgba(148,163,184,.22);background:rgba(255,255,255,.04)}.fg{color:#fcd34d;border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.12)}.spk{color:#bfdbfe;border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.12)}
         .alerts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}.al{padding:8px 9px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.025)}.al .n{font-size:1.05rem;font-weight:800;line-height:1}.al .t{font-size:.7rem;color:#d6e3f2;margin-top:5px;line-height:1.15}.al.warn .n{color:var(--c3)}.al.danger .n{color:var(--danger)}.al.ok .n{color:var(--c2)}
         .ft{position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,.9);color:#facc15;border-top:2px solid #facc15;padding:5px 0;z-index:999}.ft marquee{font-family:'Courier New',monospace;font-weight:700;font-size:.96rem}
+        .tv-res-switcher{display:inline-flex;align-items:center;gap:4px;background:rgba(15,23,42,.75);border:1px solid rgba(148,163,184,.22);border-radius:20px;padding:2px 6px;font-size:.78rem;vertical-align:middle}.tv-res-switcher .res-title{color:#94a3b8;font-weight:600;margin-right:2px;font-size:.72rem}.btn-res-opt{background:transparent;border:none;color:#94a3b8;padding:2px 8px;border-radius:14px;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s ease;display:inline-flex;align-items:center;gap:4px}.btn-res-opt:hover{color:#fff;background:rgba(255,255,255,.12)}.btn-res-opt.active{background:#0284c7;color:#fff;font-weight:700;box-shadow:0 2px 6px rgba(2,132,199,.4)}
         @media (max-width:1400px){body{overflow:auto}.top,.main{grid-template-columns:1fr;height:auto}.headB{grid-template-columns:1fr 1fr}.kpis{grid-template-columns:repeat(2,1fr)}.colL,.colR{grid-template-rows:auto}.alerts{grid-template-columns:repeat(2,1fr)}}
     </style>
 </head>
@@ -48,7 +49,7 @@
                 <i class="bi bi-bar-chart-line-fill" style="font-size:2.6rem;color:#67e8f9"></i>
             @endif
         </div>
-        <div style="min-width:0;flex:1"><h1 class="ttl">{{ $companyName }}</h1><div class="sub">TV Executive Dashboard - Overall Business <span class="live"></span> Realtime Snapshot</div></div>
+        <div style="min-width:0;flex:1"><h1 class="ttl">{{ $companyName }}</h1><div class="sub d-flex align-items-center flex-wrap gap-2"><span>TV Executive Dashboard - Overall Business <span class="live"></span> Realtime Snapshot</span><div class="tv-res-switcher"><span class="res-title"><i class="bi bi-display"></i> Mode:</span><button type="button" class="btn-res-opt" data-res="tv" title="Mode TV Layar Besar (100%)"><i class="bi bi-tv"></i> TV (100%)</button><button type="button" class="btn-res-opt" data-res="desktop" title="Mode Desktop Komputer (85%)"><i class="bi bi-laptop"></i> Desktop</button><button type="button" class="btn-res-opt" data-res="fit" title="Fit Layar Otomatis"><i class="bi bi-aspect-ratio"></i> Auto Fit</button></div></div></div>
     </div>
     <div class="cardx headB">
         <div class="clock"><div id="clk" class="tm">--:--:--</div><div id="dte" class="dt">-</div><div class="sub" style="font-size:.75rem;margin-top:4px">Auto refresh 180s</div></div>
@@ -91,6 +92,84 @@ donut('cSO',soDist,'SO'); donut('cSPK',spkDist,'SPK');
 new Chart(document.getElementById('cMach'),{type:'doughnut',data:{labels:['Running','Maint','Down'],datasets:[{data:machineVals,backgroundColor:['#22c55e','#f59e0b','#ef4444'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#eaf2ff',boxWidth:10}}},cutout:'62%'}}});
 (()=>{const T=document.getElementById('clk'),D=document.getElementById('dte'),H=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'],B=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],p=n=>String(n).padStart(2,'0');const f=()=>{const n=new Date();T.textContent=`${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;D.textContent=`${H[n.getDay()]}, ${p(n.getDate())} ${B[n.getMonth()]} ${n.getFullYear()}`;};f();setInterval(f,1000);})();
 setTimeout(()=>location.reload(),180000);
+
+(function () {
+    const KEY = 'mms_tv_res_mode';
+    const getSavedMode = function() { return localStorage.getItem(KEY) || 'tv'; };
+
+    function applyResMode(mode) {
+        localStorage.setItem(KEY, mode);
+        document.querySelectorAll('.btn-res-opt').forEach(function(btn) {
+            btn.classList.toggle('active', btn.dataset.res === mode);
+        });
+
+        const bodyEl = document.body;
+
+        bodyEl.style.zoom = '';
+        bodyEl.style.transform = '';
+        bodyEl.style.transformOrigin = '';
+        bodyEl.style.width = '';
+        bodyEl.style.overflow = 'hidden';
+
+        if (mode === 'desktop') {
+            if ('zoom' in bodyEl.style) {
+                bodyEl.style.zoom = '0.85';
+            } else {
+                bodyEl.style.transform = 'scale(0.85)';
+                bodyEl.style.transformOrigin = 'top left';
+                bodyEl.style.width = '117.6%';
+            }
+            bodyEl.style.overflow = 'auto';
+        } else if (mode === 'fit') {
+            const baseW = 1920;
+            const baseH = 1080;
+            const scaleW = window.innerWidth / baseW;
+            const scaleH = window.innerHeight / baseH;
+            const scale = Math.max(0.6, Math.min(scaleW, scaleH));
+
+            if ('zoom' in bodyEl.style) {
+                bodyEl.style.zoom = scale;
+            } else {
+                bodyEl.style.transform = 'scale(' + scale + ')';
+                bodyEl.style.transformOrigin = 'top left';
+                bodyEl.style.width = (100 / scale) + '%';
+            }
+            bodyEl.style.overflow = 'hidden';
+        } else {
+            bodyEl.style.zoom = '1.0';
+            bodyEl.style.overflow = 'hidden';
+        }
+
+        if (typeof Chart !== 'undefined' && Chart.instances) {
+            Object.values(Chart.instances).forEach(function(chart) {
+                try { chart.resize(); } catch(e) {}
+            });
+        }
+    }
+
+    const initMode = function() {
+        const savedMode = getSavedMode();
+        applyResMode(savedMode);
+
+        document.querySelectorAll('.btn-res-opt').forEach(function(btn) {
+            btn.addEventListener('click', function () {
+                applyResMode(this.dataset.res);
+            });
+        });
+
+        window.addEventListener('resize', function () {
+            if (getSavedMode() === 'fit') {
+                applyResMode('fit');
+            }
+        });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMode);
+    } else {
+        initMode();
+    }
+})();
 </script>
 </body>
 </html>

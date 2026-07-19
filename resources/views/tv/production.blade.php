@@ -34,6 +34,7 @@
         .footer-fixed{position:fixed;left:0;right:0;bottom:0;z-index:999}.status-line{font-size:1rem;font-weight:800;letter-spacing:.06em;text-align:center;padding:8px 10px}.status-line.ok{background:#0f5132;color:#d1fae5}.status-line.warn{background:#7c5a10;color:#fef3c7}.status-line.danger{background:#7f1d1d;color:#fee2e2}.status-line.idle{background:#334155;color:#e2e8f0}.marquee-line{background:rgba(0,0,0,.92);color:#facc15;border-top:2px solid #facc15;padding:5px 0}.marquee-line marquee{font-family:'Courier New',monospace;font-weight:700;font-size:.94rem}
         body.tv-slide-production #panelMachine,body.tv-slide-production #panelQc,body.tv-slide-machine #panelProduction,body.tv-slide-machine #panelJobs,body.tv-slide-machine #panelQc,body.tv-slide-qc #panelMachine,body.tv-slide-qc #panelProduction,body.tv-slide-qc #panelJobs{display:none!important}
         body.tv-slide-machine .right-col,body.tv-slide-qc .left-col{display:none!important}body.tv-slide-machine .main-grid,body.tv-slide-qc .main-grid{grid-template-columns:1fr}body.tv-slide-production .left-col,body.tv-slide-production .right-col,body.tv-slide-machine .left-col,body.tv-slide-qc .right-col{grid-template-rows:1fr}body.tv-slide-machine #panelMachine,body.tv-slide-qc #panelQc{height:100%}body.tv-slide-machine .machine-carousel{min-height:0}
+        .tv-res-switcher{display:inline-flex;align-items:center;gap:4px;background:rgba(15,23,42,.75);border:1px solid rgba(148,163,184,.22);border-radius:20px;padding:2px 6px;font-size:.78rem;vertical-align:middle}.tv-res-switcher .res-title{color:#94a3b8;font-weight:600;margin-right:2px;font-size:.72rem}.btn-res-opt{background:transparent;border:none;color:#94a3b8;padding:2px 8px;border-radius:14px;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s ease;display:inline-flex;align-items:center;gap:4px}.btn-res-opt:hover{color:#fff;background:rgba(255,255,255,.12)}.btn-res-opt.active{background:#0284c7;color:#fff;font-weight:700;box-shadow:0 2px 6px rgba(2,132,199,.4)}
         @media (max-width:1400px){body{overflow:auto}.top-wrap,.main-grid{grid-template-columns:1fr;height:auto}.top-side,.kpi-grid,.split-2{grid-template-columns:repeat(2,1fr)}.left-col,.right-col{grid-template-rows:auto}.machine-grid{grid-template-columns:1fr 1fr}}
         @media (max-width:900px){.kpi-grid,.split-2,.top-side{grid-template-columns:1fr}.machine-grid{grid-template-columns:1fr}}
     </style>
@@ -59,7 +60,7 @@
         </div>
         <div style="min-width:0;flex:1 1 auto;">
             <h1 class="title-main">{{ $companyName }}</h1>
-            <div class="title-sub">TV Produksi Shop Floor - Produksi & QC <span class="live-dot"></span> Live Monitor Operator <span id="tvProdSlideBadge" class="slide-badge">Slide Produksi</span></div>
+            <div class="title-sub d-flex align-items-center flex-wrap gap-2"><span>TV Produksi Shop Floor - Produksi & QC <span class="live-dot"></span> Live Monitor Operator <span id="tvProdSlideBadge" class="slide-badge">Slide Produksi</span></span><div class="tv-res-switcher"><span class="res-title"><i class="bi bi-display"></i> Mode:</span><button type="button" class="btn-res-opt" data-res="tv" title="Mode TV Layar Besar (100%)"><i class="bi bi-tv"></i> TV (100%)</button><button type="button" class="btn-res-opt" data-res="desktop" title="Mode Desktop Komputer (85%)"><i class="bi bi-laptop"></i> Desktop</button><button type="button" class="btn-res-opt" data-res="fit" title="Fit Layar Otomatis"><i class="bi bi-aspect-ratio"></i> Auto Fit</button></div></div>
         </div>
     </div>
     <div class="glass top-side">
@@ -330,6 +331,84 @@ new Chart(document.getElementById('qcChart'), {
     }, 1000);
 })();
 setTimeout(() => location.reload(), 90000);
+
+(function () {
+    const KEY = 'mms_tv_res_mode';
+    const getSavedMode = function() { return localStorage.getItem(KEY) || 'tv'; };
+
+    function applyResMode(mode) {
+        localStorage.setItem(KEY, mode);
+        document.querySelectorAll('.btn-res-opt').forEach(function(btn) {
+            btn.classList.toggle('active', btn.dataset.res === mode);
+        });
+
+        const bodyEl = document.body;
+
+        bodyEl.style.zoom = '';
+        bodyEl.style.transform = '';
+        bodyEl.style.transformOrigin = '';
+        bodyEl.style.width = '';
+        bodyEl.style.overflow = 'hidden';
+
+        if (mode === 'desktop') {
+            if ('zoom' in bodyEl.style) {
+                bodyEl.style.zoom = '0.85';
+            } else {
+                bodyEl.style.transform = 'scale(0.85)';
+                bodyEl.style.transformOrigin = 'top left';
+                bodyEl.style.width = '117.6%';
+            }
+            bodyEl.style.overflow = 'auto';
+        } else if (mode === 'fit') {
+            const baseW = 1920;
+            const baseH = 1080;
+            const scaleW = window.innerWidth / baseW;
+            const scaleH = window.innerHeight / baseH;
+            const scale = Math.max(0.6, Math.min(scaleW, scaleH));
+
+            if ('zoom' in bodyEl.style) {
+                bodyEl.style.zoom = scale;
+            } else {
+                bodyEl.style.transform = 'scale(' + scale + ')';
+                bodyEl.style.transformOrigin = 'top left';
+                bodyEl.style.width = (100 / scale) + '%';
+            }
+            bodyEl.style.overflow = 'hidden';
+        } else {
+            bodyEl.style.zoom = '1.0';
+            bodyEl.style.overflow = 'hidden';
+        }
+
+        if (typeof Chart !== 'undefined' && Chart.instances) {
+            Object.values(Chart.instances).forEach(function(chart) {
+                try { chart.resize(); } catch(e) {}
+            });
+        }
+    }
+
+    const initMode = function() {
+        const savedMode = getSavedMode();
+        applyResMode(savedMode);
+
+        document.querySelectorAll('.btn-res-opt').forEach(function(btn) {
+            btn.addEventListener('click', function () {
+                applyResMode(this.dataset.res);
+            });
+        });
+
+        window.addEventListener('resize', function () {
+            if (getSavedMode() === 'fit') {
+                applyResMode('fit');
+            }
+        });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMode);
+    } else {
+        initMode();
+    }
+})();
 </script>
 </body>
 </html>

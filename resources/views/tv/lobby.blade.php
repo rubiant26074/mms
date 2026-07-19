@@ -34,6 +34,7 @@
         .chart-wrap, .mini-chart-wrap { position:relative; height:100%; min-height:230px; }
         .summary-list .list-group-item { background: rgba(148,163,184,.04); border-color: rgba(148,163,184,.08); color:#e2e8f0; display:flex; justify-content:space-between; align-items:center; padding:.55rem .75rem; }
         .summary-dot { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:8px; }
+        .tv-res-switcher{display:inline-flex;align-items:center;gap:4px;background:rgba(15,23,42,.75);border:1px solid rgba(148,163,184,.22);border-radius:20px;padding:2px 6px;font-size:.78rem;vertical-align:middle}.tv-res-switcher .res-title{color:#94a3b8;font-weight:600;margin-right:2px;font-size:.72rem}.btn-res-opt{background:transparent;border:none;color:#94a3b8;padding:2px 8px;border-radius:14px;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s ease;display:inline-flex;align-items:center;gap:4px}.btn-res-opt:hover{color:#fff;background:rgba(255,255,255,.12)}.btn-res-opt.active{background:#0284c7;color:#fff;font-weight:700;box-shadow:0 2px 6px rgba(2,132,199,.4)}
     </style>
 </head>
 <body>
@@ -52,6 +53,7 @@
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <span class="text-soft fs-5">TV Lobby Monitoring</span>
                     <span class="live-pill"><span class="live-dot"></span> System Online</span>
+                    <div class="tv-res-switcher ms-2"><span class="res-title"><i class="bi bi-display"></i> Mode:</span><button type="button" class="btn-res-opt" data-res="tv" title="Mode TV Layar Besar (100%)"><i class="bi bi-tv"></i> TV (100%)</button><button type="button" class="btn-res-opt" data-res="desktop" title="Mode Desktop Komputer (85%)"><i class="bi bi-laptop"></i> Desktop</button><button type="button" class="btn-res-opt" data-res="fit" title="Fit Layar Otomatis"><i class="bi bi-aspect-ratio"></i> Auto Fit</button></div>
                 </div>
             </div>
         </div>
@@ -157,6 +159,84 @@ if (donutEl) {
     new Chart(donutEl, { type:'doughnut', data:{ labels:hasStatus ? TV_LOBBY.statusLabels : ['Belum ada data'], datasets:[{ data:hasStatus ? TV_LOBBY.statusCounts : [1], backgroundColor:hasStatus ? TV_LOBBY.statusColors.slice(0, TV_LOBBY.statusCounts.length) : ['rgba(148,163,184,0.35)'], borderColor:'rgba(15,23,42,0.95)', borderWidth:2, hoverOffset:5 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:'rgba(15,23,42,0.95)', borderColor:'rgba(148,163,184,0.2)', borderWidth:1, titleColor:'#fff', bodyColor:'#e2e8f0' } } } });
 }
 setTimeout(function () { location.reload(); }, 300000);
+
+(function () {
+    const KEY = 'mms_tv_res_mode';
+    const getSavedMode = function() { return localStorage.getItem(KEY) || 'tv'; };
+
+    function applyResMode(mode) {
+        localStorage.setItem(KEY, mode);
+        document.querySelectorAll('.btn-res-opt').forEach(function(btn) {
+            btn.classList.toggle('active', btn.dataset.res === mode);
+        });
+
+        const bodyEl = document.body;
+
+        bodyEl.style.zoom = '';
+        bodyEl.style.transform = '';
+        bodyEl.style.transformOrigin = '';
+        bodyEl.style.width = '';
+        bodyEl.style.overflow = 'hidden';
+
+        if (mode === 'desktop') {
+            if ('zoom' in bodyEl.style) {
+                bodyEl.style.zoom = '0.85';
+            } else {
+                bodyEl.style.transform = 'scale(0.85)';
+                bodyEl.style.transformOrigin = 'top left';
+                bodyEl.style.width = '117.6%';
+            }
+            bodyEl.style.overflow = 'auto';
+        } else if (mode === 'fit') {
+            const baseW = 1920;
+            const baseH = 1080;
+            const scaleW = window.innerWidth / baseW;
+            const scaleH = window.innerHeight / baseH;
+            const scale = Math.max(0.6, Math.min(scaleW, scaleH));
+
+            if ('zoom' in bodyEl.style) {
+                bodyEl.style.zoom = scale;
+            } else {
+                bodyEl.style.transform = 'scale(' + scale + ')';
+                bodyEl.style.transformOrigin = 'top left';
+                bodyEl.style.width = (100 / scale) + '%';
+            }
+            bodyEl.style.overflow = 'hidden';
+        } else {
+            bodyEl.style.zoom = '1.0';
+            bodyEl.style.overflow = 'hidden';
+        }
+
+        if (typeof Chart !== 'undefined' && Chart.instances) {
+            Object.values(Chart.instances).forEach(function(chart) {
+                try { chart.resize(); } catch(e) {}
+            });
+        }
+    }
+
+    const initMode = function() {
+        const savedMode = getSavedMode();
+        applyResMode(savedMode);
+
+        document.querySelectorAll('.btn-res-opt').forEach(function(btn) {
+            btn.addEventListener('click', function () {
+                applyResMode(this.dataset.res);
+            });
+        });
+
+        window.addEventListener('resize', function () {
+            if (getSavedMode() === 'fit') {
+                applyResMode('fit');
+            }
+        });
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMode);
+    } else {
+        initMode();
+    }
+})();
 </script>
 </body>
 </html>
