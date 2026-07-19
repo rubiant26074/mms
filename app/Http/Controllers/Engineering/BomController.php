@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Engineering;
 use App\Http\Controllers\Controller;
 use App\Models\Bom;
 use App\Models\Item;
+use App\Models\SalesOrder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,12 +28,50 @@ class BomController extends Controller
             ->latest('id')
             ->get();
 
-        return view('engineering.boms.index', compact('boms', 'search'));
+        $pendingSoItems = [];
+        $approvedSos = SalesOrder::query()
+            ->with(['customer', 'items.item'])
+            ->whereIn('status', ['confirmed', 'in_production'])
+            ->latest('id')
+            ->get();
+
+        foreach ($approvedSos as $so) {
+            foreach ($so->items as $soItem) {
+                if (! $soItem->item_id) {
+                    continue;
+                }
+                $hasActiveBom = Bom::query()
+                    ->where('item_id', $soItem->item_id)
+                    ->whereIn('status', ['active', 'locked'])
+                    ->exists();
+                if (! $hasActiveBom) {
+                    $pendingSoItems[] = [
+                        'so_id' => $so->id,
+                        'so_number' => $so->so_number,
+                        'customer_name' => $so->customer?->name ?: '-',
+                        'item_id' => $soItem->item_id,
+                        'item_code' => $soItem->item?->item_code ?: $soItem->item_code_manual,
+                        'item_name' => $soItem->item?->item_name ?: $soItem->item_name_manual,
+                        'qty' => $soItem->qty,
+                        'unit' => $soItem->unit_manual ?: ($soItem->item?->unit ?: 'PCS'),
+                    ];
+                }
+            }
+        }
+
+        return view('engineering.boms.index', compact('boms', 'search', 'pendingSoItems'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
-        return $this->form(new Bom(['qty_result' => 1, 'status' => 'active']), collect([]), false);
+        $soId = $request->integer('so_id');
+        $itemId = $request->integer('item_id');
+        $bom = new Bom(['qty_result' => 1, 'status' => 'active']);
+        if ($itemId > 0) {
+            $bom->item_id = $itemId;
+        }
+
+        return $this->form($bom, collect([]), false, $soId, $itemId);
     }
 
     public function store(Request $request): RedirectResponse
@@ -84,25 +123,39 @@ class BomController extends Controller
         return redirect()->route('engineering.boms.index')->with('success', 'BOM berhasil dihapus.');
     }
 
-    private function form(Bom $bom, $details, bool $isEdit): View
+    private function form(Bom $bom, $details, bool $isEdit, int $selectedSoId = 0, int $selectedItemId = 0): View
     {
         $fgItems = Item::query()
             ->whereIn('item_type', ['finish_good', 'wip'])
-            ->whereNotExists(function ($query) {
-                $query->select(DB::raw(1))
-                    ->from('boms')
-                    ->whereColumn('boms.item_id', 'items.id')
-                    ->where('boms.status', 'active');
+            ->where(function ($query) use ($isEdit, $bom, $selectedItemId): void {
+                $query->whereNotExists(function ($sub) {
+                    $sub->select(DB::raw(1))
+                        ->from('boms')
+                        ->whereColumn('boms.item_id', 'items.id')
+                        ->where('boms.status', 'active');
+                });
+                if ($isEdit && $bom->item_id) {
+                    $query->orWhere('items.id', $bom->item_id);
+                }
+                if ($selectedItemId > 0) {
+                    $query->orWhere('items.id', $selectedItemId);
+                }
             })
-            ->when($isEdit, fn ($query) => $query->orWhere('items.id', $bom->item_id))
             ->orderBy('item_code')
             ->get();
+
         $materials = Item::query()
             ->whereIn('item_type', ['raw_material', 'consumable', 'wip'])
             ->orderBy('item_code')
             ->get();
 
-        return view('engineering.boms.form', compact('bom', 'details', 'isEdit', 'fgItems', 'materials'));
+        $salesOrders = SalesOrder::query()
+            ->with(['customer', 'items.item'])
+            ->whereIn('status', ['confirmed', 'in_production'])
+            ->latest('id')
+            ->get();
+
+        return view('engineering.boms.form', compact('bom', 'details', 'isEdit', 'fgItems', 'materials', 'salesOrders', 'selectedSoId', 'selectedItemId'));
     }
 
     private function validated(Request $request, ?Bom $bom = null): array

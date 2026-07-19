@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Sales;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Item;
+use App\Models\MmsNotification;
 use App\Models\Quotation;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
@@ -163,7 +164,27 @@ class SalesOrderController extends Controller
             $message = 'Sales Order diajukan untuk Approval.';
         } elseif ($action === 'approve' && $order->status === 'waiting_approval') {
             $order->update(['status' => 'confirmed', 'approved_by' => auth()->id(), 'approved_at' => now()]);
-            $message = 'Sales Order berhasil di-Approve (Confirmed)!';
+
+            // Notify Engineering team
+            MmsNotification::query()->create([
+                'sender_id' => auth()->id(),
+                'target_role' => 'engineering',
+                'title' => 'Sales Order Approved: ' . $order->so_number,
+                'message' => "Sales Order {$order->so_number} telah di-approve. Silakan periksa item dan siapkan BOM.",
+                'link' => route('engineering.boms.index'),
+                'type' => 'sales_order',
+            ]);
+
+            MmsNotification::query()->create([
+                'sender_id' => auth()->id(),
+                'target_role' => 'engineer',
+                'title' => 'Sales Order Approved: ' . $order->so_number,
+                'message' => "Sales Order {$order->so_number} telah di-approve. Silakan periksa item dan siapkan BOM.",
+                'link' => route('engineering.boms.index'),
+                'type' => 'sales_order',
+            ]);
+
+            $message = 'Sales Order berhasil di-Approve (Confirmed)! Notifikasi telah dikirim ke Engineering.';
         } elseif ($action === 'reject' && $order->status === 'waiting_approval') {
             $order->update(['status' => 'rejected']);
             $message = 'Sales Order ditolak (Rejected).';

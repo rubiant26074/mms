@@ -7,12 +7,33 @@
     <div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="bi bi-diagram-3"></i> {{ $isEdit ? 'Edit BOM' : 'Buat BOM Baru' }}</h5></div>
     <div class="card-body">
         @include('partials.alerts')
+        @if(!$isEdit && !empty($salesOrders))
+        <div class="alert alert-info py-2 px-3 mb-3 d-flex align-items-center justify-content-between">
+            <div>
+                <i class="bi bi-info-circle me-1"></i> <strong>Tarik dari Sales Order:</strong> Pilih Sales Order untuk mempermudah pemilihan Item Finish Good yang siap dibuatkan BOM.
+            </div>
+            <div style="min-width: 320px;">
+                <select id="so_pull_picker" class="form-select form-select-sm bg-white fw-semibold">
+                    <option value="">-- Pilih dari SO Approved --</option>
+                    @foreach($salesOrders as $so)
+                        @foreach($so->items as $soItem)
+                            @if($soItem->item_id)
+                                <option value="{{ $soItem->item_id }}" @selected($selectedItemId == $soItem->item_id || old('item_id', $bom->item_id) == $soItem->item_id)>
+                                    {{ $so->so_number }} | {{ $so->customer?->name }} - {{ $soItem->item?->item_name ?: $soItem->item_name_manual }}
+                                </option>
+                            @endif
+                        @endforeach
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        @endif
         <form method="POST" action="{{ $isEdit ? route('engineering.boms.update', $bom) : route('engineering.boms.store') }}">
             @csrf
             @if($isEdit) @method('PUT') @endif
             <div class="row g-3 mb-3">
                 <div class="col-md-3"><label>Kode BOM</label><input type="text" class="form-control bg-light fw-bold" value="{{ $bom->bom_code ?: 'AUTO' }}" readonly></div>
-                <div class="col-md-5"><label>Item Hasil <span class="text-danger">*</span></label><select name="item_id" class="form-select" required><option value="">-- Pilih Finish Good / WIP --</option>@foreach($fgItems as $item)<option value="{{ $item->id }}" @selected((int) old('item_id', $bom->item_id) === $item->id)>{{ $item->item_code }} - {{ $item->item_name }}</option>@endforeach</select></div>
+                <div class="col-md-5"><label>Item Hasil <span class="text-danger">*</span></label><select name="item_id" class="form-select fw-bold border-primary" required><option value="">-- Pilih Finish Good / WIP --</option>@foreach($fgItems as $item)<option value="{{ $item->id }}" @selected((int) old('item_id', $bom->item_id) === $item->id)>{{ $item->item_code }} - {{ $item->item_name }}</option>@endforeach</select></div>
                 <div class="col-md-2"><label>Qty Hasil</label><input type="number" step="any" min="0.0001" name="qty_result" class="form-control fw-bold" value="{{ old('qty_result', $bom->qty_result ?: 1) }}" required></div>
                 <div class="col-md-2"><label>Status</label><select name="status" class="form-select"><option value="active" @selected(old('status', $bom->status ?: 'active') === 'active')>Active</option><option value="inactive" @selected(old('status', $bom->status) === 'inactive')>Inactive</option><option value="locked" @selected(old('status', $bom->status) === 'locked')>Locked</option></select></div>
             </div>
@@ -57,6 +78,16 @@
         tbody.appendChild(row);
     });
     document.addEventListener('click', e => { if (e.target.closest('.remove-row') && tbody.querySelectorAll('tr').length > 1) e.target.closest('tr').remove(); });
+
+    document.getElementById('so_pull_picker')?.addEventListener('change', function() {
+        const selectedItemId = this.value;
+        if (selectedItemId) {
+            const itemSelect = document.querySelector('select[name="item_id"]');
+            if (itemSelect) {
+                itemSelect.value = selectedItemId;
+            }
+        }
+    });
 })();
 </script>
 @endpush

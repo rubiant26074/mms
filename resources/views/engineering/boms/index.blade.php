@@ -9,8 +9,45 @@
         <h3 class="fw-bold"><i class="bi bi-diagram-3"></i> Bill of Material</h3>
         <p class="text-muted">Resep material untuk Finish Good / WIP.</p>
     </div>
-    <div class="col-md-6 text-end"><a href="{{ route('engineering.boms.create') }}" class="btn btn-primary shadow-sm"><i class="bi bi-plus-lg"></i> Buat BOM</a></div>
+    <div class="col-md-6 text-end"><a href="{{ route('engineering.boms.create') }}" class="btn btn-primary shadow-sm"><i class="bi bi-plus-lg"></i> Buat BOM Baru</a></div>
 </div>
+
+@if(!empty($pendingSoItems))
+<div class="card shadow-sm mb-4 border-start border-4 border-warning">
+    <div class="card-header bg-warning-subtle text-dark fw-bold d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i> Item Sales Order (Approved) yang Belum Punya BOM ({{ count($pendingSoItems) }})</span>
+        <span class="badge bg-warning text-dark">Siap Dibuat BOM</span>
+    </div>
+    <div class="card-body p-0 table-responsive">
+        <table class="table table-sm table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-3">No. SO</th>
+                    <th>Customer</th>
+                    <th>Item / Produk SO</th>
+                    <th class="text-center">Qty Order</th>
+                    <th class="text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($pendingSoItems as $p)
+                <tr>
+                    <td class="ps-3 fw-bold text-primary">{{ $p['so_number'] }}</td>
+                    <td>{{ $p['customer_name'] }}</td>
+                    <td><strong>{{ $p['item_code'] }}</strong><br><span class="text-muted small">{{ $p['item_name'] }}</span></td>
+                    <td class="text-center">{{ $p['qty'] + 0 }} {{ $p['unit'] }}</td>
+                    <td class="text-center">
+                        <a href="{{ route('engineering.boms.create', ['so_id' => $p['so_id'], 'item_id' => $p['item_id']]) }}" class="btn btn-sm btn-primary py-1 px-3">
+                            <i class="bi bi-diagram-3"></i> Tarik & Buat BOM
+                        </a>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+@endif
 <div class="card shadow-sm mb-4 border-start border-4 border-primary">
     <div class="card-body py-3">
         <form method="GET" class="row g-2 align-items-center" id="bom-filter-form">
