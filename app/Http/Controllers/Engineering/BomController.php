@@ -37,11 +37,15 @@ class BomController extends Controller
 
         foreach ($approvedSos as $so) {
             foreach ($so->items as $soItem) {
-                if (! $soItem->item_id) {
+                $itemId = $soItem->item_id;
+                if (! $itemId && $soItem->item_code_manual) {
+                    $itemId = Item::query()->where('item_code', $soItem->item_code_manual)->value('id');
+                }
+                if (! $itemId) {
                     continue;
                 }
                 $hasActiveBom = Bom::query()
-                    ->where('item_id', $soItem->item_id)
+                    ->where('item_id', $itemId)
                     ->whereIn('status', ['active', 'locked'])
                     ->exists();
                 if (! $hasActiveBom) {
@@ -49,7 +53,7 @@ class BomController extends Controller
                         'so_id' => $so->id,
                         'so_number' => $so->so_number,
                         'customer_name' => $so->customer?->name ?: '-',
-                        'item_id' => $soItem->item_id,
+                        'item_id' => $itemId,
                         'item_code' => $soItem->item?->item_code ?: $soItem->item_code_manual,
                         'item_name' => $soItem->item?->item_name ?: $soItem->item_name_manual,
                         'qty' => $soItem->qty,
