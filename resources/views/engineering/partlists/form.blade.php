@@ -35,32 +35,34 @@
                         <td><input name="width[]" type="number" step="0.01" class="form-control" value="{{ $part->width !== null ? $part->width + 0 : '' }}"></td>
                         <td><input name="process[]" class="form-control" value="{{ $part->process }}"></td>
                         <td><input name="notes[]" class="form-control" value="{{ $part->notes }}"></td>
-                        <td>
+                        <td style="min-width: 220px;">
+                            @php
+                                $isUploaded = $part->drawing_path && str_starts_with($part->drawing_path, 'uploads/');
+                                $hasLink = $part->drawing_path && ! $isUploaded;
+                            @endphp
                             <div class="d-flex align-items-center gap-1">
-                                <!-- text input for link -->
-                                <input type="text" name="drawing_path_{{ $loop->index }}" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web)" value="{{ !str_starts_with($part->drawing_path ?? '', 'uploads/') ? $part->drawing_path : '' }}" style="min-width: 120px;">
-                                
-                                <!-- hidden file input -->
+                                <input type="hidden" name="existing_drawing_path[]" class="js-existing-path" value="{{ $part->drawing_path }}">
+                                <input type="hidden" name="remove_drawing_{{ $loop->index }}" class="js-remove-drawing" value="0">
                                 <input type="file" name="drawing_file_{{ $loop->index }}" class="d-none js-drawing-file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf">
-                                
-                                <!-- small icon upload button -->
-                                <button type="button" class="btn btn-sm btn-outline-secondary px-2 js-upload-btn" title="Upload File Drawing">
-                                    <i class="bi bi-cloud-upload"></i>
+
+                                <!-- Manual Link / Win Path Input -->
+                                <input type="text" name="drawing_path_{{ $loop->index }}" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web/Win)" value="{{ $hasLink ? trim($part->drawing_path, ' "') : '' }}" style="min-width: 110px;">
+
+                                <!-- Upload Button -->
+                                <button type="button" class="btn btn-sm {{ $isUploaded ? 'btn-success' : 'btn-outline-secondary' }} px-2 js-upload-btn" title="{{ $isUploaded ? 'File terupload: '.basename($part->drawing_path).' (Klik untuk ganti file)' : 'Upload File Drawing PDF/Gambar' }}">
+                                    <i class="bi {{ $isUploaded ? 'bi-file-earmark-check-fill' : 'bi-cloud-upload' }}"></i>
                                 </button>
 
-                                <!-- file upload status / download link -->
-                                @if($part->drawing_path)
-                                    <input type="hidden" name="existing_drawing_path[]" class="js-existing-path" value="{{ $part->drawing_path }}">
-                                    @if(str_starts_with($part->drawing_path, 'uploads/'))
-                                        <a href="{{ asset($part->drawing_path) }}" target="_blank" class="btn btn-sm btn-success px-2 py-1 js-download-btn" title="Download Uploaded File"><i class="bi bi-download"></i></a>
-                                    @else
-                                        <a href="{{ $part->drawing_path }}" target="_blank" class="btn btn-sm btn-outline-success px-2 py-1 js-download-btn" title="Open Link"><i class="bi bi-link-45deg"></i></a>
-                                    @endif
-                                @else
-                                    <input type="hidden" name="existing_drawing_path[]" class="js-existing-path" value="">
+                                <!-- Open/Download Link -->
+                                @if($isUploaded)
+                                    <a href="{{ asset($part->drawing_path) }}" target="_blank" class="btn btn-sm btn-outline-success px-2 py-1 js-download-btn" title="Buka File Upload {{ basename($part->drawing_path) }}"><i class="bi bi-download"></i></a>
+                                @elseif($hasLink)
+                                    <a href="{{ preg_match('/^https?:\/\//i', $part->drawing_path) ? $part->drawing_path : 'javascript:void(0)' }}" @if(preg_match('/^https?:\/\//i', $part->drawing_path)) target="_blank" @else onclick="alert('Link lokal Windows: {{ addslashes($part->drawing_path) }}')" @endif class="btn btn-sm btn-outline-info px-2 py-1 js-download-btn" title="Buka Link"><i class="bi bi-link-45deg"></i></a>
                                 @endif
                             </div>
-                            <div class="small text-success mt-1 js-file-status" style="display:none; font-size:10px; font-weight:bold;"></div>
+                            <div class="small text-success mt-1 js-file-status" style="{{ $isUploaded ? '' : 'display:none;' }} font-size:10px; font-weight:bold;">
+                                {{ $isUploaded ? '✓ '.basename($part->drawing_path) : '' }}
+                            </div>
                         </td>
                         <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-row">X</button></td>
                     </tr>
@@ -68,20 +70,17 @@
                     <tr>
                         <input type="hidden" name="row_index[]" value="0">
                         <td><input name="item_no[]" class="form-control text-center"></td><td><input name="drawing_no[]" class="form-control"></td><td><input name="part_name[]" class="form-control"></td><td><input name="qty[]" type="number" step="0.01" class="form-control"></td><td><input name="material[]" class="form-control"></td><td><input name="thickness[]" class="form-control"></td><td><input name="length[]" type="number" step="0.01" class="form-control"></td><td><input name="width[]" type="number" step="0.01" class="form-control"></td><td><input name="process[]" class="form-control"></td><td><input name="notes[]" class="form-control"></td>
-                        <td>
+                        <td style="min-width: 220px;">
                             <div class="d-flex align-items-center gap-1">
-                                <!-- text input for link -->
-                                <input type="text" name="drawing_path_0" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web)" style="min-width: 120px;">
-                                
-                                <!-- hidden file input -->
+                                <input type="hidden" name="existing_drawing_path[]" class="js-existing-path" value="">
+                                <input type="hidden" name="remove_drawing_0" class="js-remove-drawing" value="0">
                                 <input type="file" name="drawing_file_0" class="d-none js-drawing-file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf">
+
+                                <input type="text" name="drawing_path_0" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web/Win)" style="min-width: 110px;">
                                 
-                                <!-- small icon upload button -->
-                                <button type="button" class="btn btn-sm btn-outline-secondary px-2 js-upload-btn" title="Upload File Drawing">
+                                <button type="button" class="btn btn-sm btn-outline-secondary px-2 js-upload-btn" title="Upload File Drawing PDF/Gambar">
                                     <i class="bi bi-cloud-upload"></i>
                                 </button>
-
-                                <input type="hidden" name="existing_drawing_path[]" class="js-existing-path" value="">
                             </div>
                             <div class="small text-success mt-1 js-file-status" style="display:none; font-size:10px; font-weight:bold;"></div>
                         </td>

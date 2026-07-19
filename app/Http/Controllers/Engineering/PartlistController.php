@@ -101,16 +101,18 @@ class PartlistController extends Controller
             $lengthVal = trim((string) $request->input("length.{$i}"));
             $widthVal = trim((string) $request->input("width.{$i}"));
 
-            // Check if there is an uploaded file for this specific row index
             $rowIndex = $rowIndices[$i] ?? $i;
             $drawingPath = $existingPaths[$i] ?? null;
 
-            // Check manual link input
+            if ($request->boolean("remove_drawing_{$rowIndex}")) {
+                $drawingPath = null;
+            }
+
             $manualPath = trim((string) $request->input("drawing_path_{$rowIndex}"));
             if ($manualPath !== '') {
+                $manualPath = trim($manualPath, " \t\n\r\0\x0B\"'");
                 $drawingPath = $manualPath;
             } else {
-                // If it was an external link and now it's empty, user cleared it!
                 if ($drawingPath && !str_starts_with($drawingPath, 'uploads/')) {
                     $drawingPath = null;
                 }
@@ -119,7 +121,6 @@ class PartlistController extends Controller
             if ($request->hasFile("drawing_file_{$rowIndex}")) {
                 $file = $request->file("drawing_file_{$rowIndex}");
                 if ($file->isValid()) {
-                    // Save file to public/uploads/drawings/
                     $filename = 'drw_' . uniqid() . '_' . now()->format('YmdHis') . '.' . strtolower($file->getClientOriginalExtension());
                     $directory = public_path('uploads/drawings');
                     if (!is_dir($directory)) {
@@ -128,6 +129,10 @@ class PartlistController extends Controller
                     $file->move($directory, $filename);
                     $drawingPath = 'uploads/drawings/' . $filename;
                 }
+            }
+
+            if ($drawingPath && !str_starts_with($drawingPath, 'uploads/')) {
+                $drawingPath = trim($drawingPath, " \t\n\r\0\x0B\"'");
             }
 
             $rows[] = [
