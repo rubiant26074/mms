@@ -14,6 +14,9 @@
         <p class="text-muted">Database Material, Sparepart, dan Finish Good.</p>
     </div>
     <div class="col-md-6 text-end">
+        @if($isAdmin)
+            <button type="submit" form="bulk-delete-form" id="btn-bulk-delete" class="btn btn-danger shadow-sm me-2 d-none" onclick="return confirm('Apakah Anda yakin ingin menghapus barang terpilih?')"><i class="bi bi-trash-fill"></i> Hapus Terpilih (<span id="selected-count">0</span>)</button>
+        @endif
         <a href="{{ route('warehouse.items.create') }}" class="btn btn-primary shadow-sm"><i class="bi bi-plus-lg"></i> Tambah Barang</a>
         <button type="button" class="btn btn-outline-success shadow-sm ms-2" data-bs-toggle="modal" data-bs-target="#importItemsModal"><i class="bi bi-file-earmark-excel"></i> Import Excel</button>
     </div>
@@ -38,11 +41,29 @@
     </div>
 </div>
 
+<form method="POST" action="{{ route('warehouse.items.bulk_destroy') }}" id="bulk-delete-form">
+    @csrf
+    @method('DELETE')
+</form>
+
 <div class="card shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="table-light"><tr><th class="ps-4">Kode Barang</th><th>Nama Barang / Spesifikasi</th><th>Tipe / Owner</th><th class="text-center">Stok</th><th class="text-center">Satuan</th>@if($canSeePrice)<th class="text-end">Harga Dasar</th>@endif<th class="text-center">Aksi</th></tr></thead>
+                <thead class="table-light">
+                    <tr>
+                        @if($isAdmin)
+                            <th class="ps-3 text-center" style="width: 40px;"><input type="checkbox" id="select-all-items" class="form-check-input" title="Pilih Semua"></th>
+                        @endif
+                        <th class="{{ $isAdmin ? '' : 'ps-4' }}">Kode Barang</th>
+                        <th>Nama Barang / Spesifikasi</th>
+                        <th>Tipe / Owner</th>
+                        <th class="text-center">Stok</th>
+                        <th class="text-center">Satuan</th>
+                        @if($canSeePrice)<th class="text-end">Harga Dasar</th>@endif
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
                 <tbody>
                 @forelse($items as $row)
                     @php
@@ -50,7 +71,10 @@
                         $drawing = preg_match('/^(uploads\/|https?:\/\/)/i', (string) $row->drawing_file) ? (string) $row->drawing_file : '';
                     @endphp
                     <tr>
-                        <td class="ps-4 fw-bold text-primary">{{ $row->item_code }}</td>
+                        @if($isAdmin)
+                            <td class="ps-3 text-center"><input type="checkbox" name="ids[]" value="{{ $row->id }}" form="bulk-delete-form" class="form-check-input item-checkbox"></td>
+                        @endif
+                        <td class="{{ $isAdmin ? '' : 'ps-4' }} fw-bold text-primary">{{ $row->item_code }}</td>
                         <td>
                             <div class="d-flex align-items-center">
                                 <div>{{ $row->item_name }}</div>
@@ -62,10 +86,17 @@
                         <td class="text-center {{ $lowStock ? 'text-danger fw-bold' : 'text-dark fw-bold' }}">{{ $row->current_stock + 0 }} @if($lowStock)<i class="bi bi-exclamation-circle-fill ms-1" title="Stok Menipis"></i>@endif</td>
                         <td class="text-center">{{ $row->unit }}</td>
                         @if($canSeePrice)<td class="text-end text-success fw-bold">Rp {{ number_format((float) $row->base_price, 0, ',', '.') }}</td>@endif
-                        <td class="text-center"><div class="btn-group"><a href="{{ route('warehouse.items.edit', $row) }}" class="btn btn-sm btn-outline-warning text-dark"><i class="bi bi-pencil"></i></a><form method="POST" action="{{ route('warehouse.items.destroy', $row) }}" onsubmit="return confirm('Hapus barang {{ $row->item_code }}?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form></div></td>
+                        <td class="text-center">
+                            <div class="btn-group">
+                                <a href="{{ route('warehouse.items.edit', $row) }}" class="btn btn-sm btn-outline-warning text-dark" title="Edit"><i class="bi bi-pencil"></i></a>
+                                @if($isAdmin)
+                                    <form method="POST" action="{{ route('warehouse.items.destroy', $row) }}" onsubmit="return confirm('Hapus barang {{ $row->item_code }}?')" class="d-inline">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger" title="Hapus"><i class="bi bi-trash"></i></button></form>
+                                @endif
+                            </div>
+                        </td>
                     </tr>
                 @empty
-                    <tr><td colspan="{{ $canSeePrice ? 7 : 6 }}" class="text-center py-5 text-muted">Data tidak ditemukan.</td></tr>
+                    <tr><td colspan="{{ ($canSeePrice ? 7 : 6) + ($isAdmin ? 1 : 0) }}" class="text-center py-5 text-muted">Data tidak ditemukan.</td></tr>
                 @endforelse
                 </tbody>
             </table>
@@ -101,6 +132,37 @@
     const submit = () => form.requestSubmit ? form.requestSubmit() : form.submit();
     search?.addEventListener('input', () => { clearTimeout(t); t = setTimeout(submit, 400); });
     type?.addEventListener('change', submit);
+
+    // Bulk Delete Checkbox Logic
+    const selectAll = document.getElementById('select-all-items');
+    const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+    const btnBulkDelete = document.getElementById('btn-bulk-delete');
+    const selectedCountSpan = document.getElementById('selected-count');
+
+    function updateBulkState() {
+        const checkedCount = document.querySelectorAll('.item-checkbox:checked').length;
+        if (selectedCountSpan) selectedCountSpan.textContent = checkedCount;
+        if (btnBulkDelete) {
+            if (checkedCount > 0) {
+                btnBulkDelete.classList.remove('d-none');
+            } else {
+                btnBulkDelete.classList.add('d-none');
+            }
+        }
+        if (selectAll && itemCheckboxes.length > 0) {
+            selectAll.checked = checkedCount === itemCheckboxes.length;
+            selectAll.indeterminate = checkedCount > 0 && checkedCount < itemCheckboxes.length;
+        }
+    }
+
+    selectAll?.addEventListener('change', function () {
+        itemCheckboxes.forEach(cb => cb.checked = this.checked);
+        updateBulkState();
+    });
+
+    itemCheckboxes.forEach(cb => {
+        cb.addEventListener('change', updateBulkState);
+    });
 })();
 function normalizeHeader(val) { return String(val || '').toLowerCase().trim().replace(/\s+/g, '_'); }
 function detectHeaderRow(row) { const headers = row.map(normalizeHeader); return headers.includes('item_code') && headers.includes('item_name'); }

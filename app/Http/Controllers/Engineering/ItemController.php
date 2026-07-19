@@ -18,6 +18,7 @@ class ItemController extends Controller
         $type = $this->rememberedFilter($request, 'filter_type', '');
         $search = $this->rememberedFilter($request, 'search', '');
         $canSeePrice = $request->user()?->hasPermission('item_price_view') ?? false;
+        $isAdmin = $request->user()?->role?->role_slug === 'admin';
 
         $items = Item::query()
             ->when($type !== '', fn ($query) => $query->where('item_type', $type))
@@ -28,7 +29,7 @@ class ItemController extends Controller
             ->orderBy('item_code')
             ->get();
 
-        return view('engineering.items.index', compact('items', 'type', 'search', 'canSeePrice'));
+        return view('engineering.items.index', compact('items', 'type', 'search', 'canSeePrice', 'isAdmin'));
     }
 
     public function create(): View
@@ -84,14 +85,54 @@ class ItemController extends Controller
         return redirect()->route('warehouse.items.index')->with('success', 'Data tersimpan!');
     }
 
-    public function destroy(Item $item): RedirectResponse
+    public function destroy(Request $request, Item $item): RedirectResponse
     {
+        if ($request->user()?->role?->role_slug !== 'admin') {
+            return back()->withErrors('Hanya Admin yang memiliki akses untuk menghapus barang.');
+        }
+
         try {
             $item->delete();
 
             return redirect()->route('warehouse.items.index')->with('success', 'Barang berhasil dihapus.');
         } catch (\Throwable) {
             return back()->withErrors('Gagal menghapus. Barang mungkin sudah digunakan dalam transaksi.');
+        }
+    }
+
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        if ($request->user()?->role?->role_slug !== 'admin') {
+            return back()->withErrors('Hanya Admin yang memiliki akses untuk menghapus barang.');
+        }
+
+        $ids = $request->input('ids', []);
+        if (! is_array($ids) || empty($ids)) {
+            return back()->withErrors('Pilih setidaknya satu barang untuk dihapus.');
+        }
+
+        $deletedCount = 0;
+        $failedCount = 0;
+
+        foreach ($ids as $id) {
+            $item = Item::query()->find($id);
+            if (! $item) {
+                continue;
+            }
+            try {
+                $item->delete();
+                $deletedCount++;
+            } catch (\Throwable) {
+                $failedCount++;
+            }
+        }
+
+        if ($deletedCount > 0 && $failedCount === 0) {
+            return redirect()->route('warehouse.items.index')->with('success', "{$deletedCount} barang berhasil dihapus.");
+        } elseif ($deletedCount > 0 && $failedCount > 0) {
+            return redirect()->route('warehouse.items.index')->with('warning', "{$deletedCount} barang berhasil dihapus, tetapi {$failedCount} barang gagal dihapus karena sudah digunakan dalam transaksi.");
+        } else {
+            return back()->withErrors('Gagal menghapus barang terpilih. Barang mungkin sudah digunakan dalam transaksi.');
         }
     }
 

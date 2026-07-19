@@ -694,6 +694,7 @@ Route::middleware(MmsAuthenticate::class)->group(function (): void {
             Route::post('/items', [EngineeringItemController::class, 'store'])->name('items.store');
             Route::get('/items/{item}/edit', [EngineeringItemController::class, 'edit'])->name('items.edit');
             Route::put('/items/{item}', [EngineeringItemController::class, 'update'])->name('items.update');
+            Route::delete('/items/bulk-delete', [EngineeringItemController::class, 'bulkDestroy'])->name('items.bulk_destroy');
             Route::delete('/items/{item}', [EngineeringItemController::class, 'destroy'])->name('items.destroy');
         });
 
