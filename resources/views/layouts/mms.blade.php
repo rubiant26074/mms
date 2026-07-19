@@ -16,6 +16,7 @@
     <title>@yield('title', 'MMS System')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
     @if($theme['css_path'])
         <link href="{{ asset($theme['css_path']) }}" rel="stylesheet">
@@ -43,6 +44,28 @@
         .tone-pink { color: #db2777; }
         .tone-yellow { color: #a16207; }
         .tone-slate { color: #334155; }
+
+        /* Tom Select searchable dropdown custom styling */
+        .ts-wrapper.form-select, .ts-wrapper.form-select-sm {
+            padding: 0 !important;
+            border: none !important;
+            background-image: none !important;
+            box-shadow: none !important;
+        }
+        .ts-control {
+            border-radius: var(--bs-border-radius, 0.375rem) !important;
+            padding: 0.375rem 0.75rem !important;
+            font-size: inherit !important;
+        }
+        .ts-wrapper.form-select-sm .ts-control {
+            padding: 0.25rem 0.5rem !important;
+            font-size: 0.875rem !important;
+        }
+        .ts-dropdown {
+            z-index: 1060 !important;
+            border-radius: 0.375rem !important;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
     </style>
 </head>
 <body class="{{ $theme['body_class'] }}">
@@ -68,16 +91,65 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
         (function () {
             const sidebar = document.getElementById('sidebar');
             const toggle = document.getElementById('sidebarCollapse');
             const overlay = document.getElementById('sidebarOverlay');
-            if (!sidebar || !toggle) return;
-            const isMobile = () => window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
-            toggle.addEventListener('click', () => sidebar.classList.toggle('active'));
-            overlay?.addEventListener('click', () => {
-                if (isMobile()) sidebar.classList.remove('active');
+            if (sidebar && toggle) {
+                const isMobile = () => window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+                toggle.addEventListener('click', () => sidebar.classList.toggle('active'));
+                overlay?.addEventListener('click', () => {
+                    if (isMobile()) sidebar.classList.remove('active');
+                });
+            }
+
+            window.initSearchableSelects = function(scope = document) {
+                if (typeof TomSelect === 'undefined') return;
+                const selects = scope.querySelectorAll('select');
+                selects.forEach(select => {
+                    if (select.classList.contains('no-search') || select.dataset.noSearch !== undefined || select.tomselect) {
+                        return;
+                    }
+                    if (select.nextElementSibling && select.nextElementSibling.classList.contains('ts-wrapper')) {
+                        select.nextElementSibling.remove();
+                    }
+                    if (select.options.length < 2) {
+                        return;
+                    }
+                    try {
+                        new TomSelect(select, {
+                            create: false,
+                            maxOptions: null,
+                            plugins: ['dropdown_input'],
+                            render: {
+                                no_results: function(data, escape) {
+                                    return '<div class="no-results p-2 text-muted small">Tidak ditemukan "' + escape(data.input) + '"</div>';
+                                }
+                            }
+                        });
+                    } catch (e) {}
+                });
+            };
+
+            document.addEventListener('DOMContentLoaded', function() {
+                window.initSearchableSelects();
+
+                // Observe DOM mutations to auto-initialize searchable selects for dynamically added rows/modals
+                const observer = new MutationObserver(function(mutations) {
+                    let hasNewNodes = false;
+                    for (let m of mutations) {
+                        if (m.addedNodes.length > 0) {
+                            hasNewNodes = true;
+                            break;
+                        }
+                    }
+                    if (hasNewNodes) {
+                        window.initSearchableSelects();
+                    }
+                });
+                observer.observe(document.body, { childList: true, subtree: true });
             });
         })();
     </script>
