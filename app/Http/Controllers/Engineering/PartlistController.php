@@ -52,7 +52,11 @@ class PartlistController extends Controller
             'drawing_link' => ['nullable', 'string'],
             'submit_action' => ['nullable', 'in:save,approve'],
         ]);
-        $parts = $this->partsFromRequest($request);
+        try {
+            $parts = $this->partsFromRequest($request);
+        } catch (\RuntimeException $e) {
+            return back()->withErrors($e->getMessage())->withInput();
+        }
 
         DB::transaction(function () use ($data, $parts, $request): void {
             $spk = Spk::query()->lockForUpdate()->findOrFail($data['spk_id']);
@@ -118,17 +122,25 @@ class PartlistController extends Controller
                 }
             }
 
-            if ($request->hasFile("drawing_file_{$rowIndex}")) {
-                $file = $request->file("drawing_file_{$rowIndex}");
-                if ($file->isValid()) {
-                    $filename = 'drw_' . uniqid() . '_' . now()->format('YmdHis') . '.' . strtolower($file->getClientOriginalExtension());
-                    $directory = public_path('uploads/drawings');
-                    if (!is_dir($directory)) {
-                        @mkdir($directory, 0775, true);
-                    }
-                    $file->move($directory, $filename);
-                    $drawingPath = 'uploads/drawings/' . $filename;
+            // Check file upload by rowIndex or by row position counter $i
+            $file = $request->file("drawing_file_{$rowIndex}") ?: $request->file("drawing_file_{$i}");
+            if ($file) {
+                if (! $file->isValid()) {
+                    $errCode = $file->getError();
+                    $errText = match ($errCode) {
+                        UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'File drawing baris #' . ($i + 1) . ' (' . $file->getClientOriginalName() . ') melebihi batas ukuran file server.',
+                        default => 'Gagal upload file drawing baris #' . ($i + 1) . ' (' . $file->getClientOriginalName() . '). Error code: ' . $errCode,
+                    };
+                    throw new \RuntimeException($errText);
                 }
+
+                $filename = 'drw_' . uniqid() . '_' . now()->format('YmdHis') . '.' . strtolower($file->getClientOriginalExtension());
+                $directory = public_path('uploads/drawings');
+                if (!is_dir($directory)) {
+                    @mkdir($directory, 0775, true);
+                }
+                $file->move($directory, $filename);
+                $drawingPath = 'uploads/drawings/' . $filename;
             }
 
             if ($drawingPath && !str_starts_with($drawingPath, 'uploads/')) {

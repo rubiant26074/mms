@@ -24,8 +24,10 @@
                 <tbody>
                 @forelse($parts as $part)
                     <tr>
-                        <input type="hidden" name="row_index[]" value="{{ $loop->index }}">
-                        <td><input name="item_no[]" class="form-control text-center" value="{{ $part->item_no }}"></td>
+                        <td>
+                            <input type="hidden" name="row_index[]" value="{{ $loop->index }}">
+                            <input name="item_no[]" class="form-control text-center" value="{{ $part->item_no }}">
+                        </td>
                         <td><input name="drawing_no[]" class="form-control" value="{{ $part->drawing_no }}"></td>
                         <td><input name="part_name[]" class="form-control" value="{{ $part->part_name }}"></td>
                         <td><input name="qty[]" type="number" step="0.01" class="form-control" value="{{ $part->qty !== null ? $part->qty + 0 : '' }}"></td>
@@ -68,8 +70,11 @@
                     </tr>
                 @empty
                     <tr>
-                        <input type="hidden" name="row_index[]" value="0">
-                        <td><input name="item_no[]" class="form-control text-center"></td><td><input name="drawing_no[]" class="form-control"></td><td><input name="part_name[]" class="form-control"></td><td><input name="qty[]" type="number" step="0.01" class="form-control"></td><td><input name="material[]" class="form-control"></td><td><input name="thickness[]" class="form-control"></td><td><input name="length[]" type="number" step="0.01" class="form-control"></td><td><input name="width[]" type="number" step="0.01" class="form-control"></td><td><input name="process[]" class="form-control"></td><td><input name="notes[]" class="form-control"></td>
+                        <td>
+                            <input type="hidden" name="row_index[]" value="0">
+                            <input name="item_no[]" class="form-control text-center">
+                        </td>
+                        <td><input name="drawing_no[]" class="form-control"></td><td><input name="part_name[]" class="form-control"></td><td><input name="qty[]" type="number" step="0.01" class="form-control"></td><td><input name="material[]" class="form-control"></td><td><input name="thickness[]" class="form-control"></td><td><input name="length[]" type="number" step="0.01" class="form-control"></td><td><input name="width[]" type="number" step="0.01" class="form-control"></td><td><input name="process[]" class="form-control"></td><td><input name="notes[]" class="form-control"></td>
                         <td style="min-width: 220px;">
                             <div class="d-flex align-items-center gap-1">
                                 <input type="hidden" name="existing_drawing_path[]" class="js-existing-path" value="">
