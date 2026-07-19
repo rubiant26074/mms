@@ -157,35 +157,59 @@ Route::get('/debug-upload-info', function () {
     $publicWritable = is_writable(public_path('uploads'));
     if (!$uploadsExists) {
         @mkdir($uploadsDir, 0775, true);
+        $uploadsExists = is_dir($uploadsDir);
+        $uploadsWritable = $uploadsExists ? is_writable($uploadsDir) : false;
     }
     $files = $uploadsExists ? array_diff(scandir($uploadsDir), ['.', '..']) : [];
+
+    $publicUserIni = public_path('.user.ini');
+    $rootUserIni = base_path('.user.ini');
+    $publicPhpIni = public_path('php.ini');
+
     $info = [
         'php_version'              => PHP_VERSION,
-        'file_uploads'             => ini_get('file_uploads'),
+        'php_sapi_name'            => php_sapi_name(),
+        'loaded_php_ini'           => php_ini_loaded_file() ?: '(none)',
+        'user_ini_files_scanned'   => php_ini_scanned_files() ?: '(none)',
+        'public_user_ini_exists'   => file_exists($publicUserIni) ? 'YA (' . $publicUserIni . ')' : 'TIDAK',
+        'root_user_ini_exists'     => file_exists($rootUserIni) ? 'YA (' . $rootUserIni . ')' : 'TIDAK',
+        'public_php_ini_exists'    => file_exists($publicPhpIni) ? 'YA (' . $publicPhpIni . ')' : 'TIDAK',
+        'user_ini_filename'        => ini_get('user_ini.filename'),
+        '--- Upload Settings ---'  => '---',
+        'file_uploads'             => ini_get('file_uploads') ?: '(OFF/empty)',
         'upload_max_filesize'      => ini_get('upload_max_filesize'),
         'post_max_size'            => ini_get('post_max_size'),
         'max_file_uploads'         => ini_get('max_file_uploads'),
         'memory_limit'             => ini_get('memory_limit'),
+        '--- Directory ---'        => '---',
         'uploads_dir'              => $uploadsDir,
-        'uploads_dir_exists'       => $uploadsExists ? 'YA' : 'TIDAK',
+        'uploads_dir_exists'       => $uploadsExists ? 'YA' : 'TIDAK (gagal dibuat)',
         'uploads_dir_writable'     => $uploadsWritable ? 'YA ✓' : 'TIDAK ✗',
         'public_uploads_writable'  => $publicWritable ? 'YA ✓' : 'TIDAK ✗',
         'files_in_dir_count'       => count($files),
         'files_in_dir'             => array_values($files),
+        '--- Server ---'           => '---',
         'server_software'          => $_SERVER['SERVER_SOFTWARE'] ?? '-',
         'document_root'            => $_SERVER['DOCUMENT_ROOT'] ?? '-',
     ];
-    $html = '<style>body{font-family:monospace;padding:20px;background:#1a1a2e;color:#e0e0e0;}h2{color:#00d4ff;}table{border-collapse:collapse;width:100%;}td{padding:8px 12px;border:1px solid #444;}td:first-child{background:#16213e;color:#aaa;width:40%;}td.ok{color:#00e676;font-weight:bold;}td.err{color:#ff5252;font-weight:bold;}a{color:#00d4ff;}</style>';
-    $html .= '<h2>🔍 MMS Debug: PHP Upload Info</h2><table>';
+    $html = '<style>body{font-family:monospace;padding:20px;background:#1a1a2e;color:#e0e0e0;}h2{color:#00d4ff;}table{border-collapse:collapse;width:100%;}td{padding:8px 12px;border:1px solid #444;}td:first-child{background:#16213e;color:#aaa;width:40%;}td.ok{color:#00e676;font-weight:bold;}td.err{color:#ff5252;font-weight:bold;}td.sep{background:#0d0d1a;color:#555;font-style:italic;}a{color:#00d4ff;}</style>';
+    $html .= '<h2>🔍 MMS Debug: PHP Upload Info (v2)</h2><table>';
     foreach ($info as $k => $v) {
         if (is_array($v)) {
             $v = empty($v) ? '(kosong)' : implode('<br>', $v);
         }
+        if (str_starts_with($k, '---')) {
+            $html .= "<tr><td colspan='2' class='sep'>$v</td></tr>";
+            continue;
+        }
         $cls = '';
         if (in_array($k, ['uploads_dir_writable', 'public_uploads_writable']) && str_contains((string)$v, 'YA')) $cls = 'class="ok"';
         if (in_array($k, ['uploads_dir_writable', 'public_uploads_writable']) && str_contains((string)$v, 'TIDAK')) $cls = 'class="err"';
-        if ($k === 'file_uploads' && $v === '0') $cls = 'class="err"';
-        if ($k === 'uploads_dir_exists' && $v === 'TIDAK') $cls = 'class="err"';
+        if ($k === 'file_uploads' && (str_contains((string)$v, 'OFF') || $v === '')) $cls = 'class="err"';
+        if ($k === 'file_uploads' && $v === '1') $cls = 'class="ok"';
+        if ($k === 'uploads_dir_exists' && str_contains((string)$v, 'TIDAK')) $cls = 'class="err"';
+        if ($k === 'uploads_dir_exists' && $v === 'YA') $cls = 'class="ok"';
+        if (str_contains($k, 'user_ini') && str_contains((string)$v, 'YA')) $cls = 'class="ok"';
         $html .= "<tr><td>$k</td><td $cls>$v</td></tr>";
     }
     $html .= '</table>';
