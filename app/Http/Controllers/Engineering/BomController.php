@@ -125,20 +125,47 @@ class BomController extends Controller
 
     private function form(Bom $bom, $details, bool $isEdit, int $selectedSoId = 0, int $selectedItemId = 0): View
     {
-        $salesOrders = SalesOrder::query()
+        $rawSos = SalesOrder::query()
             ->with(['customer', 'items.item'])
             ->whereIn('status', ['confirmed', 'in_production'])
             ->latest('id')
             ->get();
 
+        $activeBomItemIds = Bom::query()
+            ->whereIn('status', ['active', 'locked'])
+            ->pluck('item_id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->all();
+
+        $filteredSos = collect();
         $soItemIds = [];
-        foreach ($salesOrders as $so) {
-            foreach ($so->items as $soItem) {
-                if ($soItem->item_id) {
-                    $soItemIds[] = (int) $soItem->item_id;
+
+        foreach ($rawSos as $so) {
+            $pendingItems = $so->items->filter(function ($soItem) use ($activeBomItemIds, $selectedItemId) {
+                if (! $soItem->item_id) {
+                    return false;
+                }
+                if ($selectedItemId > 0 && (int) $soItem->item_id === $selectedItemId) {
+                    return true;
+                }
+
+                return ! in_array((int) $soItem->item_id, $activeBomItemIds, true);
+            });
+
+            if ($pendingItems->isNotEmpty()) {
+                $soClone = clone $so;
+                $soClone->setRelation('items', $pendingItems);
+                $filteredSos->push($soClone);
+
+                foreach ($pendingItems as $pi) {
+                    $soItemIds[] = (int) $pi->item_id;
                 }
             }
         }
+
+        $salesOrders = $filteredSos;
         $soItemIds = array_values(array_unique(array_filter($soItemIds)));
 
         $fgItems = Item::query()
