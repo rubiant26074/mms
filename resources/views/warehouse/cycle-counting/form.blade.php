@@ -70,6 +70,7 @@ function addCycleCountRow() {
     countedEl.addEventListener('input', calc);
     tr.querySelector('.cc-remove').addEventListener('click', () => tr.remove());
     rowsWrap.appendChild(tr);
+    if (window.initSearchableSelects) window.initSearchableSelects(tr);
 }
 
 document.getElementById('btnAddRow')?.addEventListener('click', addCycleCountRow);

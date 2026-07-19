@@ -16,7 +16,8 @@
     <title>@yield('title', 'MMS System')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
     <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
     @if($theme['css_path'])
         <link href="{{ asset($theme['css_path']) }}" rel="stylesheet">
@@ -45,26 +46,17 @@
         .tone-yellow { color: #a16207; }
         .tone-slate { color: #334155; }
 
-        /* Tom Select searchable dropdown custom styling */
-        .ts-wrapper.form-select, .ts-wrapper.form-select-sm {
-            padding: 0 !important;
-            border: none !important;
-            background-image: none !important;
-            box-shadow: none !important;
+        /* Select2 Bootstrap 5 Theme overrides for seamless table cell integration */
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: 38px !important;
         }
-        .ts-control {
-            border-radius: var(--bs-border-radius, 0.375rem) !important;
-            padding: 0.375rem 0.75rem !important;
-            font-size: inherit !important;
+        .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+        .select2-container--bootstrap-5.select2-container--open .select2-selection {
+            border-color: #86b7fe !important;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
         }
-        .ts-wrapper.form-select-sm .ts-control {
-            padding: 0.25rem 0.5rem !important;
-            font-size: 0.875rem !important;
-        }
-        .ts-dropdown {
-            z-index: 1060 !important;
-            border-radius: 0.375rem !important;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        .select2-dropdown {
+            z-index: 1065 !important;
         }
     </style>
 </head>
@@ -90,8 +82,9 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         (function () {
             const sidebar = document.getElementById('sidebar');
@@ -105,48 +98,54 @@
                 });
             }
 
-            window.initSearchableSelects = function(scope = document) {
-                if (typeof TomSelect === 'undefined') return;
-                const selects = scope.querySelectorAll('select');
-                selects.forEach(select => {
-                    if (select.classList.contains('no-search') || select.dataset.noSearch !== undefined || select.tomselect) {
+            window.initSearchableSelects = function(scope) {
+                if (typeof $ === 'undefined' || typeof $.fn.select2 === 'undefined') return;
+
+                var $context = scope ? $(scope) : $(document.body);
+                var $selects = $context.is('select') ? $context : $context.find('select');
+
+                $selects.each(function() {
+                    var $select = $(this);
+                    if ($select.hasClass('no-search') || $select.data('noSearch') !== undefined || $select.hasClass('select2-hidden-accessible')) {
                         return;
                     }
-                    if (select.nextElementSibling && select.nextElementSibling.classList.contains('ts-wrapper')) {
-                        select.nextElementSibling.remove();
-                    }
-                    if (select.options.length < 2) {
+
+                    if ($select.find('option').length < 2) {
                         return;
                     }
-                    try {
-                        new TomSelect(select, {
-                            create: false,
-                            maxOptions: null,
-                            plugins: ['dropdown_input'],
-                            render: {
-                                no_results: function(data, escape) {
-                                    return '<div class="no-results p-2 text-muted small">Tidak ditemukan "' + escape(data.input) + '"</div>';
-                                }
+
+                    var parentModal = $select.closest('.modal');
+
+                    $select.select2({
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        dropdownParent: parentModal.length ? parentModal : $(document.body),
+                        language: {
+                            noResults: function() {
+                                return "Tidak ditemukan hasil";
                             }
-                        });
-                    } catch (e) {}
+                        }
+                    });
                 });
             };
 
-            document.addEventListener('DOMContentLoaded', function() {
+            $(document).ready(function() {
                 window.initSearchableSelects();
 
                 // Observe DOM mutations to auto-initialize searchable selects for dynamically added rows/modals
                 const observer = new MutationObserver(function(mutations) {
-                    let hasNewNodes = false;
+                    let hasNewSelects = false;
                     for (let m of mutations) {
-                        if (m.addedNodes.length > 0) {
-                            hasNewNodes = true;
-                            break;
+                        for (let node of m.addedNodes) {
+                            if (node.nodeType === 1 && (node.tagName === 'SELECT' || node.querySelector('select'))) {
+                                hasNewSelects = true;
+                                break;
+                            }
                         }
+                        if (hasNewSelects) break;
                     }
-                    if (hasNewNodes) {
-                        window.initSearchableSelects();
+                    if (hasNewSelects) {
+                        setTimeout(window.initSearchableSelects, 50);
                     }
                 });
                 observer.observe(document.body, { childList: true, subtree: true });
