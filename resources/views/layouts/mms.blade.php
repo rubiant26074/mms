@@ -150,6 +150,54 @@
                 });
                 observer.observe(document.body, { childList: true, subtree: true });
             });
+
+            // Global Scroll Position Restoration across Refreshes & Form Submissions
+            (function () {
+                const storageKey = 'mms_scroll_pos_' + window.location.pathname;
+
+                const restoreScroll = function() {
+                    const savedPos = sessionStorage.getItem(storageKey);
+                    if (savedPos !== null && !isNaN(savedPos)) {
+                        const posY = parseInt(savedPos, 10);
+                        if (posY > 0) {
+                            window.scrollTo({ top: posY, left: 0, behavior: 'instant' });
+                            setTimeout(function() {
+                                window.scrollTo({ top: posY, left: 0, behavior: 'instant' });
+                            }, 100);
+                        }
+                    }
+                };
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', restoreScroll);
+                } else {
+                    restoreScroll();
+                }
+
+                let scrollTimer;
+                window.addEventListener('scroll', function () {
+                    clearTimeout(scrollTimer);
+                    scrollTimer = setTimeout(function () {
+                        sessionStorage.setItem(storageKey, window.scrollY);
+                    }, 100);
+                }, { passive: true });
+
+                window.addEventListener('beforeunload', function () {
+                    sessionStorage.setItem(storageKey, window.scrollY);
+                });
+
+                document.addEventListener('click', function (e) {
+                    const link = e.target.closest('#sidebar a, .sidebar a');
+                    if (link && link.href) {
+                        try {
+                            const targetPath = new URL(link.href).pathname;
+                            if (targetPath !== window.location.pathname) {
+                                sessionStorage.removeItem('mms_scroll_pos_' + targetPath);
+                            }
+                        } catch (err) {}
+                    }
+                });
+            })();
         })();
     </script>
     @stack('scripts')
