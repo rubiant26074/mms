@@ -45,7 +45,11 @@
                             <div class="d-flex align-items-center gap-1">
                                 <input type="hidden" name="existing_drawing_path[]" class="js-existing-path" value="{{ $part->drawing_path }}">
                                 <input type="hidden" name="remove_drawing[]" class="js-remove-drawing" value="0">
-                                <input type="file" name="drawing_file[]" class="d-none js-drawing-file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf">
+                                {{-- Base64 hidden inputs (bypass file_uploads=Off LiteSpeed) --}}
+                                <input type="hidden" name="drawing_base64[]" class="js-drawing-base64" value="">
+                                <input type="hidden" name="drawing_filename[]" class="js-drawing-filename" value="">
+                                {{-- File input (read locally only, not submitted) --}}
+                                <input type="file" class="d-none js-drawing-file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf">
 
                                 <!-- Manual Link / Win Path Input -->
                                 <input type="text" name="drawing_path[]" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web/Win)" value="{{ $hasLink ? trim($part->drawing_path, ' "') : '' }}" style="min-width: 110px;">
@@ -79,7 +83,9 @@
                             <div class="d-flex align-items-center gap-1">
                                 <input type="hidden" name="existing_drawing_path[]" class="js-existing-path" value="">
                                 <input type="hidden" name="remove_drawing[]" class="js-remove-drawing" value="0">
-                                <input type="file" name="drawing_file[]" class="d-none js-drawing-file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf">
+                                <input type="hidden" name="drawing_base64[]" class="js-drawing-base64" value="">
+                                <input type="hidden" name="drawing_filename[]" class="js-drawing-filename" value="">
+                                <input type="file" class="d-none js-drawing-file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf">
 
                                 <input type="text" name="drawing_path[]" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web/Win)" style="min-width: 110px;">
                                 
@@ -159,7 +165,7 @@
         }
     });
 
-    // Handle file selection change
+    // Handle file selection change — pakai FileReader Base64 (bypass file_uploads=Off)
     tbody.addEventListener('change', e => {
         if (e.target.classList.contains('js-drawing-file')) {
             const fileInput = e.target;
@@ -167,21 +173,50 @@
             const statusEl = row.querySelector('.js-file-status');
             const pathInput = row.querySelector('.js-drawing-path');
             const uploadBtn = row.querySelector('.js-upload-btn');
-            
+            const base64Input = row.querySelector('.js-drawing-base64');
+            const filenameInput = row.querySelector('.js-drawing-filename');
+
             if (fileInput.files.length > 0) {
-                const filename = fileInput.files[0].name;
-                statusEl.textContent = '✓ ' + filename;
+                const file = fileInput.files[0];
+                const filename = file.name;
+
+                // Batasi ukuran file 20MB (post_max_size 32M → base64 ~1.33x)
+                if (file.size > 20 * 1024 * 1024) {
+                    alert('File terlalu besar! Maksimum 20MB.');
+                    fileInput.value = '';
+                    return;
+                }
+
+                statusEl.textContent = '⏳ Membaca file...';
                 statusEl.style.display = 'block';
-                // Clear the manual path input if they upload a file
-                pathInput.value = '';
-                pathInput.placeholder = 'Upload terpilih...';
-                // Highlight upload button as success
-                uploadBtn.classList.remove('btn-outline-secondary');
-                uploadBtn.classList.add('btn-success');
+                uploadBtn.disabled = true;
+
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const base64 = ev.target.result; // "data:application/pdf;base64,xxxx"
+                    if (base64Input) base64Input.value = base64;
+                    if (filenameInput) filenameInput.value = filename;
+
+                    statusEl.textContent = '✓ ' + filename + ' (siap disimpan)';
+                    statusEl.style.display = 'block';
+                    pathInput.value = '';
+                    pathInput.placeholder = 'File terpilih...';
+                    uploadBtn.classList.remove('btn-outline-secondary');
+                    uploadBtn.classList.add('btn-success');
+                    uploadBtn.disabled = false;
+                };
+                reader.onerror = function() {
+                    statusEl.textContent = '❌ Gagal membaca file';
+                    statusEl.style.display = 'block';
+                    uploadBtn.disabled = false;
+                };
+                reader.readAsDataURL(file);
             } else {
+                if (base64Input) base64Input.value = '';
+                if (filenameInput) filenameInput.value = '';
                 statusEl.textContent = '';
                 statusEl.style.display = 'none';
-                pathInput.placeholder = 'Link (Drive/Web)';
+                pathInput.placeholder = 'Link (Drive/Web/Win)';
                 uploadBtn.classList.remove('btn-success');
                 uploadBtn.classList.add('btn-outline-secondary');
             }

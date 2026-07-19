@@ -120,12 +120,18 @@ class PartlistController extends Controller
     private function partsFromRequest(Request $request): array
     {
         $rows = [];
-        $existingPaths = $request->input('existing_drawing_path', []);
-        $manualPaths = $request->input('drawing_path', []);
-        $drawingFiles = $request->file('drawing_file', []);
-        $removeFlags = $request->input('remove_drawing', []);
+        $existingPaths  = $request->input('existing_drawing_path', []);
+        $manualPaths    = $request->input('drawing_path', []);
+        $removeFlags    = $request->input('remove_drawing', []);
+        $base64Data     = $request->input('drawing_base64', []);
+        $base64Names    = $request->input('drawing_filename', []);
 
-        Log::channel('single')->info('[partsFromRequest] drawingFiles count=' . count($drawingFiles) . ', manualPaths=' . json_encode($manualPaths));
+        // Still try regular file upload as fallback (in case hosting fixes file_uploads)
+        $drawingFiles = $request->file('drawing_file', []);
+
+        $allowedExts = ['pdf', 'png', 'jpg', 'jpeg', 'dwg', 'dxf'];
+
+        Log::channel('single')->info('[partsFromRequest] base64 count=' . count($base64Data) . ', drawingFiles count=' . count($drawingFiles));
 
         foreach ($request->input('item_no', []) as $i => $itemNo) {
             $partName = trim((string) ($request->input("part_name.{$i}") ?? ''));
@@ -133,8 +139,8 @@ class PartlistController extends Controller
                 continue;
             }
             $thicknessVal = trim((string) $request->input("thickness.{$i}"));
-            $lengthVal = trim((string) $request->input("length.{$i}"));
-            $widthVal = trim((string) $request->input("width.{$i}"));
+            $lengthVal    = trim((string) $request->input("length.{$i}"));
+            $widthVal     = trim((string) $request->input("width.{$i}"));
 
             $drawingPath = $existingPaths[$i] ?? null;
 
@@ -142,35 +148,59 @@ class PartlistController extends Controller
                 $drawingPath = null;
             }
 
+            // 1. Manual text link takes priority if filled
             $manualPath = trim((string) ($manualPaths[$i] ?? ''));
             if ($manualPath !== '') {
-                $manualPath = trim($manualPath, " \t\n\r\0\x0B\"'");
+                $manualPath  = trim($manualPath, " \t\n\r\0\x0B\"'");
                 $drawingPath = $manualPath;
             } else {
+                // Keep existing uploaded path; clear if it was a text link (not a server file)
                 if ($drawingPath && ! str_starts_with($drawingPath, 'uploads/')) {
                     $drawingPath = null;
                 }
             }
 
-            // Check file upload for row position $i (highest priority)
-            $file = $drawingFiles[$i] ?? $request->file("drawing_file_{$i}");
-            if ($file) {
-                if (! $file->isValid()) {
-                    $errCode = $file->getError();
-                    $errText = match ($errCode) {
-                        UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'File drawing baris #' . ($i + 1) . ' (' . $file->getClientOriginalName() . ') melebihi batas ukuran file server.',
-                        default => 'Gagal upload file drawing baris #' . ($i + 1) . ' (' . $file->getClientOriginalName() . '). Error code: ' . $errCode,
-                    };
-                    throw new \RuntimeException($errText);
+            // 2. Base64 encoded file (primary upload method — bypasses file_uploads=Off)
+            $base64 = trim((string) ($base64Data[$i] ?? ''));
+            if ($base64 !== '') {
+                // Format: "data:application/pdf;base64,<data>"
+                $parts = explode(',', $base64, 2);
+                if (count($parts) === 2) {
+                    $decoded = base64_decode($parts[1], true);
+                    if ($decoded !== false && strlen($decoded) > 100) {
+                        $origName = $base64Names[$i] ?? 'drawing.pdf';
+                        $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
+                        if (! in_array($ext, $allowedExts)) {
+                            $ext = 'pdf';
+                        }
+                        $filename  = 'drw_' . uniqid() . '_' . now()->format('YmdHis') . '.' . $ext;
+                        $directory = public_path('uploads/drawings');
+                        if (! is_dir($directory)) {
+                            @mkdir($directory, 0775, true);
+                        }
+                        if (file_put_contents($directory . '/' . $filename, $decoded) !== false) {
+                            $drawingPath = 'uploads/drawings/' . $filename;
+                            Log::channel('single')->info("[partsFromRequest] Base64 saved row $i → $drawingPath");
+                        } else {
+                            Log::channel('single')->error("[partsFromRequest] file_put_contents FAILED row $i, dir=$directory");
+                        }
+                    }
                 }
+            }
 
-                $filename = 'drw_' . uniqid() . '_' . now()->format('YmdHis') . '.' . strtolower($file->getClientOriginalExtension());
-                $directory = public_path('uploads/drawings');
-                if (! is_dir($directory)) {
-                    @mkdir($directory, 0775, true);
+            // 3. Regular PHP file upload fallback
+            $file = $drawingFiles[$i] ?? null;
+            if ($file && $file->isValid()) {
+                $ext = strtolower($file->getClientOriginalExtension());
+                if (in_array($ext, $allowedExts)) {
+                    $filename  = 'drw_' . uniqid() . '_' . now()->format('YmdHis') . '.' . $ext;
+                    $directory = public_path('uploads/drawings');
+                    if (! is_dir($directory)) {
+                        @mkdir($directory, 0775, true);
+                    }
+                    $file->move($directory, $filename);
+                    $drawingPath = 'uploads/drawings/' . $filename;
                 }
-                $file->move($directory, $filename);
-                $drawingPath = 'uploads/drawings/' . $filename;
             }
 
             if ($drawingPath && ! str_starts_with($drawingPath, 'uploads/')) {
@@ -178,20 +208,21 @@ class PartlistController extends Controller
             }
 
             $rows[] = [
-                'item_no' => trim((string) $itemNo),
+                'item_no'    => trim((string) $itemNo),
                 'drawing_no' => trim((string) ($request->input("drawing_no.{$i}") ?? '')),
-                'part_name' => $partName,
-                'qty' => trim((string) $request->input("qty.{$i}")) !== '' ? (float) $request->input("qty.{$i}") : 0,
-                'material' => trim((string) ($request->input("material.{$i}") ?? '')),
-                'thickness' => $thicknessVal !== '' ? (float) $thicknessVal : null,
-                'length' => $lengthVal !== '' ? (float) $lengthVal : null,
-                'width' => $widthVal !== '' ? (float) $widthVal : null,
-                'process' => trim((string) ($request->input("process.{$i}") ?? '')),
-                'notes' => trim((string) ($request->input("notes.{$i}") ?? '')),
+                'part_name'  => $partName,
+                'qty'        => trim((string) $request->input("qty.{$i}")) !== '' ? (float) $request->input("qty.{$i}") : 0,
+                'material'   => trim((string) ($request->input("material.{$i}") ?? '')),
+                'thickness'  => $thicknessVal !== '' ? (float) $thicknessVal : null,
+                'length'     => $lengthVal    !== '' ? (float) $lengthVal    : null,
+                'width'      => $widthVal     !== '' ? (float) $widthVal     : null,
+                'process'    => trim((string) ($request->input("process.{$i}") ?? '')),
+                'notes'      => trim((string) ($request->input("notes.{$i}") ?? '')),
                 'drawing_path' => $drawingPath,
             ];
         }
 
         return $rows;
     }
+
 }
