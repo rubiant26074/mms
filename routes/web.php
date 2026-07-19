@@ -248,46 +248,110 @@ Route::get('/debug-upload-log', function () {
 });
 
 Route::match(['get', 'post'], '/debug-upload-test', function (\Illuminate\Http\Request $request) {
+    $tmpDir = ini_get('upload_tmp_dir') ?: sys_get_temp_dir();
+    $tmpWritable = is_writable($tmpDir);
+
+    // Show PHP diagnostics first
+    $diag = [
+        'file_uploads'         => ini_get('file_uploads') ?: '(OFF/empty = MASALAH!)',
+        'upload_tmp_dir'       => $tmpDir,
+        'tmp_dir_writable'     => $tmpWritable ? 'YA ✓' : 'TIDAK ✗ (MASALAH!)',
+        'upload_max_filesize'  => ini_get('upload_max_filesize'),
+        'post_max_size'        => ini_get('post_max_size'),
+        'php_sapi_name'        => php_sapi_name(),
+        'loaded_php_ini'       => php_ini_loaded_file() ?: '(none)',
+    ];
+
     if ($request->isMethod('post')) {
-        $result = [];
-        if ($request->hasFile('testfile')) {
-            $file = $request->file('testfile');
-            $result['valid'] = $file->isValid();
-            $result['original_name'] = $file->getClientOriginalName();
-            $result['size'] = $file->getSize();
-            $result['error_code'] = $file->getError();
-            $result['mime'] = $file->getMimeType();
-            if ($file->isValid()) {
+        // Check RAW $_FILES (bypass Laravel) to see exactly what PHP received
+        $rawFiles = $_FILES;
+        $rawPost  = $_POST;
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? 'unknown';
+        $contentLen  = $_SERVER['CONTENT_LENGTH'] ?? 'unknown';
+
+        $result = [
+            '=== PHP Raw Diagnostics ===' => '',
+            'file_uploads'              => ini_get('file_uploads') ?: '(OFF = MASALAH!)',
+            'upload_tmp_dir'            => $tmpDir,
+            'tmp_dir_writable'          => $tmpWritable ? 'YA ✓' : 'TIDAK ✗',
+            'php_sapi_name'             => php_sapi_name(),
+            '=== Request Info ===' => '',
+            'content_type'              => $contentType,
+            'content_length'            => $contentLen,
+            '=== $_FILES RAW ===' => '',
+            '_FILES'                    => $rawFiles,
+            '_FILES_count'              => count($rawFiles),
+            '=== Laravel Files ===' => '',
+            'laravel_allFiles'          => array_keys($request->allFiles()),
+            'laravel_hasFile_testfile'  => $request->hasFile('testfile') ? 'YA' : 'TIDAK',
+        ];
+
+        if (!empty($rawFiles['testfile'])) {
+            $f = $rawFiles['testfile'];
+            $result['=== Upload Attempt ==='] = '';
+            $result['error_code'] = $f['error'];
+            $result['error_meaning'] = match((int)$f['error']) {
+                0 => 'UPLOAD_ERR_OK - berhasil',
+                1 => 'UPLOAD_ERR_INI_SIZE - file melebihi upload_max_filesize',
+                2 => 'UPLOAD_ERR_FORM_SIZE - file melebihi MAX_FILE_SIZE form',
+                3 => 'UPLOAD_ERR_PARTIAL - upload tidak lengkap',
+                4 => 'UPLOAD_ERR_NO_FILE - tidak ada file dikirim',
+                6 => 'UPLOAD_ERR_NO_TMP_DIR - tmp folder tidak ada!',
+                7 => 'UPLOAD_ERR_CANT_WRITE - gagal tulis ke disk!',
+                8 => 'UPLOAD_ERR_EXTENSION - blocked oleh extension PHP',
+                default => 'unknown error ' . $f['error'],
+            };
+            if ($f['error'] === 0 && is_uploaded_file($f['tmp_name'])) {
                 $dir = public_path('uploads/drawings');
                 if (!is_dir($dir)) @mkdir($dir, 0775, true);
-                $name = 'test_' . time() . '.' . $file->getClientOriginalExtension();
-                $file->move($dir, $name);
-                $result['saved_to'] = 'uploads/drawings/' . $name;
-                $result['url'] = asset('uploads/drawings/' . $name);
-                $result['status'] = '✅ BERHASIL UPLOAD!';
-            } else {
-                $result['status'] = '❌ GAGAL - Error code: ' . $file->getError();
+                $ext = pathinfo($f['name'], PATHINFO_EXTENSION);
+                $name = 'test_' . time() . '.' . $ext;
+                if (move_uploaded_file($f['tmp_name'], $dir . '/' . $name)) {
+                    $result['status'] = '✅ BERHASIL UPLOAD! File disimpan: uploads/drawings/' . $name;
+                    $result['url'] = asset('uploads/drawings/' . $name);
+                } else {
+                    $result['status'] = '❌ move_uploaded_file GAGAL - cek izin folder uploads/drawings';
+                }
+            } elseif ($f['error'] !== 0) {
+                $result['status'] = '❌ GAGAL - error code ' . $f['error'];
             }
-        } else {
-            $result['status'] = '❌ Tidak ada file diterima server (has_file=false). Cek php.ini post_max_size!';
-            $result['all_files'] = array_keys($request->allFiles());
-            $result['content_length'] = $_SERVER['CONTENT_LENGTH'] ?? 'unknown';
+        } elseif (empty($rawFiles)) {
+            $result['DIAGNOSIS'] = 'PHP tidak menerima file sama sekali. Kemungkinan: (1) file_uploads=Off, (2) upload_tmp_dir tidak bisa ditulis, (3) post_max_size terlalu kecil';
         }
-        $json = json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        return response('<style>body{font-family:monospace;background:#111;color:#0f0;padding:20px;}</style><h3 style="color:#00d4ff;">Hasil Test Upload:</h3><pre>' . htmlspecialchars($json) . '</pre><br><a href="/debug-upload-test" style="color:#00d4ff;">← Test Lagi</a> &nbsp; <a href="/debug-upload-log" style="color:#00d4ff;">📋 Lihat Log</a>');
+
+        $json = json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $html = '<style>body{font-family:monospace;background:#111;color:#0f0;padding:20px;font-size:13px;white-space:pre-wrap;}h3{color:#00d4ff;}a{color:#00d4ff;}</style>';
+        $html .= '<h3>Hasil Test Upload v2:</h3>';
+        $html .= '<pre>' . htmlspecialchars($json) . '</pre>';
+        $html .= '<br><a href="/debug-upload-test">← Test Lagi</a> &nbsp; <a href="/debug-upload-info">Info PHP</a>';
+        return response($html);
     }
-    $form = '<style>body{font-family:sans-serif;background:#1a1a2e;color:#e0e0e0;padding:40px;}input,button{padding:10px;margin:8px 0;display:block;}button{background:#00d4ff;border:none;cursor:pointer;color:#000;font-weight:bold;padding:12px 30px;border-radius:6px;}</style>';
-    $form .= '<h2 style="color:#00d4ff;">🧪 Test Upload Langsung ke Server</h2>';
+
+    $diagHtml = '';
+    foreach ($diag as $k => $v) {
+        $color = '#aaa';
+        if (str_contains((string)$v, 'MASALAH') || str_contains((string)$v, 'TIDAK')) $color = '#ff5252';
+        if (str_contains((string)$v, 'YA ✓')) $color = '#00e676';
+        $diagHtml .= "<div><b style='color:#aaa'>$k:</b> <span style='color:$color'>$v</span></div>";
+    }
+
+    $form = '<style>body{font-family:sans-serif;background:#1a1a2e;color:#e0e0e0;padding:40px;}';
+    $form .= 'input,button{padding:10px;margin:8px 0;display:block;}';
+    $form .= 'button{background:#00d4ff;border:none;cursor:pointer;color:#000;font-weight:bold;padding:12px 30px;border-radius:6px;}';
+    $form .= '.diag{background:#0d0d1a;padding:16px;border-radius:8px;margin-bottom:20px;font-family:monospace;}</style>';
+    $form .= '<h2 style="color:#00d4ff;">🧪 Test Upload v2 (Raw PHP Check)</h2>';
+    $form .= '<div class="diag">' . $diagHtml . '</div>';
     $form .= '<form method="POST" enctype="multipart/form-data">';
     $form .= csrf_field();
-    $form .= '<label>Pilih file (PDF/gambar):</label>';
+    $form .= '<label>Pilih file kecil (PDF/PNG, max 1MB untuk test):</label>';
     $form .= '<input type="file" name="testfile" accept=".pdf,.png,.jpg">';
-    $form .= '<button type="submit">Upload Test</button>';
+    $form .= '<button type="submit">🚀 Upload Test (Raw PHP)</button>';
     $form .= '</form>';
     $form .= '<br><a href="/debug-upload-info" style="color:#00d4ff;">← Info PHP</a> &nbsp; <a href="/debug-upload-log" style="color:#00d4ff;">📋 Lihat Log</a>';
     return response($form);
 });
 // ===== END TEMPORARY DEBUG ROUTES =====
+
 
 
 
