@@ -79,15 +79,21 @@
     });
     document.addEventListener('click', e => { if (e.target.closest('.remove-row') && tbody.querySelectorAll('tr').length > 1) e.target.closest('tr').remove(); });
 
-    document.getElementById('so_pull_picker')?.addEventListener('change', function() {
-        const selectedItemId = this.value;
-        if (selectedItemId) {
-            const itemSelect = document.querySelector('select[name="item_id"]');
-            if (itemSelect) {
-                itemSelect.value = selectedItemId;
-            }
+    const soPicker = document.getElementById('so_pull_picker');
+    const itemSelect = document.querySelector('select[name="item_id"]');
+
+    function syncSoPicker() {
+        if (!soPicker || !itemSelect) return;
+        const val = soPicker.value;
+        if (val) {
+            itemSelect.value = val;
         }
-    });
+    }
+
+    soPicker?.addEventListener('change', syncSoPicker);
+    if (soPicker && soPicker.value) {
+        syncSoPicker();
+    }
 })();
 </script>
 @endpush

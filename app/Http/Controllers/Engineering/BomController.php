@@ -125,20 +125,39 @@ class BomController extends Controller
 
     private function form(Bom $bom, $details, bool $isEdit, int $selectedSoId = 0, int $selectedItemId = 0): View
     {
+        $salesOrders = SalesOrder::query()
+            ->with(['customer', 'items.item'])
+            ->whereIn('status', ['confirmed', 'in_production'])
+            ->latest('id')
+            ->get();
+
+        $soItemIds = [];
+        foreach ($salesOrders as $so) {
+            foreach ($so->items as $soItem) {
+                if ($soItem->item_id) {
+                    $soItemIds[] = (int) $soItem->item_id;
+                }
+            }
+        }
+        $soItemIds = array_values(array_unique(array_filter($soItemIds)));
+
         $fgItems = Item::query()
-            ->whereIn('item_type', ['finish_good', 'wip'])
-            ->where(function ($query) use ($isEdit, $bom, $selectedItemId): void {
-                $query->whereNotExists(function ($sub) {
-                    $sub->select(DB::raw(1))
-                        ->from('boms')
-                        ->whereColumn('boms.item_id', 'items.id')
-                        ->where('boms.status', 'active');
-                });
+            ->where(function ($query) use ($isEdit, $bom, $selectedItemId, $soItemIds): void {
+                $query->whereIn('item_type', ['finish_good', 'wip'])
+                    ->whereNotExists(function ($sub) {
+                        $sub->select(DB::raw(1))
+                            ->from('boms')
+                            ->whereColumn('boms.item_id', 'items.id')
+                            ->where('boms.status', 'active');
+                    });
                 if ($isEdit && $bom->item_id) {
                     $query->orWhere('items.id', $bom->item_id);
                 }
                 if ($selectedItemId > 0) {
                     $query->orWhere('items.id', $selectedItemId);
+                }
+                if (! empty($soItemIds)) {
+                    $query->orWhereIn('items.id', $soItemIds);
                 }
             })
             ->orderBy('item_code')
@@ -147,12 +166,6 @@ class BomController extends Controller
         $materials = Item::query()
             ->whereIn('item_type', ['raw_material', 'consumable', 'wip'])
             ->orderBy('item_code')
-            ->get();
-
-        $salesOrders = SalesOrder::query()
-            ->with(['customer', 'items.item'])
-            ->whereIn('status', ['confirmed', 'in_production'])
-            ->latest('id')
             ->get();
 
         return view('engineering.boms.form', compact('bom', 'details', 'isEdit', 'fgItems', 'materials', 'salesOrders', 'selectedSoId', 'selectedItemId'));
