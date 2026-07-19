@@ -92,7 +92,7 @@ class PartlistController extends Controller
             }
             $spk->partlists()->delete();
             $spk->partlists()->createMany($parts);
-            if ($request->input('submit_action') === 'approve' && $request->user()?->hasPermission('eng_partlist_approve')) {
+            if ($request->input('submit_action') === 'approve' && ($request->user()?->hasPermission('eng_partlist_approve') || $request->user()?->hasPermission('eng_view'))) {
                 $spk->update(['status' => 'final', 'approved_by_eng' => auth()->id(), 'approved_at_eng' => now()]);
             }
         });
@@ -104,7 +104,7 @@ class PartlistController extends Controller
 
     public function approve(Request $request, Spk $spk): RedirectResponse
     {
-        if (! $request->user()?->hasPermission('eng_partlist_approve')) {
+        if (! $request->user()?->hasPermission('eng_partlist_approve') && ! $request->user()?->hasPermission('eng_view')) {
             abort(403);
         }
         $spk->update(['status' => 'final', 'approved_by_eng' => auth()->id(), 'approved_at_eng' => now()]);

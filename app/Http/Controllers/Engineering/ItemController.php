@@ -175,6 +175,7 @@ class ItemController extends Controller
                 'ownership' => $ownership,
                 'qc_type' => $this->mapValue($row['qc_type'] ?? 'general', ['general' => 'general', 'sheet_metal' => 'sheet_metal', 'sheet metal' => 'sheet_metal', 'plate' => 'plate', 'coating' => 'coating', 'paint' => 'coating', 'machining' => 'machining', 'consumable' => 'consumable'], 'general'),
                 'unit' => trim((string) ($row['unit'] ?? 'Pcs')) ?: 'Pcs',
+                'current_stock' => $this->toNumber($row['current_stock'] ?? $row['qty'] ?? $row['stok'] ?? $row['stok_awal'] ?? 0),
                 'base_price' => $canSeePrice ? $this->toNumber($row['base_price'] ?? 0) : 0,
                 'min_stock' => $this->toNumber($row['min_stock'] ?? 0),
                 'description' => trim((string) ($row['description'] ?? '')),
@@ -210,12 +211,35 @@ class ItemController extends Controller
             'current_stock' => ['nullable', 'numeric', 'min:0'],
             'min_stock' => ['nullable', 'numeric', 'min:0'],
             'description' => ['nullable', 'string'],
-            'drawing_file' => ['nullable', 'file', 'max:5120', 'mimes:pdf,jpg,jpeg,png'],
+            'drawing_file' => ['nullable'],
         ]);
     }
 
     private function storeDrawing(Request $request): ?string
     {
+        $base64 = trim((string) $request->input('drawing_base64', ''));
+        if ($base64 !== '') {
+            $parts = explode(',', $base64, 2);
+            if (count($parts) === 2) {
+                $decoded = base64_decode($parts[1], true);
+                if ($decoded !== false && strlen($decoded) > 100) {
+                    $origName = $request->input('drawing_filename', 'drawing.pdf');
+                    $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
+                    if (! in_array($ext, ['pdf', 'png', 'jpg', 'jpeg', 'dwg', 'dxf'])) {
+                        $ext = 'pdf';
+                    }
+                    $filename = 'drw_' . uniqid() . '_' . now()->format('YmdHis') . '.' . $ext;
+                    $directory = public_path('uploads/drawings');
+                    if (! is_dir($directory)) {
+                        @mkdir($directory, 0775, true);
+                    }
+                    if (file_put_contents($directory . '/' . $filename, $decoded) !== false) {
+                        return 'uploads/drawings/' . $filename;
+                    }
+                }
+            }
+        }
+
         if (! $request->hasFile('drawing_file')) {
             return null;
         }

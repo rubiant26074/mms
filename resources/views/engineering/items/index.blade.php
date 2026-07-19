@@ -77,7 +77,7 @@
     <div class="modal-dialog modal-lg"><div class="modal-content">
         <div class="modal-header bg-success text-white"><h5 class="modal-title"><i class="bi bi-file-earmark-excel"></i> Import Master Barang (Excel)</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
-            <div class="alert alert-info small mb-3"><strong>Format kolom:</strong> <code>item_code, item_name, item_type, ownership, qc_type, unit, base_price, min_stock, description, customer_code, customer_name, drawing_file</code></div>
+            <div class="alert alert-info small mb-3"><strong>Format kolom:</strong> <code>item_code, item_name, item_type, ownership, qc_type, unit, current_stock (atau qty), base_price, min_stock, description, customer_code, customer_name, drawing_file</code></div>
             <div class="row g-2 align-items-end">
                 <div class="col-md-6"><label class="form-label">File Excel (.xlsx/.xls/.csv)</label><input type="file" id="itemsExcelFile" class="form-control" accept=".xlsx,.xls,.csv"></div>
                 <div class="col-md-3"><label class="form-label">Mode Import</label><select id="itemsImportMode" class="form-select"><option value="skip">Skip jika kode sudah ada</option><option value="update">Update jika kode sudah ada</option></select></div>
@@ -115,7 +115,7 @@ document.getElementById('btnItemsImport')?.addEventListener('click', function ()
         const headers = {};
         const hasHeader = detectHeaderRow(rows[0] || []);
         if (hasHeader) rows[0].forEach((h, i) => { const key = normalizeHeader(h); if (key) headers[key] = i; });
-        else ['item_code','item_name','item_type','ownership','qc_type','unit','base_price','min_stock','description','customer_code','customer_name','drawing_file'].forEach((k, i) => headers[k] = i);
+        else ['item_code','item_name','item_type','ownership','qc_type','unit','current_stock','base_price','min_stock','description','customer_code','customer_name','drawing_file'].forEach((k, i) => headers[k] = i);
         const data = [];
         for (let i = hasHeader ? 1 : 0; i < rows.length; i++) {
             const obj = {};

@@ -17,6 +17,7 @@
       <th>ownership</th>
       <th>qc_type</th>
       <th>unit</th>
+      <th>current_stock</th>
       <th>base_price</th>
       <th>min_stock</th>
       <th>description</th>
@@ -31,6 +32,7 @@
       <td>internal</td>
       <td>general</td>
       <td>Pcs</td>
+      <td>100</td>
       <td>150000</td>
       <td>5</td>
       <td>Deskripsi singkat</td>
@@ -45,6 +47,7 @@
       <td>internal</td>
       <td>plate</td>
       <td>Kg</td>
+      <td>500</td>
       <td>25000</td>
       <td>50</td>
       <td>Material dasar</td>
@@ -59,6 +62,7 @@
       <td>customer</td>
       <td>general</td>
       <td>Pcs</td>
+      <td>50</td>
       <td>0</td>
       <td>0</td>
       <td>Milik customer</td>

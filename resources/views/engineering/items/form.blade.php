@@ -31,7 +31,17 @@
                         <div class="col-md-3 mb-3"><label>Min. Stok</label><input type="number" step="any" min="0" name="min_stock" class="form-control" value="{{ old('min_stock', $item->min_stock ?: 0) }}"></div>
                         @if($canSeePrice)<div class="col-md-3 mb-3"><label class="text-success fw-bold">Harga Dasar (Rp)</label><input type="number" name="base_price" class="form-control border-success fw-bold text-end" min="0" step="0.01" value="{{ old('base_price', $item->base_price ?: 0) }}"></div>@endif
                     </div>
-                    <div class="mb-3"><label class="fw-bold text-danger"><i class="bi bi-file-earmark-pdf"></i> Upload Drawing (PDF/IMG)</label><input type="file" name="drawing_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png"><div class="form-text small">Max 5MB.</div>@if($item->drawing_file)<div class="mt-2"><a href="{{ asset($item->drawing_file) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> Lihat Drawing Saat Ini</a></div>@endif</div>
+                    <div class="mb-3">
+                        <label class="fw-bold text-danger"><i class="bi bi-file-earmark-pdf"></i> Upload Drawing (PDF/IMG)</label>
+                        <input type="hidden" name="drawing_base64" id="itemDrawingBase64" value="">
+                        <input type="hidden" name="drawing_filename" id="itemDrawingFilename" value="">
+                        <input type="file" id="itemDrawingFile" name="drawing_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                        <div id="itemDrawingStatus" class="small text-success mt-1 fw-bold" style="display:none;"></div>
+                        <div class="form-text small">Max 20MB.</div>
+                        @if($item->drawing_file)
+                            <div class="mt-2"><a href="{{ asset($item->drawing_file) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> Lihat Drawing Saat Ini ({{ basename($item->drawing_file) }})</a></div>
+                        @endif
+                    </div>
                     <div class="mb-3"><label>Deskripsi / Spesifikasi</label><textarea name="description" class="form-control" rows="3">{{ old('description', $item->description) }}</textarea></div>
                     <div class="d-flex justify-content-between mt-4"><a href="{{ route('warehouse.items.index') }}" class="btn btn-secondary">Batal</a><button class="btn btn-primary px-5">Simpan Data</button></div>
                 </form>
@@ -42,6 +52,37 @@
 @push('scripts')
 <script>
 (function () {
+    const drawingFileInput = document.getElementById('itemDrawingFile');
+    const drawingBase64 = document.getElementById('itemDrawingBase64');
+    const drawingFilename = document.getElementById('itemDrawingFilename');
+    const drawingStatus = document.getElementById('itemDrawingStatus');
+
+    drawingFileInput?.addEventListener('change', function () {
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            if (file.size > 20 * 1024 * 1024) {
+                alert('File terlalu besar! Maksimum 20MB.');
+                this.value = '';
+                return;
+            }
+            if (drawingStatus) { drawingStatus.textContent = '⏳ Membaca file...'; drawingStatus.style.display = 'block'; }
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                if (drawingBase64) drawingBase64.value = e.target.result;
+                if (drawingFilename) drawingFilename.value = file.name;
+                if (drawingStatus) { drawingStatus.textContent = '✓ ' + file.name + ' (siap disimpan)'; drawingStatus.style.display = 'block'; }
+            };
+            reader.onerror = function () {
+                if (drawingStatus) { drawingStatus.textContent = '❌ Gagal membaca file'; }
+            };
+            reader.readAsDataURL(file);
+        } else {
+            if (drawingBase64) drawingBase64.value = '';
+            if (drawingFilename) drawingFilename.value = '';
+            if (drawingStatus) { drawingStatus.textContent = ''; drawingStatus.style.display = 'none'; }
+        }
+    });
+
     const isEdit = @json($isEdit);
     const code = document.getElementById('itemCode');
     const customer = document.getElementById('customerId');
