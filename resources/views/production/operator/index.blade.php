@@ -53,15 +53,24 @@
                         </div>
                     </div>
 
-                    @if($spk?->drawing_link)
-                        @php
-                            $spkLink = trim((string) $spk->drawing_link);
-                            $spkDrawingUrl = preg_match('/^https?:\/\//i', $spkLink) ? $spkLink : asset(ltrim($spkLink, '/'));
-                        @endphp
+                    @if(!empty($spk?->drawing_info))
+                        @php $spkInfo = $spk->drawing_info; @endphp
                         <div class="mb-3">
-                            <a href="{{ $spkDrawingUrl }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-danger fw-bold shadow-sm">
-                                <i class="bi bi-file-earmark-pdf-fill fs-6 me-1"></i> Buka / Download Drawing SPK
-                            </a>
+                            @if($spkInfo['is_local'])
+                                <div class="d-inline-flex align-items-center gap-2 flex-wrap bg-warning-subtle text-dark p-2 rounded border border-warning">
+                                    <a href="{{ $spkInfo['url'] }}" target="_blank" class="btn btn-sm btn-outline-danger fw-bold">
+                                        <i class="bi bi-folder-symlink"></i> Buka Link Windows
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-dark" onclick="copyWinPath('{{ addslashes($spkInfo['win_path'] ?: $spkInfo['raw']) }}')">
+                                        <i class="bi bi-clipboard"></i> Salin Path Windows
+                                    </button>
+                                    <small class="text-muted"><i class="bi bi-exclamation-triangle-fill text-warning"></i> File lokal di PC (<code>{{ $spkInfo['win_path'] ?: $spkInfo['raw'] }}</code>)</small>
+                                </div>
+                            @else
+                                <a href="{{ $spkInfo['url'] }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-danger fw-bold shadow-sm">
+                                    <i class="bi bi-file-earmark-pdf-fill fs-6 me-1"></i> Buka / Download Drawing SPK
+                                </a>
+                            @endif
                         </div>
                     @endif
 
@@ -98,6 +107,7 @@
                                 $done = (float) $row['qty_done'];
                                 $target = (float) $part->qty;
                                 $complete = ($row['state'] ?? '') === 'done' || ($target > 0 && $done >= $target);
+                                $pInfo = $part->drawing_info ?? null;
                             @endphp
                             <tr>
                                 <td>
@@ -106,10 +116,21 @@
                                             <strong>{{ $part->part_name ?: $part->item_no }}</strong>
                                             <div class="text-muted small">{{ $part->drawing_no ?: '-' }} | {{ $part->process ?: '-' }}</div>
                                         </div>
-                                        @if($part->resolved_drawing_url)
-                                            <a href="{{ $part->resolved_drawing_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-danger ms-2 px-2 py-1" title="Buka / Download Drawing {{ $part->part_name }}">
-                                                <i class="bi bi-file-earmark-pdf-fill"></i> Drawing
-                                            </a>
+                                        @if($pInfo)
+                                            @if($pInfo['is_local'])
+                                                <div class="btn-group ms-2">
+                                                    <a href="{{ $pInfo['url'] }}" target="_blank" class="btn btn-sm btn-outline-danger px-2 py-1" title="File Lokal: {{ $pInfo['win_path'] ?: $pInfo['raw'] }}">
+                                                        <i class="bi bi-folder-symlink"></i> Drawing
+                                                    </a>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary px-2 py-1" onclick="copyWinPath('{{ addslashes($pInfo['win_path'] ?: $pInfo['raw']) }}')" title="Salin Path Windows">
+                                                        <i class="bi bi-clipboard"></i>
+                                                    </button>
+                                                </div>
+                                            @else
+                                                <a href="{{ $pInfo['url'] }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-danger ms-2 px-2 py-1" title="Buka / Download Drawing {{ $part->part_name }}">
+                                                    <i class="bi bi-file-earmark-pdf-fill"></i> Drawing
+                                                </a>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>
@@ -245,4 +266,20 @@
     </div>
 </div>
 @endif
+
+@push('scripts')
+<script>
+function copyWinPath(pathText) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(pathText).then(() => {
+            alert('Path file lokasi Windows berhasil disalin:\n' + pathText + '\n\nSilakan buka Windows Explorer (Win+E) lalu paste di address bar.');
+        }).catch(() => {
+            prompt('Salin path file lokasi Windows berikut:', pathText);
+        });
+    } else {
+        prompt('Salin path file lokasi Windows berikut:', pathText);
+    }
+}
+</script>
+@endpush
 @endsection

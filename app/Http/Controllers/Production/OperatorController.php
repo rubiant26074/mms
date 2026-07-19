@@ -47,6 +47,9 @@ class OperatorController extends Controller
                 ->get();
 
             if ($activeTask) {
+                if ($activeTask->spk) {
+                    $activeTask->spk->drawing_info = $this->parseDrawingInfo($activeTask->spk->drawing_link);
+                }
                 $partlists = $this->matchingPartlists($activeTask);
                 $progress = ProductionPartlistProgress::query()
                     ->where('assignment_id', $activeTask->id)
@@ -63,6 +66,12 @@ class OperatorController extends Controller
                     ->latest('id')
                     ->limit(20)
                     ->get();
+            }
+
+            foreach ($queueTasks as $qt) {
+                if ($qt->spk) {
+                    $qt->spk->drawing_info = $this->parseDrawingInfo($qt->spk->drawing_link);
+                }
             }
         }
 
@@ -253,16 +262,55 @@ class OperatorController extends Controller
                 $rawPath = (string) ($byCode->get($codeKey) ?: $byName->get($nameKey) ?: '');
             }
 
-            if ($rawPath !== '') {
-                $part->resolved_drawing_url = preg_match('/^https?:\/\//i', $rawPath)
-                    ? $rawPath
-                    : asset(ltrim($rawPath, '/'));
-            } else {
-                $part->resolved_drawing_url = null;
-            }
+            $part->drawing_info = $this->parseDrawingInfo($rawPath);
+            $part->resolved_drawing_url = $part->drawing_info['url'] ?? null;
         }
 
         return $result;
+    }
+
+    private function parseDrawingInfo(?string $path): ?array
+    {
+        if (! $path) {
+            return null;
+        }
+
+        $path = trim($path, " \t\n\r\0\x0B\"'");
+        if ($path === '') {
+            return null;
+        }
+
+        if (preg_match('/^https?:\/\//i', $path)) {
+            return [
+                'type' => 'web',
+                'url' => $path,
+                'raw' => $path,
+                'win_path' => null,
+                'is_local' => false,
+            ];
+        }
+
+        if (preg_match('/^(file:\/\/\/|[a-z]:[\\\\\/]|\\\\\\\)/i', $path)) {
+            $cleanPath = str_replace('\\', '/', $path);
+            $fileUrl = preg_match('/^[a-z]:\//i', $cleanPath) ? 'file:///' . $cleanPath : $cleanPath;
+            $winPath = str_replace('/', '\\', preg_replace('/^file:\/\/\//i', '', $path));
+
+            return [
+                'type' => 'local',
+                'url' => $fileUrl,
+                'win_path' => $winPath,
+                'raw' => $path,
+                'is_local' => true,
+            ];
+        }
+
+        return [
+            'type' => 'server',
+            'url' => asset(ltrim($path, '/')),
+            'raw' => $path,
+            'win_path' => null,
+            'is_local' => false,
+        ];
     }
 
     private function partStats(Collection $partlists, Collection $progress): array
