@@ -23,3 +23,23 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# PHP Upload Settings Override (cPanel shared hosting)
+<IfModule mod_php.c>
+    php_value file_uploads On
+    php_value upload_max_filesize 32M
+    php_value post_max_size 32M
+    php_value max_file_uploads 20
+</IfModule>
+<IfModule mod_php8.c>
+    php_value file_uploads On
+    php_value upload_max_filesize 32M
+    php_value post_max_size 32M
+    php_value max_file_uploads 20
+</IfModule>
+<IfModule mod_php7.c>
+    php_value file_uploads On
+    php_value upload_max_filesize 32M
+    php_value post_max_size 32M
+    php_value max_file_uploads 20
+</IfModule>
