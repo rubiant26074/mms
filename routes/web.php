@@ -149,6 +149,124 @@ Route::get('/run-migration-discount', function () {
 Route::get('/public/sales-orders/{order}/print', [SalesOrderController::class, 'print'])->name('sales.orders.print.public');
 Route::get('/public/quotations/{quotation}/print', [QuotationController::class, 'print'])->name('sales.quotations.print.public');
 
+// ===== TEMPORARY DEBUG ROUTES (hapus setelah selesai debug) =====
+Route::get('/debug-upload-info', function () {
+    $uploadsDir = public_path('uploads/drawings');
+    $uploadsExists = is_dir($uploadsDir);
+    $uploadsWritable = $uploadsExists ? is_writable($uploadsDir) : false;
+    $publicWritable = is_writable(public_path('uploads'));
+    if (!$uploadsExists) {
+        @mkdir($uploadsDir, 0775, true);
+    }
+    $files = $uploadsExists ? array_diff(scandir($uploadsDir), ['.', '..']) : [];
+    $info = [
+        'php_version'              => PHP_VERSION,
+        'file_uploads'             => ini_get('file_uploads'),
+        'upload_max_filesize'      => ini_get('upload_max_filesize'),
+        'post_max_size'            => ini_get('post_max_size'),
+        'max_file_uploads'         => ini_get('max_file_uploads'),
+        'memory_limit'             => ini_get('memory_limit'),
+        'uploads_dir'              => $uploadsDir,
+        'uploads_dir_exists'       => $uploadsExists ? 'YA' : 'TIDAK',
+        'uploads_dir_writable'     => $uploadsWritable ? 'YA ✓' : 'TIDAK ✗',
+        'public_uploads_writable'  => $publicWritable ? 'YA ✓' : 'TIDAK ✗',
+        'files_in_dir_count'       => count($files),
+        'files_in_dir'             => array_values($files),
+        'server_software'          => $_SERVER['SERVER_SOFTWARE'] ?? '-',
+        'document_root'            => $_SERVER['DOCUMENT_ROOT'] ?? '-',
+    ];
+    $html = '<style>body{font-family:monospace;padding:20px;background:#1a1a2e;color:#e0e0e0;}h2{color:#00d4ff;}table{border-collapse:collapse;width:100%;}td{padding:8px 12px;border:1px solid #444;}td:first-child{background:#16213e;color:#aaa;width:40%;}td.ok{color:#00e676;font-weight:bold;}td.err{color:#ff5252;font-weight:bold;}a{color:#00d4ff;}</style>';
+    $html .= '<h2>🔍 MMS Debug: PHP Upload Info</h2><table>';
+    foreach ($info as $k => $v) {
+        if (is_array($v)) {
+            $v = empty($v) ? '(kosong)' : implode('<br>', $v);
+        }
+        $cls = '';
+        if (in_array($k, ['uploads_dir_writable', 'public_uploads_writable']) && str_contains((string)$v, 'YA')) $cls = 'class="ok"';
+        if (in_array($k, ['uploads_dir_writable', 'public_uploads_writable']) && str_contains((string)$v, 'TIDAK')) $cls = 'class="err"';
+        if ($k === 'file_uploads' && $v === '0') $cls = 'class="err"';
+        if ($k === 'uploads_dir_exists' && $v === 'TIDAK') $cls = 'class="err"';
+        $html .= "<tr><td>$k</td><td $cls>$v</td></tr>";
+    }
+    $html .= '</table>';
+    $html .= '<br><a href="/debug-upload-log">📋 Lihat Laravel Log Terbaru</a>';
+    $html .= ' &nbsp; <a href="/debug-upload-test">🧪 Test Upload Langsung</a>';
+    return response($html);
+});
+
+Route::get('/debug-upload-log', function () {
+    $logFile = storage_path('logs/laravel.log');
+    if (!file_exists($logFile)) {
+        return '<pre style="background:#111;color:#0f0;padding:20px;font-family:monospace;">Log file tidak ada: ' . $logFile . '</pre>';
+    }
+    $size = filesize($logFile);
+    // Ambil 60KB terakhir dari log
+    $handle = fopen($logFile, 'r');
+    $offset = max(0, $size - 61440);
+    fseek($handle, $offset);
+    $content = fread($handle, 61440);
+    fclose($handle);
+    // Highlight baris PartlistController
+    $lines = explode("\n", htmlspecialchars($content));
+    $highlighted = array_map(function ($line) {
+        if (str_contains($line, 'PartlistController') || str_contains($line, 'partsFromRequest')) {
+            return '<span style="background:#004400;color:#00ff00;display:block;">' . $line . '</span>';
+        }
+        if (str_contains($line, 'ERROR') || str_contains($line, 'Exception')) {
+            return '<span style="background:#440000;color:#ff5555;display:block;">' . $line . '</span>';
+        }
+        return '<span style="display:block;">' . $line . '</span>';
+    }, $lines);
+    $html = '<style>body{background:#111;color:#ccc;padding:20px;font-family:monospace;font-size:12px;}a{color:#00d4ff;}</style>';
+    $html .= '<h3 style="color:#00d4ff;">📋 Laravel Log (60KB terakhir) &nbsp; <a href="/debug-upload-info">← Info PHP</a> &nbsp; <a href="/debug-upload-log" onclick="location.reload();return false;">🔄 Refresh</a></h3>';
+    $html .= '<div style="overflow-x:auto;">' . implode('', $highlighted) . '</div>';
+    return response($html);
+});
+
+Route::match(['get', 'post'], '/debug-upload-test', function (\Illuminate\Http\Request $request) {
+    if ($request->isMethod('post')) {
+        $result = [];
+        if ($request->hasFile('testfile')) {
+            $file = $request->file('testfile');
+            $result['valid'] = $file->isValid();
+            $result['original_name'] = $file->getClientOriginalName();
+            $result['size'] = $file->getSize();
+            $result['error_code'] = $file->getError();
+            $result['mime'] = $file->getMimeType();
+            if ($file->isValid()) {
+                $dir = public_path('uploads/drawings');
+                if (!is_dir($dir)) @mkdir($dir, 0775, true);
+                $name = 'test_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->move($dir, $name);
+                $result['saved_to'] = 'uploads/drawings/' . $name;
+                $result['url'] = asset('uploads/drawings/' . $name);
+                $result['status'] = '✅ BERHASIL UPLOAD!';
+            } else {
+                $result['status'] = '❌ GAGAL - Error code: ' . $file->getError();
+            }
+        } else {
+            $result['status'] = '❌ Tidak ada file diterima server (has_file=false). Cek php.ini post_max_size!';
+            $result['all_files'] = array_keys($request->allFiles());
+            $result['content_length'] = $_SERVER['CONTENT_LENGTH'] ?? 'unknown';
+        }
+        $json = json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        return response('<style>body{font-family:monospace;background:#111;color:#0f0;padding:20px;}</style><h3 style="color:#00d4ff;">Hasil Test Upload:</h3><pre>' . htmlspecialchars($json) . '</pre><br><a href="/debug-upload-test" style="color:#00d4ff;">← Test Lagi</a> &nbsp; <a href="/debug-upload-log" style="color:#00d4ff;">📋 Lihat Log</a>');
+    }
+    $form = '<style>body{font-family:sans-serif;background:#1a1a2e;color:#e0e0e0;padding:40px;}input,button{padding:10px;margin:8px 0;display:block;}button{background:#00d4ff;border:none;cursor:pointer;color:#000;font-weight:bold;padding:12px 30px;border-radius:6px;}</style>';
+    $form .= '<h2 style="color:#00d4ff;">🧪 Test Upload Langsung ke Server</h2>';
+    $form .= '<form method="POST" enctype="multipart/form-data">';
+    $form .= csrf_field();
+    $form .= '<label>Pilih file (PDF/gambar):</label>';
+    $form .= '<input type="file" name="testfile" accept=".pdf,.png,.jpg">';
+    $form .= '<button type="submit">Upload Test</button>';
+    $form .= '</form>';
+    $form .= '<br><a href="/debug-upload-info" style="color:#00d4ff;">← Info PHP</a> &nbsp; <a href="/debug-upload-log" style="color:#00d4ff;">📋 Lihat Log</a>';
+    return response($form);
+});
+// ===== END TEMPORARY DEBUG ROUTES =====
+
+
+
 Route::middleware(MmsAuthenticate::class)->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::match(['get', 'post'], '/user-media/{type}/{filename}', [UserSettingsController::class, 'media'])
