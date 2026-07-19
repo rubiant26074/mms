@@ -93,8 +93,10 @@ class PartlistController extends Controller
     private function partsFromRequest(Request $request): array
     {
         $rows = [];
-        $rowIndices = $request->input('row_index', []);
         $existingPaths = $request->input('existing_drawing_path', []);
+        $manualPaths = $request->input('drawing_path', []);
+        $drawingFiles = $request->file('drawing_file', []);
+        $removeFlags = $request->input('remove_drawing', []);
 
         foreach ($request->input('item_no', []) as $i => $itemNo) {
             $partName = trim((string) ($request->input("part_name.{$i}") ?? ''));
@@ -105,25 +107,24 @@ class PartlistController extends Controller
             $lengthVal = trim((string) $request->input("length.{$i}"));
             $widthVal = trim((string) $request->input("width.{$i}"));
 
-            $rowIndex = $rowIndices[$i] ?? $i;
             $drawingPath = $existingPaths[$i] ?? null;
 
-            if ($request->boolean("remove_drawing_{$rowIndex}")) {
+            if (! empty($removeFlags[$i])) {
                 $drawingPath = null;
             }
 
-            $manualPath = trim((string) $request->input("drawing_path_{$rowIndex}"));
+            $manualPath = trim((string) ($manualPaths[$i] ?? ''));
             if ($manualPath !== '') {
                 $manualPath = trim($manualPath, " \t\n\r\0\x0B\"'");
                 $drawingPath = $manualPath;
             } else {
-                if ($drawingPath && !str_starts_with($drawingPath, 'uploads/')) {
+                if ($drawingPath && ! str_starts_with($drawingPath, 'uploads/')) {
                     $drawingPath = null;
                 }
             }
 
-            // Check file upload by rowIndex or by row position counter $i
-            $file = $request->file("drawing_file_{$rowIndex}") ?: $request->file("drawing_file_{$i}");
+            // Check file upload for row position $i (highest priority)
+            $file = $drawingFiles[$i] ?? $request->file("drawing_file_{$i}");
             if ($file) {
                 if (! $file->isValid()) {
                     $errCode = $file->getError();
@@ -136,14 +137,14 @@ class PartlistController extends Controller
 
                 $filename = 'drw_' . uniqid() . '_' . now()->format('YmdHis') . '.' . strtolower($file->getClientOriginalExtension());
                 $directory = public_path('uploads/drawings');
-                if (!is_dir($directory)) {
+                if (! is_dir($directory)) {
                     @mkdir($directory, 0775, true);
                 }
                 $file->move($directory, $filename);
                 $drawingPath = 'uploads/drawings/' . $filename;
             }
 
-            if ($drawingPath && !str_starts_with($drawingPath, 'uploads/')) {
+            if ($drawingPath && ! str_starts_with($drawingPath, 'uploads/')) {
                 $drawingPath = trim($drawingPath, " \t\n\r\0\x0B\"'");
             }
 

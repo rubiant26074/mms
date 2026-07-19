@@ -44,11 +44,11 @@
                             @endphp
                             <div class="d-flex align-items-center gap-1">
                                 <input type="hidden" name="existing_drawing_path[]" class="js-existing-path" value="{{ $part->drawing_path }}">
-                                <input type="hidden" name="remove_drawing_{{ $loop->index }}" class="js-remove-drawing" value="0">
-                                <input type="file" name="drawing_file_{{ $loop->index }}" class="d-none js-drawing-file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf">
+                                <input type="hidden" name="remove_drawing[]" class="js-remove-drawing" value="0">
+                                <input type="file" name="drawing_file[]" class="d-none js-drawing-file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf">
 
                                 <!-- Manual Link / Win Path Input -->
-                                <input type="text" name="drawing_path_{{ $loop->index }}" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web/Win)" value="{{ $hasLink ? trim($part->drawing_path, ' "') : '' }}" style="min-width: 110px;">
+                                <input type="text" name="drawing_path[]" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web/Win)" value="{{ $hasLink ? trim($part->drawing_path, ' "') : '' }}" style="min-width: 110px;">
 
                                 <!-- Upload Button -->
                                 <button type="button" class="btn btn-sm {{ $isUploaded ? 'btn-success' : 'btn-outline-secondary' }} px-2 js-upload-btn" title="{{ $isUploaded ? 'File terupload: '.basename($part->drawing_path).' (Klik untuk ganti file)' : 'Upload File Drawing PDF/Gambar' }}">
@@ -78,10 +78,10 @@
                         <td style="min-width: 220px;">
                             <div class="d-flex align-items-center gap-1">
                                 <input type="hidden" name="existing_drawing_path[]" class="js-existing-path" value="">
-                                <input type="hidden" name="remove_drawing_0" class="js-remove-drawing" value="0">
-                                <input type="file" name="drawing_file_0" class="d-none js-drawing-file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf">
+                                <input type="hidden" name="remove_drawing[]" class="js-remove-drawing" value="0">
+                                <input type="file" name="drawing_file[]" class="d-none js-drawing-file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf">
 
-                                <input type="text" name="drawing_path_0" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web/Win)" style="min-width: 110px;">
+                                <input type="text" name="drawing_path[]" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web/Win)" style="min-width: 110px;">
                                 
                                 <button type="button" class="btn btn-sm btn-outline-secondary px-2 js-upload-btn" title="Upload File Drawing PDF/Gambar">
                                     <i class="bi bi-cloud-upload"></i>
@@ -192,41 +192,35 @@
         const row = templateRow.cloneNode(true);
         rowCounter++;
         
-        // Update name of the file input in the new row
         const fileInput = row.querySelector('.js-drawing-file');
         if (fileInput) {
-            fileInput.name = 'drawing_file_' + rowCounter;
+            fileInput.name = 'drawing_file[]';
             fileInput.value = '';
         }
 
-        // Update name of the path input in the new row
         const pathInput = row.querySelector('.js-drawing-path');
         if (pathInput) {
-            pathInput.name = 'drawing_path_' + rowCounter;
+            pathInput.name = 'drawing_path[]';
             pathInput.value = '';
-            pathInput.placeholder = 'Link (Drive/Web)';
-        }
-        
-        // Update value of row_index hidden input
-        const indexInput = row.querySelector('input[name="row_index[]"]');
-        if (indexInput) {
-            indexInput.value = rowCounter;
+            pathInput.placeholder = 'Link (Drive/Web/Win)';
         }
 
-        // Reset existing path input if any
         const existingInput = row.querySelector('.js-existing-path');
         if (existingInput) {
             existingInput.value = '';
         }
 
-        // Reset status element
+        const removeInput = row.querySelector('.js-remove-drawing');
+        if (removeInput) {
+            removeInput.value = '0';
+        }
+
         const statusEl = row.querySelector('.js-file-status');
         if (statusEl) {
             statusEl.textContent = '';
             statusEl.style.display = 'none';
         }
 
-        // Reset upload button style
         const uploadBtn = row.querySelector('.js-upload-btn');
         if (uploadBtn) {
             uploadBtn.classList.remove('btn-success');
