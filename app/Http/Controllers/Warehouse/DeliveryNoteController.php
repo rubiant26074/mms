@@ -17,8 +17,8 @@ class DeliveryNoteController extends Controller
 {
     public function index(Request $request): View
     {
-        $status = trim((string) $request->query('status', ''));
-        $search = trim((string) $request->query('search', ''));
+        $status = $this->rememberedFilter($request, 'status', '');
+        $search = $this->rememberedFilter($request, 'search', '');
 
         $notes = DeliveryNote::query()
             ->with('salesOrder.customer')

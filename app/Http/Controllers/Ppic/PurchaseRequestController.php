@@ -16,8 +16,8 @@ class PurchaseRequestController extends Controller
 {
     public function index(Request $request): View
     {
-        $status = trim((string) $request->query('status', ''));
-        $search = trim((string) $request->query('search', ''));
+        $status = $this->rememberedFilter($request, 'status', '');
+        $search = $this->rememberedFilter($request, 'search', '');
         $prs = PurchaseRequest::query()
             ->with('creator')
             ->when($status !== '', fn ($q) => $q->where('status', $status))

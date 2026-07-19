@@ -13,9 +13,9 @@ class PartlistController extends Controller
 {
     public function index(Request $request): View
     {
-        $view = $request->query('view') === 'archive' ? 'archive' : 'active';
-        $status = trim((string) $request->query('status', ''));
-        $search = trim((string) $request->query('search', ''));
+        $view = $this->rememberedFilter($request, 'view', 'active') === 'archive' ? 'archive' : 'active';
+        $status = $this->rememberedFilter($request, 'status', '');
+        $search = $this->rememberedFilter($request, 'search', '');
         $statuses = $view === 'archive'
             ? ['closed']
             : ['preliminary', 'final', 'waiting_eng', 'waiting_mgr', 'released', 'in_production', 'completed'];

@@ -18,8 +18,8 @@ class PurchaseOrderController extends Controller
 {
     public function index(Request $request): View
     {
-        $status = trim((string) $request->query('status', ''));
-        $search = trim((string) $request->query('search', ''));
+        $status = $this->rememberedFilter($request, 'status', '');
+        $search = $this->rememberedFilter($request, 'search', '');
         $orders = PurchaseOrder::query()
             ->with(['supplier', 'approver', 'financeApprover'])
             ->when($status !== '', fn ($q) => $q->where('status', $status))

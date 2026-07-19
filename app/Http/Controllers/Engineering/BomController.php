@@ -16,7 +16,7 @@ class BomController extends Controller
 {
     public function index(Request $request): View
     {
-        $search = trim((string) $request->query('search', ''));
+        $search = $this->rememberedFilter($request, 'search', '');
         $boms = Bom::query()
             ->with('item')
             ->withCount('details')

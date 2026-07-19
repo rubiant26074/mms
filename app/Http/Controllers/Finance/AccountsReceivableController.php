@@ -18,8 +18,8 @@ class AccountsReceivableController extends Controller
 {
     public function index(Request $request): View
     {
-        $status = trim((string) $request->query('status', ''));
-        $search = trim((string) $request->query('search', ''));
+        $status = $this->rememberedFilter($request, 'status', '');
+        $search = $this->rememberedFilter($request, 'search', '');
 
         $invoices = Invoice::query()
             ->with('customer')

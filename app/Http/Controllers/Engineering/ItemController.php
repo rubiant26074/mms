@@ -15,8 +15,8 @@ class ItemController extends Controller
 {
     public function index(Request $request): View
     {
-        $type = trim((string) $request->query('filter_type', ''));
-        $search = trim((string) $request->query('search', ''));
+        $type = $this->rememberedFilter($request, 'filter_type', '');
+        $search = $this->rememberedFilter($request, 'search', '');
         $canSeePrice = $request->user()?->hasPermission('item_price_view') ?? false;
 
         $items = Item::query()
