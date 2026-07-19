@@ -7,6 +7,7 @@ use App\Models\Spk;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class PartlistController extends Controller
@@ -47,6 +48,26 @@ class PartlistController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        // DEBUG: Log semua info upload file drawing
+        $debugInfo = [
+            'php_upload_max_filesize' => ini_get('upload_max_filesize'),
+            'php_post_max_size' => ini_get('post_max_size'),
+            'php_file_uploads' => ini_get('file_uploads'),
+            'php_max_file_uploads' => ini_get('max_file_uploads'),
+            'content_type' => $request->header('Content-Type'),
+            'has_files' => $request->hasFile('drawing_file'),
+            'all_files_keys' => array_keys($request->allFiles()),
+            'drawing_file_raw' => $request->allFiles()['drawing_file'] ?? null,
+            'drawing_path_input' => $request->input('drawing_path', []),
+            'existing_drawing_path' => $request->input('existing_drawing_path', []),
+            'remove_drawing' => $request->input('remove_drawing', []),
+            'item_no_count' => count($request->input('item_no', [])),
+            'public_uploads_dir' => public_path('uploads/drawings'),
+            'public_uploads_writable' => is_writable(public_path('uploads')),
+            'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown',
+        ];
+        Log::channel('single')->info('[PartlistController@store] DEBUG UPLOAD', $debugInfo);
+
         $data = $request->validate([
             'spk_id' => ['required', 'exists:spk,id'],
             'drawing_link' => ['nullable', 'string'],
@@ -55,8 +76,14 @@ class PartlistController extends Controller
         try {
             $parts = $this->partsFromRequest($request);
         } catch (\RuntimeException $e) {
+            Log::channel('single')->error('[PartlistController@store] RuntimeException: ' . $e->getMessage());
             return back()->withErrors($e->getMessage())->withInput();
         }
+
+        Log::channel('single')->info('[PartlistController@store] Parts to be saved', [
+            'parts_count' => count($parts),
+            'drawing_paths' => array_column($parts, 'drawing_path'),
+        ]);
 
         DB::transaction(function () use ($data, $parts, $request): void {
             $spk = Spk::query()->lockForUpdate()->findOrFail($data['spk_id']);
@@ -97,6 +124,8 @@ class PartlistController extends Controller
         $manualPaths = $request->input('drawing_path', []);
         $drawingFiles = $request->file('drawing_file', []);
         $removeFlags = $request->input('remove_drawing', []);
+
+        Log::channel('single')->info('[partsFromRequest] drawingFiles count=' . count($drawingFiles) . ', manualPaths=' . json_encode($manualPaths));
 
         foreach ($request->input('item_no', []) as $i => $itemNo) {
             $partName = trim((string) ($request->input("part_name.{$i}") ?? ''));
