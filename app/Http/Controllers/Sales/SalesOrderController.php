@@ -41,7 +41,7 @@ class SalesOrderController extends Controller
 
     public function create(Request $request): View
     {
-        $quote = $request->query('quote_id') ? Quotation::query()->with('items')->find($request->query('quote_id')) : null;
+        $quote = $request->query('quote_id') ? Quotation::query()->with('items.item')->find($request->query('quote_id')) : null;
         $items = collect([new SalesOrderItem(['qty' => 1, 'unit_manual' => 'PCS'])]);
         $order = new SalesOrder([
             'so_number' => 'AUTO',
@@ -60,10 +60,10 @@ class SalesOrderController extends Controller
         if ($quote) {
             $items = $quote->items->map(fn ($item) => new SalesOrderItem([
                 'item_id' => $item->item_id ?: 0,
-                'item_code_manual' => $item->item_code_manual,
-                'item_name_manual' => $item->item_name_manual ?: $item->temp_item_name,
-                'material_manual' => $item->material_manual ?: $item->temp_spec,
-                'unit_manual' => $item->unit_manual ?: $item->temp_uom,
+                'item_code_manual' => $item->item_code_manual ?: ($item->item?->item_code ?: ''),
+                'item_name_manual' => $item->item_name_manual ?: ($item->temp_item_name ?: ($item->item?->item_name ?: '')),
+                'material_manual' => $item->material_manual ?: ($item->temp_spec ?: ($item->item?->description ?: '')),
+                'unit_manual' => $item->unit_manual ?: ($item->temp_uom ?: ($item->item?->unit ?: 'PCS')),
                 'qty' => $item->qty,
                 'unit_price' => $item->unit_price,
             ]));
