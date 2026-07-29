@@ -156,27 +156,33 @@ Route::get('/git-pull-mms', function () {
     @exec('cd ' . escapeshellarg(base_path()) . ' && git pull 2>&1', $output, $returnVar);
 
     // Safe manual database adjustment in case migrations are out of sync/broken
+    $schemaMsg = '';
     try {
         if (!\Illuminate\Support\Facades\Schema::hasColumn('customers', 'sales_phone')) {
             \Illuminate\Support\Facades\Schema::table('customers', function (\Illuminate\Database\Schema\Blueprint $table) {
                 $table->string('sales_phone')->nullable()->after('sales_name');
             });
+            $schemaMsg = "SUCCESS: 'sales_phone' column added to 'customers' table.";
+        } else {
+            $schemaMsg = "SKIP: 'sales_phone' column already exists.";
         }
     } catch (\Throwable $e) {
-        // ignore
+        $schemaMsg = "ERROR: " . $e->getMessage();
     }
 
+    $migrationMsg = '';
     try {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $migrationMsg = "SUCCESS: Migrations run successfully.";
     } catch (\Throwable $e) {
-        // ignore
+        $migrationMsg = "ERROR/SKIPPED: " . $e->getMessage();
     }
 
     \Illuminate\Support\Facades\Artisan::call('view:clear');
     \Illuminate\Support\Facades\Artisan::call('route:clear');
     \Illuminate\Support\Facades\Artisan::call('config:clear');
     \Illuminate\Support\Facades\Artisan::call('cache:clear');
-    return "<pre style='background:#111;color:#0f0;padding:20px;font-family:monospace;'>🚀 Git Force Pull Result (Return Code: $returnVar):\n\n" . htmlspecialchars(implode("\n", $output)) . "\n\n✅ Server reset & updated to latest code successfully!\n✅ Database schema adjustments verified/applied successfully!\n✅ Cache view/route/config/cache cleared successfully!</pre>";
+    return "<pre style='background:#111;color:#0f0;padding:20px;font-family:monospace;'>🚀 Git Force Pull Result (Return Code: $returnVar):\n\n" . htmlspecialchars(implode("\n", $output)) . "\n\n✅ Server reset & updated to latest code successfully!\n✅ Database schema adjustment status: $schemaMsg\n✅ Migration status: $migrationMsg\n✅ Cache view/route/config/cache cleared successfully!</pre>";
 });
 
 // Publicly accessible print layouts for customer access (e.g. via WhatsApp)
