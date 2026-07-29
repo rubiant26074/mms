@@ -53,7 +53,7 @@
                                     <td><input name="item_name[]" class="form-control" required value="{{ old('item_name.' . $loop->index, $item->item_name_manual ?: $item->temp_item_name) }}"></td>
                                     <td><input name="material[]" class="form-control" value="{{ old('material.' . $loop->index, $item->material_manual ?: $item->temp_spec) }}"></td>
                                     <td><select name="ownership[]" class="form-select"><option value="internal" @selected($item->ownership !== 'customer')>Internal</option><option value="customer" @selected($item->ownership === 'customer')>Customer</option></select></td>
-                                    <td><input name="qty[]" type="number" step="0.01" min="0" class="form-control calc qty" value="{{ old('qty.' . $loop->index, $item->qty ?: 1) }}"></td>
+                                    <td><input name="qty[]" type="number" step="1" min="0" class="form-control calc qty" value="{{ old('qty.' . $loop->index, $item->qty !== null ? round($item->qty) : 1) }}"></td>
                                     <td><input name="unit[]" class="form-control" value="{{ old('unit.' . $loop->index, $item->unit_manual ?: $item->temp_uom) }}"></td>
                                     <td><input name="price[]" type="number" step="0.01" min="0" class="form-control calc price" value="{{ old('price.' . $loop->index, $item->unit_price ?: 0) }}"></td>
                                     <td class="text-end row-subtotal">0</td>
@@ -135,7 +135,11 @@
     const setField = (input, value) => {
         if (!input) return;
         if (input.name === 'ownership[]') input.value = normalizeOwnership(value);
-        else if (['qty[]', 'price[]'].includes(input.name)) input.value = cleanNumber(value);
+        else if (input.name === 'qty[]') {
+            const clean = cleanNumber(value);
+            input.value = clean ? Math.round(parseFloat(clean)) : '';
+        }
+        else if (input.name === 'price[]') input.value = cleanNumber(value);
         else input.value = String(value ?? '').trim();
     };
     function recalc() {
@@ -163,7 +167,12 @@
         document.getElementById('txtTax').textContent = rupiah(tax);
         document.getElementById('txtGrand').textContent = rupiah(subtotal + tax);
     }
-    document.addEventListener('input', e => { if (e.target.matches('.calc,#taxMode,#ppnPercent')) recalc(); });
+    document.addEventListener('input', e => {
+        if (e.target.matches('.qty')) {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        }
+        if (e.target.matches('.calc,#taxMode,#ppnPercent')) recalc();
+    });
     document.addEventListener('change', e => { if (e.target.matches('#taxMode,.calc')) recalc(); });
     document.getElementById('addRow')?.addEventListener('click', () => {
         addRow();

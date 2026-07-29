@@ -258,7 +258,7 @@ class QuotationController extends Controller
 
         foreach ($codes as $i => $rawCode) {
             $name = trim((string) ($names[$i] ?? ''));
-            $qty = (float) ($qtys[$i] ?? 0);
+            $qty = (int) ($qtys[$i] ?? 0);
             $price = (float) ($prices[$i] ?? 0);
             if ($name === '' || $qty <= 0 || $price < 0) {
                 continue;
@@ -315,16 +315,27 @@ class QuotationController extends Controller
         return $request->file('attachment')->store('uploads/quotations', 'public_root');
     }
 
+    private function romanMonth(int $month): string
+    {
+        $map = [
+            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V',
+            6 => 'VI', 7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X',
+            11 => 'XI', 12 => 'XII'
+        ];
+        return $map[$month] ?? 'I';
+    }
+
     private function nextQuoteNumber(): string
     {
-        $ym = now()->format('ym');
+        $year = now()->format('Y');
+        $romanMonth = $this->romanMonth(now()->month);
+        
         $maxSeq = 0;
-        $existing = Quotation::query()
-            ->where('quote_number', 'like', "QT-{$ym}-%")
-            ->pluck('quote_number');
+        $existing = Quotation::query()->pluck('quote_number');
 
         foreach ($existing as $num) {
-            if (preg_match('/^QT-\d{4}-(\d+)/', (string) $num, $matches)) {
+            $baseNum = preg_replace('/-R\d+$/', '', (string) $num);
+            if (preg_match('/(?:QT\.|QT-\d{4}-)(\d+)$/', $baseNum, $matches)) {
                 $seq = (int) $matches[1];
                 if ($seq > $maxSeq) {
                     $maxSeq = $seq;
@@ -333,11 +344,13 @@ class QuotationController extends Controller
         }
 
         $next = $maxSeq + 1;
-        while (Quotation::query()->where('quote_number', 'QT-' . $ym . '-' . str_pad((string) $next, 4, '0', STR_PAD_LEFT))->exists()) {
+        $numberPattern = "{$year}/{$romanMonth}/QT." . str_pad((string) $next, 4, '0', STR_PAD_LEFT);
+        while (Quotation::query()->where('quote_number', $numberPattern)->exists()) {
             $next++;
+            $numberPattern = "{$year}/{$romanMonth}/QT." . str_pad((string) $next, 4, '0', STR_PAD_LEFT);
         }
 
-        return 'QT-' . $ym . '-' . str_pad((string) $next, 4, '0', STR_PAD_LEFT);
+        return $numberPattern;
     }
 
     private function makeRevision(Quotation $quotation): Quotation

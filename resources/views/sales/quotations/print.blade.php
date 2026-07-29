@@ -110,7 +110,7 @@
                         <td class="text-center">{{ $item->item_code_manual ?: '-' }}</td>
                         <td><strong>{{ $item->item_name_manual ?: $item->temp_item_name ?: '-' }}</strong></td>
                         <td>{{ $item->material_manual ?: $item->temp_spec ?: '-' }}</td>
-                        <td class="text-center">{{ number_format((float) $item->qty, 2, ',', '.') }}</td>
+                        <td class="text-center">{{ number_format((float) $item->qty, 0, ',', '.') }}</td>
                         <td class="text-center">{{ $item->unit_manual ?: $item->temp_uom ?: '-' }}</td>
                         <td class="text-right">{{ number_format((float) $item->unit_price, 0, ',', '.') }}</td>
                         <td class="text-right">{{ number_format((float) $item->subtotal, 0, ',', '.') }}</td>
