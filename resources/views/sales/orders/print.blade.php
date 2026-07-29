@@ -36,7 +36,7 @@
         @media print{
             body{padding:20px}
             .no-print{display:none}
-            .page-footer{position:fixed;bottom:20px;left:20px;right:20px;background:#fff}
+            .page-footer{background:#fff}
             tr{page-break-inside:avoid;break-inside:avoid}
             .summary-table{page-break-inside:avoid;break-inside:avoid}
             .footer-sig{page-break-inside:avoid;break-inside:avoid}
@@ -167,7 +167,7 @@
         </table>
     </div>
 </td></tr></tbody>
-<tfoot><tr><td style="border:none;padding:0;height:45px;">
+<tfoot><tr><td style="border:none;padding:0;height:auto;">
     <div class="page-footer">
         <span class="footer-comp-name">{{ strtoupper($company->company_name ?? '-') }}</span>
         <span>{{ $company->address ?? '-' }}</span>
