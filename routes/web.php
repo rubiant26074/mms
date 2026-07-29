@@ -151,9 +151,13 @@ Route::get('/git-pull-mms', function () {
     $returnVar = 0;
     
     // Fetch and hard reset to discard any uncommitted files on server
-    @exec('cd ' . escapeshellarg(base_path()) . ' && git fetch --all 2>&1', $output, $returnVar);
-    @exec('cd ' . escapeshellarg(base_path()) . ' && git reset --hard origin/main 2>&1', $output, $returnVar);
-    @exec('cd ' . escapeshellarg(base_path()) . ' && git pull 2>&1', $output, $returnVar);
+    if (function_exists('exec')) {
+        @exec('cd ' . escapeshellarg(base_path()) . ' && git fetch --all 2>&1', $output, $returnVar);
+        @exec('cd ' . escapeshellarg(base_path()) . ' && git reset --hard origin/main 2>&1', $output, $returnVar);
+        @exec('cd ' . escapeshellarg(base_path()) . ' && git pull 2>&1', $output, $returnVar);
+    } else {
+        $output[] = "Warning: shell_exec / exec is disabled on this server. Git fetch/pull skipped.";
+    }
 
     // Safe manual database adjustment in case migrations are out of sync/broken
     $schemaMsg = '';
