@@ -16,6 +16,20 @@
             <input type="hidden" name="quotation_id" value="{{ old('quotation_id', $order->quotation_id) }}">
             <div class="row">
                 <div class="col-md-6 border-end">
+                    @if(!$isEdit)
+                    <div class="mb-3 bg-light p-2 rounded border border-success">
+                        <label class="fw-bold text-success"><i class="bi bi-file-earmark-text"></i> Tarik dari Penawaran (Quotation)</label>
+                        <select id="quoteSelector" class="form-select border-success fw-bold text-success">
+                            <option value="">-- Buat SO Baru Tanpa Penawaran --</option>
+                            @foreach($quotations as $q)
+                                <option value="{{ $q->id }}" @selected((int) request()->query('quote_id') === $q->id)>
+                                    {{ $q->quote_number }} - {{ $q->customer?->name }} (Rp {{ number_format($q->grand_total, 0, ',', '.') }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="form-text small text-success">Pilih penawaran yang sudah disetujui untuk mengisi form SO secara otomatis.</div>
+                    </div>
+                    @endif
                     <div class="mb-3"><label class="fw-bold">Customer <span class="text-danger">*</span></label><select name="customer_id" class="form-select" required><option value="">-- Pilih Customer --</option>@foreach($customers as $customer)<option value="{{ $customer->id }}" @selected((int) old('customer_id', $order->customer_id) === $customer->id)>{{ $customer->customer_code }} - {{ $customer->name }}</option>@endforeach</select></div>
                     <div class="mb-3"><label class="fw-bold">PO Customer Number</label><input type="text" name="cust_po_number" class="form-control" value="{{ old('cust_po_number', $order->cust_po_number) }}"></div>
                     <div class="mb-3"><label class="fw-bold">Catatan SO</label><textarea name="notes" class="form-control" rows="3">{{ old('notes', $order->notes) }}</textarea></div>
@@ -104,6 +118,18 @@
         tbody.appendChild(row); recalc();
     });
     document.addEventListener('click', e => { if (e.target.closest('.remove-row') && tbody.querySelectorAll('tr').length > 1) { e.target.closest('tr').remove(); recalc(); } });
+
+    document.getElementById('quoteSelector')?.addEventListener('change', function () {
+        const quoteId = this.value;
+        const url = new URL(window.location.href);
+        if (quoteId) {
+            url.searchParams.set('quote_id', quoteId);
+        } else {
+            url.searchParams.delete('quote_id');
+        }
+        window.location.href = url.toString();
+    });
+
     recalc();
 })();
 </script>

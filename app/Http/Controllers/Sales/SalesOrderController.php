@@ -22,7 +22,7 @@ class SalesOrderController extends Controller
         $status = $this->rememberedFilter($request, 'status', '');
         $search = $this->rememberedFilter($request, 'search', '');
         $salesOrders = SalesOrder::query()
-            ->with('customer')
+            ->with(['customer', 'quotation'])
             ->withCount('items')
             ->when($status !== '', fn ($q) => $q->where('status', $status))
             ->when($search !== '', function ($query) use ($search): void {
@@ -237,10 +237,17 @@ class SalesOrderController extends Controller
 
     private function formView(SalesOrder $order, $items, bool $isEdit): View
     {
+        $quotations = \App\Models\Quotation::query()
+            ->with('customer')
+            ->whereIn('status', ['approved', 'sent', 'won'])
+            ->orderBy('quote_number', 'desc')
+            ->get();
+
         return view('sales.orders.form', [
             'order' => $order,
             'items' => $items,
             'customers' => Customer::query()->orderBy('name')->get(),
+            'quotations' => $quotations,
             'isEdit' => $isEdit,
         ]);
     }

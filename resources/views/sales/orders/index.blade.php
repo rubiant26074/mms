@@ -53,7 +53,13 @@
                 <tbody>
                 @forelse($salesOrders as $row)
                     <tr>
-                        <td><strong class="text-primary">{{ $row->so_number }}</strong><br><small class="text-muted">{{ optional($row->so_date)->format('d/m/Y') }} - {{ $row->items_count }} item</small></td>
+                        <td>
+                            <strong class="text-primary">{{ $row->so_number }}</strong>
+                            @if($row->quotation)
+                                <br><span class="badge bg-light text-success border border-success small" style="font-size: 10px;">Ref: {{ $row->quotation->quote_number }}</span>
+                            @endif
+                            <br><small class="text-muted">{{ optional($row->so_date)->format('d/m/Y') }} - {{ $row->items_count }} item</small>
+                        </td>
                         <td>{{ $row->customer?->name ?? '-' }}</td>
                         <td>{{ $row->cust_po_number ?: '-' }}</td>
                         <td>{{ optional($row->delivery_date)->format('d/m/Y') ?: '-' }}</td>
