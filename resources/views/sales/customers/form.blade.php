@@ -35,6 +35,10 @@
                                 <input type="text" name="sales_name" class="form-control" value="{{ old('sales_name', $customer->sales_name ?: ($customer->creator?->fullname ?: $customer->creator?->username)) }}" placeholder="Nama Sales">
                                 <div class="form-text small">Kosongkan jika ingin menggunakan nama Anda secara otomatis.</div>
                             </div>
+                            <div class="mb-3">
+                                <label>No. HP Sales</label>
+                                <input type="text" name="sales_phone" class="form-control" value="{{ old('sales_phone', $customer->sales_phone) }}" placeholder="No. HP Sales">
+                            </div>
                         </div>
                     </div>
                     <hr>

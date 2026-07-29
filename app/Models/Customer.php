@@ -20,6 +20,7 @@ class Customer extends Model
         'tax_invoice_number',
         'created_by',
         'sales_name',
+        'sales_phone',
     ];
 
     protected function casts(): array

@@ -99,6 +99,7 @@ class CustomerController extends Controller
             'tax_id' => ['nullable', 'string', 'max:50'],
             'tax_invoice_number' => ['nullable', 'regex:/^\d{3}\.\d{3}-\d{2}\.\d{8}$/'],
             'sales_name' => ['nullable', 'string', 'max:100'],
+            'sales_phone' => ['nullable', 'string', 'max:20'],
         ]);
 
         $code = $this->nextCustomerCode();
@@ -199,6 +200,7 @@ class CustomerController extends Controller
             'tax_id' => ['nullable', 'string', 'max:50'],
             'tax_invoice_number' => ['nullable', 'regex:/^\d{3}\.\d{3}-\d{2}\.\d{8}$/'],
             'sales_name' => ['nullable', 'string', 'max:100'],
+            'sales_phone' => ['nullable', 'string', 'max:20'],
         ]);
     }
 

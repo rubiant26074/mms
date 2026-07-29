@@ -88,7 +88,12 @@
                         <td><span class="badge bg-secondary">{{ $row->customer_code ?: '-' }}</span></td>
                         <td>
                             <div class="fw-bold text-primary">{{ $row->name }}</div>
-                            <small class="text-muted d-block">Sales: {{ $row->sales_name ?: ($row->creator?->fullname ?: ($row->creator?->username ?: '-')) }}</small>
+                            <small class="text-muted d-block">
+                                Sales: {{ $row->sales_name ?: ($row->creator?->fullname ?: ($row->creator?->username ?: '-')) }}
+                                @if($row->sales_phone)
+                                    ({{ $row->sales_phone }})
+                                @endif
+                            </small>
                         </td>
                         <td><strong>{{ $row->pic }}</strong><br><small class="text-muted"><i class="bi bi-telephone"></i> {{ $row->phone }}</small></td>
                         <td>
