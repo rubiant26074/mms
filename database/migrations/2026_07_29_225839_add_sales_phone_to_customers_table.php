@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('customers', function (Blueprint $table) {
-            $table->string('sales_phone')->nullable()->after('sales_name');
-        });
+        if (!Schema::hasColumn('customers', 'sales_phone')) {
+            Schema::table('customers', function (Blueprint $table) {
+                $table->string('sales_phone')->nullable()->after('sales_name');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('customers', function (Blueprint $table) {
-            $table->dropColumn('sales_phone');
-        });
+        if (Schema::hasColumn('customers', 'sales_phone')) {
+            Schema::table('customers', function (Blueprint $table) {
+                $table->dropColumn('sales_phone');
+            });
+        }
     }
 };
