@@ -232,6 +232,7 @@ class SalesOrderController extends Controller
         return view('sales.orders.print', [
             'order' => $order->load(['customer', 'items.item', 'creator', 'approver']),
             'company' => app(\App\Services\MmsContext::class)->company(),
+            'customerSalesPhone' => $order->customer?->sales_phone,
         ]);
     }
 
