@@ -119,16 +119,29 @@
     });
     document.addEventListener('click', e => { if (e.target.closest('.remove-row') && tbody.querySelectorAll('tr').length > 1) { e.target.closest('tr').remove(); recalc(); } });
 
-    document.getElementById('quoteSelector')?.addEventListener('change', function () {
-        const quoteId = this.value;
-        const url = new URL(window.location.href);
-        if (quoteId) {
-            url.searchParams.set('quote_id', quoteId);
-        } else {
-            url.searchParams.delete('quote_id');
-        }
-        window.location.href = url.toString();
-    });
+    if (typeof $ !== 'undefined') {
+        $('#quoteSelector').on('change', function () {
+            const quoteId = $(this).val();
+            const url = new URL(window.location.href);
+            if (quoteId) {
+                url.searchParams.set('quote_id', quoteId);
+            } else {
+                url.searchParams.delete('quote_id');
+            }
+            window.location.href = url.toString();
+        });
+    } else {
+        document.getElementById('quoteSelector')?.addEventListener('change', function () {
+            const quoteId = this.value;
+            const url = new URL(window.location.href);
+            if (quoteId) {
+                url.searchParams.set('quote_id', quoteId);
+            } else {
+                url.searchParams.delete('quote_id');
+            }
+            window.location.href = url.toString();
+        });
+    }
 
     recalc();
 })();
