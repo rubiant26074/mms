@@ -149,12 +149,17 @@ Route::get('/run-migration-discount', function () {
 Route::get('/git-pull-mms', function () {
     $output = [];
     $returnVar = 0;
+    
+    // Fetch and hard reset to discard any uncommitted files on server
+    @exec('cd ' . escapeshellarg(base_path()) . ' && git fetch --all 2>&1', $output, $returnVar);
+    @exec('cd ' . escapeshellarg(base_path()) . ' && git reset --hard origin/main 2>&1', $output, $returnVar);
     @exec('cd ' . escapeshellarg(base_path()) . ' && git pull 2>&1', $output, $returnVar);
+
     \Illuminate\Support\Facades\Artisan::call('view:clear');
     \Illuminate\Support\Facades\Artisan::call('route:clear');
     \Illuminate\Support\Facades\Artisan::call('config:clear');
     \Illuminate\Support\Facades\Artisan::call('cache:clear');
-    return "<pre style='background:#111;color:#0f0;padding:20px;font-family:monospace;'>🚀 Git Pull Result (Return Code: $returnVar):\n\n" . htmlspecialchars(implode("\n", $output)) . "\n\n✅ Cache view/route/config/cache cleared successfully!</pre>";
+    return "<pre style='background:#111;color:#0f0;padding:20px;font-family:monospace;'>🚀 Git Force Pull Result (Return Code: $returnVar):\n\n" . htmlspecialchars(implode("\n", $output)) . "\n\n✅ Server reset & updated to latest code successfully!\n✅ Cache view/route/config/cache cleared successfully!</pre>";
 });
 
 // Publicly accessible print layouts for customer access (e.g. via WhatsApp)
