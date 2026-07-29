@@ -36,7 +36,7 @@
         @media print{
             body{padding:20px}
             .no-print{display:none}
-            .page-footer{background:#fff}
+            .page-footer{position:fixed;bottom:20px;left:20px;right:20px;background:#fff;border-top:1px solid #ccc;padding-top:10px;text-align:center;z-index:1000}
             tr{page-break-inside:avoid;break-inside:avoid}
             .summary-table{page-break-inside:avoid;break-inside:avoid}
             .footer-sig{page-break-inside:avoid;break-inside:avoid}
@@ -164,7 +164,8 @@
         </table>
     </div>
 </td></tr></tbody>
-<tfoot><tr><td style="border:none;padding:0;height:auto;">
+<tfoot><tr><td style="border:none;padding:0;height:65px;">&nbsp;</td></tr></tfoot>
+</table>
     <div class="page-footer">
         <span class="footer-comp-name">{{ strtoupper($company->company_name ?? '-') }}</span>
         <span>{{ $company->address ?? '-' }}</span>
@@ -183,8 +184,6 @@
             @endif
         </div>
     </div>
-</td></tr></tfoot>
-</table>
 </div>
 </body>
 </html>
