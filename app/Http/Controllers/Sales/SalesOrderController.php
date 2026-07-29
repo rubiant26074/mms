@@ -239,7 +239,7 @@ class SalesOrderController extends Controller
     {
         $quotations = \App\Models\Quotation::query()
             ->with('customer')
-            ->whereIn('status', ['approved', 'sent', 'won'])
+            ->whereIn('status', ['won'])
             ->orderBy('quote_number', 'desc')
             ->get();
 
