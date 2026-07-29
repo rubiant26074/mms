@@ -352,16 +352,26 @@ class SalesOrderController extends Controller
         ])->id;
     }
 
+    private function romanMonth(int $month): string
+    {
+        $map = [
+            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V',
+            6 => 'VI', 7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X',
+            11 => 'XI', 12 => 'XII'
+        ];
+        return $map[$month] ?? 'I';
+    }
+
     private function nextSoNumber(): string
     {
-        $ym = now()->format('ym');
+        $year = now()->format('Y');
+        $romanMonth = $this->romanMonth(now()->month);
+        
         $maxSeq = 0;
-        $existing = SalesOrder::query()
-            ->where('so_number', 'like', "SO-{$ym}-%")
-            ->pluck('so_number');
+        $existing = SalesOrder::query()->pluck('so_number');
 
         foreach ($existing as $num) {
-            if (preg_match('/^SO-\d{4}-(\d+)/', (string) $num, $matches)) {
+            if (preg_match('/(?:SO\.|SO-\d{4}-)(\d+)$/', (string) $num, $matches)) {
                 $seq = (int) $matches[1];
                 if ($seq > $maxSeq) {
                     $maxSeq = $seq;
@@ -370,10 +380,12 @@ class SalesOrderController extends Controller
         }
 
         $next = $maxSeq + 1;
-        while (SalesOrder::query()->where('so_number', 'SO-' . $ym . '-' . str_pad((string) $next, 4, '0', STR_PAD_LEFT))->exists()) {
+        $numberPattern = "{$year}/{$romanMonth}/SO." . str_pad((string) $next, 4, '0', STR_PAD_LEFT);
+        while (SalesOrder::query()->where('so_number', $numberPattern)->exists()) {
             $next++;
+            $numberPattern = "{$year}/{$romanMonth}/SO." . str_pad((string) $next, 4, '0', STR_PAD_LEFT);
         }
 
-        return 'SO-' . $ym . '-' . str_pad((string) $next, 4, '0', STR_PAD_LEFT);
+        return $numberPattern;
     }
 }
