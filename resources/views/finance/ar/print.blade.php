@@ -9,7 +9,7 @@
         .box { max-width: 800px; margin: auto; border: 1px solid #ccc; padding: 20px; min-height: 96vh; display: flex; flex-direction: column; position: relative; }
         .content { flex: 1 1 auto; }
         .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
-        .logo { max-height: 45px; object-fit: contain; }
+        .logo { max-height: 31px; object-fit: contain; }
         .doc-title-box { border: none; padding: 5px; display: inline-block; text-align: center; }
         .doc-title { font-size: 18px; font-weight: bold; letter-spacing: 1px; }
         .doc-subtitle { font-size: 9px; letter-spacing: 1px; }

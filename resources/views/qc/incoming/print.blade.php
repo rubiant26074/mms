@@ -10,7 +10,7 @@
 <div class="box">
     <table style="width:100%;border-collapse:collapse;border:none;">
     <thead><tr><td style="border:none;padding:0;">
-        <div class="header"><div>@if($company->logo_path)<img src="{{ asset($company->logo_path) }}" style="max-height:45px;object-fit:contain" alt="Logo">@endif</div><div style="text-align:right"><div class="doc-title-box"><div class="doc-title">INCOMING INSPECTION</div><div style="font-size:9px;letter-spacing:1px">LAPORAN PEMERIKSAAN BARANG MASUK</div></div><div style="font-size:13px;font-weight:bold;margin-top:8px">{{ $qc->qc_number }}</div></div></div>
+        <div class="header"><div>@if($company->logo_path)<img src="{{ asset($company->logo_path) }}" style="max-height:31px;object-fit:contain" alt="Logo">@endif</div><div style="text-align:right"><div class="doc-title-box"><div class="doc-title">INCOMING INSPECTION</div><div style="font-size:9px;letter-spacing:1px">LAPORAN PEMERIKSAAN BARANG MASUK</div></div><div style="font-size:13px;font-weight:bold;margin-top:8px">{{ $qc->qc_number }}</div></div></div>
     </td></tr></thead>
     <tbody><tr><td style="border:none;padding:0;">
         <div class="content" style="padding-top: 10px;">
