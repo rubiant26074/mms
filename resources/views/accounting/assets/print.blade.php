@@ -2,7 +2,7 @@
 <html lang="id"><head><meta charset="UTF-8"><title>Fixed Asset - Print</title><style>@page{size:A4 portrait;margin:0}body{font-family:Arial,sans-serif;font-size:11px;margin:0;padding:20px;color:#000}.box{border:1px solid #ccc;padding:20px;max-width:800px;margin:auto;min-height:96vh;display:flex;flex-direction:column}.doc-content{flex:1 1 auto}.header{border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start}.header-left img{max-height:60px;object-fit:contain}.header-right{text-align:right}.doc-title{font-size:24px;font-weight:bold;color:#555;letter-spacing:1.2px}table{width:100%;border-collapse:collapse;margin-bottom:14px}th,td{border:1px solid #000;padding:5px}th{background:#f8f9fa;font-size:10px}.info-table td{border:0;vertical-align:top;padding:2px}.text-right{text-align:right}.text-center{text-align:center}.fw-bold{font-weight:bold}.page-footer{border-top:1px solid #ccc;padding-top:10px;text-align:center;margin-top:auto}.footer-comp-name{font-size:14.3px;font-weight:bold;display:block;margin-bottom:3px}.footer-addr{font-size:9px;color:#555}@media print{.box{border:none}}
         .page-number-box{display:none}
         @media print{
-            .page-number-box{display:block;position:fixed;bottom:20px;right:20px;font-size:9px;color:#555;z-index:1000}
+            .page-number-box{display:block;position:fixed;bottom:45px;right:40px;font-size:9px;color:#555;z-index:1000}
             .page-number-box::after{content:"Page " counter(page)}
         }</style></head>
 <body onload="window.print()">

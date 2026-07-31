@@ -40,7 +40,7 @@
     
         .page-number-box{display:none}
         @media print{
-            .page-number-box{display:block;position:fixed;bottom:20px;right:20px;font-size:9px;color:#555;z-index:1000}
+            .page-number-box{display:block;position:fixed;bottom:45px;right:40px;font-size:9px;color:#555;z-index:1000}
             .page-number-box::after{content:"Page " counter(page)}
         }</style>
 </head>
