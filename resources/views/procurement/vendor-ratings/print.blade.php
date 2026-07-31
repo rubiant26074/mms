@@ -5,15 +5,9 @@
     <title>Vendor Rating - {{ $period ?: 'Semua Periode' }}</title>
     <style>
         @page{size:A4 landscape;margin:12mm}body{font-family:Arial,sans-serif;font-size:12px;color:#111}.header{display:flex;justify-content:space-between;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:14px}.title{font-size:20px;font-weight:bold}.muted{color:#666}.table{border-collapse:collapse;width:100%}.table th,.table td{border:1px solid #333;padding:7px}.table th{background:#f2f2f2;text-transform:uppercase;font-size:11px}.text-right{text-align:right}.text-center{text-align:center}.badge{border:1px solid #333;padding:2px 8px;font-weight:bold}.footer{margin-top:18px;text-align:right}@media print{body{margin:0}}
-    
-        .page-number-box{display:none}
-        @media print{
-            .page-number-box{display:block;position:fixed;bottom:45px;right:40px;font-size:9px;color:#555;z-index:1000}
-            .page-number-box::after{content:"Page " counter(page)}
-        }</style>
+    </style>
 </head>
 <body onload="window.print()">
-<div class="page-number-box"></div>
 @php
     $grade = function ($score) {
         $score = (float) $score;

@@ -37,20 +37,14 @@
             body{padding:20px}
             .no-print{display:none}
             .page-footer{position:fixed;bottom:45px;left:40px;right:40px;background:#fff;border-top:1px solid #ccc;padding-top:10px;text-align:center;z-index:1000}
+            .page-footer::after{content:"Page " counter(page);position:absolute;right:0;bottom:10px;font-size:9px;color:#555}
             tr{page-break-inside:avoid;break-inside:avoid}
             .summary-table{page-break-inside:avoid;break-inside:avoid}
             .footer-sig{page-break-inside:avoid;break-inside:avoid}
             .notes-box{page-break-inside:avoid;break-inside:avoid}
-        }
-    
-        .page-number-box{display:none}
-        @media print{
-            .page-number-box{display:block;position:fixed;bottom:45px;right:40px;font-size:9px;color:#555;z-index:1000}
-            .page-number-box::after{content:"Page " counter(page)}
         }</style>
 </head>
 <body onload="window.print()">
-<div class="page-number-box"></div>
 @php
     $totalBruto = $order->items->sum(fn($row) => (float) $row->subtotal);
     $confirmed = in_array($order->status, ['confirmed','in_production','delivered','completed'], true);

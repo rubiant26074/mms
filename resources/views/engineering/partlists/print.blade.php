@@ -4,15 +4,9 @@
     <meta charset="utf-8">
     <title>Partlist - {{ $spk->spk_number }}</title>
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
-    <style>body{font-family:Arial,sans-serif}.doc{max-width:1120px;margin:24px auto;padding:24px}@media print{.no-print{display:none}.doc{margin:0;max-width:100%}}
-        .page-number-box{display:none}
-        @media print{
-            .page-number-box{display:block;position:fixed;bottom:45px;right:40px;font-size:9px;color:#555;z-index:1000}
-            .page-number-box::after{content:"Page " counter(page)}
-        }</style>
+    <style>body{font-family:Arial,sans-serif}.doc{max-width:1120px;margin:24px auto;padding:24px}@media print{.no-print{display:none}.doc{margin:0;max-width:100%}}</style>
 </head>
 <body>
-<div class="page-number-box"></div>
 <div class="doc">
     <div class="no-print text-center mb-3"><button class="btn btn-dark" onclick="window.print()">Cetak Arsip Partlist</button></div>
     <div class="d-flex justify-content-between mb-4">

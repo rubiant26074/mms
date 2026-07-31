@@ -16,15 +16,9 @@
         .text-right { text-align: right; }
         .no-print { text-align: center; margin-bottom: 20px; }
         @media print { .no-print { display: none; } .box { border: none; } }
-    
-        .page-number-box{display:none}
-        @media print{
-            .page-number-box{display:block;position:fixed;bottom:45px;right:40px;font-size:9px;color:#555;z-index:1000}
-            .page-number-box::after{content:"Page " counter(page)}
-        }</style>
+    </style>
 </head>
 <body onload="window.print()">
-<div class="page-number-box"></div>
 <div class="no-print"><button onclick="window.print()">Cetak</button></div>
 <div class="box">
     <div class="header">

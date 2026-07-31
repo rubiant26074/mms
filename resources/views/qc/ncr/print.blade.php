@@ -5,15 +5,9 @@
     <title>NCR - {{ $ncr->ncr_number }}</title>
     <style>
         @page{size:A4 portrait;margin:0}body{font-family:Arial,sans-serif;font-size:11px;margin:0;padding:20px;color:#000}.box{border:1px solid #ccc;padding:20px;max-width:800px;margin:auto;min-height:96vh;display:flex;flex-direction:column}.doc-content{flex:1}.header{border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:20px;display:flex;justify-content:space-between}.doc-title{font-size:24px;font-weight:bold;color:#555;letter-spacing:2px}.doc-number{text-align:right;font-weight:bold}.info-table{width:100%;border-collapse:collapse;margin-bottom:16px}.info-table td{padding:4px;vertical-align:top}.label{font-weight:bold;width:130px}.box-title{background:#333;color:#fff;padding:3px 10px;font-weight:bold;display:inline-block;margin-bottom:6px;font-size:10px}.analysis-box{border:1px solid #000;padding:10px;margin-bottom:16px;min-height:70px}.disposition-table{width:100%;border:1px solid #000;margin-bottom:16px;text-align:center}.disposition-table td{border:1px solid #000;padding:10px;width:25%}.selected-disp{background:#ddd;font-weight:bold;border:2px solid #000}.signature-section{margin-top:20px;display:flex;justify-content:space-between;text-align:center;gap:10px}.sig-box{width:24%;border:1px solid #000;padding:6px;min-height:110px;display:flex;flex-direction:column;justify-content:flex-end}.sig-head{font-weight:bold;margin-bottom:6px;background:#f0f0f0;padding:4px}.sig-name{font-weight:bold;border-top:1px solid #000;padding-top:4px}.sig-note{font-size:9px;color:#555}.no-print{text-align:center;margin-bottom:15px}@media print{.no-print{display:none}.box{border:none}}
-    
-        .page-number-box{display:none}
-        @media print{
-            .page-number-box{display:block;position:fixed;bottom:45px;right:40px;font-size:9px;color:#555;z-index:1000}
-            .page-number-box::after{content:"Page " counter(page)}
-        }</style>
+    </style>
 </head>
 <body onload="window.print()">
-<div class="page-number-box"></div>
 <div class="no-print"><button onclick="window.print()">Cetak NCR</button> <button onclick="window.close()">Tutup</button></div>
 <div class="box">
     <div class="doc-content">

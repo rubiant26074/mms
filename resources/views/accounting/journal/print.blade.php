@@ -20,16 +20,12 @@
         .page-footer { border-top: 1px solid #ccc; padding-top: 10px; text-align: center; margin-top: auto; }
         .footer-comp-name { font-size: 14.3px; font-weight: bold; display: block; margin-bottom: 3px; }
         .footer-addr { font-size: 9px; color: #555; }
-        @media print { .box { border: none; } }
-    
-        .page-number-box{display:none}
         @media print{
-            .page-number-box{display:block;position:fixed;bottom:45px;right:40px;font-size:9px;color:#555;z-index:1000}
-            .page-number-box::after{content:"Page " counter(page)}
-        }</style>
+            .page-footer{position:relative}
+            .page-footer::after{content:"Page " counter(page);position:absolute;right:10px;bottom:10px;font-size:9px;color:#555} .box { border: none; } }
+    </style>
 </head>
 <body onload="window.print()">
-<div class="page-number-box"></div>
 <div class="box">
     <div class="doc-content">
         <div class="header">

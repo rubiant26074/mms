@@ -5,15 +5,9 @@
     <title>RFQ - {{ $rfq->rfq_number }}</title>
     <style>
         body{font-family:Arial,sans-serif;font-size:12px;color:#111}.wrap{max-width:1180px;margin:0 auto}.title{font-size:18px;font-weight:700;margin-bottom:4px}.muted{color:#555}table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border:1px solid #ccc;padding:6px 8px}th{background:#f3f3f3;text-align:left}.text-end{text-align:right}.text-center{text-align:center}@media print{body{margin:0}}
-    
-        .page-number-box{display:none}
-        @media print{
-            .page-number-box{display:block;position:fixed;bottom:45px;right:40px;font-size:9px;color:#555;z-index:1000}
-            .page-number-box::after{content:"Page " counter(page)}
-        }</style>
+    </style>
 </head>
 <body onload="window.print()">
-<div class="page-number-box"></div>
 <div class="wrap">
     <div class="title">RFQ Comparison Report</div>
     <div class="muted">{{ $company->company_name ?? 'MMS' }}</div>

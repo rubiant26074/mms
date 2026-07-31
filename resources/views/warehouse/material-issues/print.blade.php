@@ -31,7 +31,9 @@
         .no-print { text-align: center; margin-bottom: 20px; }
         .page-footer { margin-top: auto; text-align: center; border-top: 1px solid #ccc; padding-top: 10px; }
         .footer-comp-name { font-size: 14px; font-weight: bold; display: block; }
-        @media print {
+        @media print{
+            .page-footer{position:relative}
+            .page-footer::after{content:"Page " counter(page);position:absolute;right:10px;bottom:10px;font-size:9px;color:#555}
             .no-print { display: none; }
             .box { border: none; }
             body { padding: 20px; }
@@ -41,15 +43,9 @@
             .footer-sig { page-break-inside: avoid; break-inside: avoid; }
             .notes-box { page-break-inside: avoid; break-inside: avoid; }
         }
-    
-        .page-number-box{display:none}
-        @media print{
-            .page-number-box{display:block;position:fixed;bottom:45px;right:40px;font-size:9px;color:#555;z-index:1000}
-            .page-number-box::after{content:"Page " counter(page)}
-        }</style>
+    </style>
 </head>
 <body onload="window.print()">
-<div class="page-number-box"></div>
 @php
     $compLogo = is_array($company) ? ($company['logo_path'] ?? null) : ($company->logo_path ?? null);
     $compName = is_array($company) ? ($company['company_name'] ?? null) : ($company->company_name ?? null);
