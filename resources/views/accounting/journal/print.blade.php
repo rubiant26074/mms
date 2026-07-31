@@ -21,9 +21,15 @@
         .footer-comp-name { font-size: 14.3px; font-weight: bold; display: block; margin-bottom: 3px; }
         .footer-addr { font-size: 9px; color: #555; }
         @media print { .box { border: none; } }
-    </style>
+    
+        .page-number-box{display:none}
+        @media print{
+            .page-number-box{display:block;position:fixed;bottom:20px;right:20px;font-size:9px;color:#555;z-index:1000}
+            .page-number-box::after{content:"Page " counter(page)}
+        }</style>
 </head>
 <body onload="window.print()">
+<div class="page-number-box"></div>
 <div class="box">
     <div class="doc-content">
         <div class="header">

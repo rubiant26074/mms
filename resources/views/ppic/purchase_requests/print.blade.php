@@ -4,9 +4,15 @@
     <meta charset="utf-8">
     <title>PR - {{ $pr->pr_number }}</title>
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
-    <style>body{font-family:Arial,sans-serif;font-size:12px}.doc{max-width:900px;margin:24px auto;padding:24px}@media print{.no-print{display:none}.doc{margin:0;max-width:100%}}</style>
+    <style>body{font-family:Arial,sans-serif;font-size:12px}.doc{max-width:900px;margin:24px auto;padding:24px}@media print{.no-print{display:none}.doc{margin:0;max-width:100%}}
+        .page-number-box{display:none}
+        @media print{
+            .page-number-box{display:block;position:fixed;bottom:20px;right:20px;font-size:9px;color:#555;z-index:1000}
+            .page-number-box::after{content:"Page " counter(page)}
+        }</style>
 </head>
 <body>
+<div class="page-number-box"></div>
 <div class="doc">
     <button class="btn btn-sm btn-dark no-print mb-3" onclick="window.print()">Print</button>
     <div class="d-flex justify-content-between border-bottom pb-3 mb-3"><div><h3 class="fw-bold">PURCHASE REQUEST</h3><div>FORM PERMINTAAN PEMBELIAN</div></div><div class="text-end"><strong>{{ $pr->pr_number }}</strong><br>Status: {{ strtoupper($pr->status) }}</div></div>

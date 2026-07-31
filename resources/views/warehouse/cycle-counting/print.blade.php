@@ -24,9 +24,15 @@
         .sig-note { display: block; font-size: 9px; color: #555; }
         .page-footer { border-top: 1px solid #ccc; padding-top: 10px; text-align: center; margin-top: 16px; }
         @media print { .no-print { display: none; } .box { border: none; } }
-    </style>
+    
+        .page-number-box{display:none}
+        @media print{
+            .page-number-box{display:block;position:fixed;bottom:20px;right:20px;font-size:9px;color:#555;z-index:1000}
+            .page-number-box::after{content:"Page " counter(page)}
+        }</style>
 </head>
 <body onload="window.print()">
+<div class="page-number-box"></div>
     <div class="no-print" style="text-align:center; margin-bottom:12px;"><button onclick="window.print()">Cetak</button></div>
     <div class="box">
         <div class="doc-content">

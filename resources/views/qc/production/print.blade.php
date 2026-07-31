@@ -5,9 +5,15 @@
     <title>Verifikasi QC Produksi - {{ $qc->qc_number }}</title>
     <style>
         @page{size:A4 portrait;margin:0}body{font-family:Arial,sans-serif;font-size:11px;margin:0;padding:20px;color:#000}.box{max-width:800px;margin:auto}.header{border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:15px;display:flex;justify-content:space-between}.doc-title-box{border:none;padding:5px;display:inline-block;text-align:center}.doc-title{font-size:18px;font-weight:bold;letter-spacing:1px}.info-table,.data-table,.footer-sig{width:100%;border-collapse:collapse;margin-bottom:12px}.info-table td{vertical-align:top;padding:2px}.section-header{font-weight:bold;font-size:11px;margin-bottom:5px;text-transform:uppercase;background:#f8f9fa;padding:4px;border:1px solid #ccc}.data-table th,.data-table td,.footer-sig th,.footer-sig td{border:1px solid #000;padding:6px}.data-table th,.footer-sig th{background:#f2f2f2;font-size:10px}.footer-sig{table-layout:fixed;margin-top:20px}.footer-sig td{height:100px;text-align:center;vertical-align:bottom}.no-print{text-align:center;margin-bottom:15px}@media print{.no-print{display:none}.page-footer{position:fixed;bottom:20px;left:20px;right:20px;background:#fff}tr{page-break-inside:avoid;break-inside:avoid}.summary-table{page-break-inside:avoid;break-inside:avoid}.footer-sig{page-break-inside:avoid;break-inside:avoid}.notes-box{page-break-inside:avoid;break-inside:avoid}}
-    </style>
+    
+        .page-number-box{display:none}
+        @media print{
+            .page-number-box{display:block;position:fixed;bottom:20px;right:20px;font-size:9px;color:#555;z-index:1000}
+            .page-number-box::after{content:"Page " counter(page)}
+        }</style>
 </head>
 <body onload="window.print()">
+<div class="page-number-box"></div>
 <div class="no-print"><button onclick="window.print()">Cetak</button> <button onclick="window.close()">Tutup</button></div>
 <div class="box">
     <table style="width:100%;border-collapse:collapse;border:none;">

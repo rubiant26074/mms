@@ -42,9 +42,15 @@
             .footer-sig{page-break-inside:avoid;break-inside:avoid}
             .notes-box{page-break-inside:avoid;break-inside:avoid}
         }
-    </style>
+    
+        .page-number-box{display:none}
+        @media print{
+            .page-number-box{display:block;position:fixed;bottom:20px;right:20px;font-size:9px;color:#555;z-index:1000}
+            .page-number-box::after{content:"Page " counter(page)}
+        }</style>
 </head>
 <body onload="window.print()">
+<div class="page-number-box"></div>
 @php
     $totalBruto = $order->items->sum(fn($row) => (float) $row->subtotal);
     $confirmed = in_array($order->status, ['confirmed','in_production','delivered','completed'], true);
