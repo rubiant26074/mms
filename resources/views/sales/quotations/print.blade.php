@@ -170,7 +170,7 @@
         </table>
     </div>
 </td></tr></tbody>
-<tfoot><tr><td style="border:none;padding:0;height:65px;">&nbsp;</td></tr></tfoot>
+<tfoot><tr><td style="border:none;padding:0;height:120px;">&nbsp;</td></tr></tfoot>
 </table>
 </div>
     <div class="page-footer">
