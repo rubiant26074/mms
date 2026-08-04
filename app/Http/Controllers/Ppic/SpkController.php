@@ -256,14 +256,28 @@ class SpkController extends Controller
 
     private function nextSpkNumber(string $date): string
     {
-        $ym = date('ym', strtotime($date));
-        $last = Spk::query()->where('spk_number', 'like', "SPK-{$ym}-%")->latest('id')->value('spk_number');
+        $year = date('Y', strtotime($date));
+        $month = (int) date('n', strtotime($date));
+        
+        $romanMap = [
+            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI',
+            7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+        ];
+        $roman = $romanMap[$month] ?? 'I';
+        
+        $prefix = "{$year}/{$roman}/SPK.";
+        $last = Spk::query()->where('spk_number', 'like', "{$prefix}%")->latest('id')->value('spk_number');
+        
         $seq = 1;
-        if ($last && preg_match('/^SPK-\d{4}-(\d+)$/', (string) $last, $m)) {
-            $seq = ((int) $m[1]) + 1;
+        if ($last) {
+            $parts = explode('.', (string) $last);
+            $lastSeq = end($parts);
+            if (is_numeric($lastSeq)) {
+                $seq = ((int) $lastSeq) + 1;
+            }
         }
 
-        return "SPK-{$ym}-" . str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
+        return $prefix . str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
     }
 
     private function nextPrNumber(): string
