@@ -1,9 +1,17 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 header('Content-Type: text/plain; charset=utf-8');
 echo "=== GIT DIAGNOSTIC SCRIPT ===\n\n";
 
-echo "Current User: " . shell_exec('whoami') . "\n";
-echo "Git Version: " . shell_exec('git --version') . "\n";
+if (function_exists('shell_exec') && !in_array('shell_exec', explode(', ', ini_get('disable_functions')))) {
+    echo "Current User: " . @shell_exec('whoami') . "\n";
+    echo "Git Version: " . @shell_exec('git --version') . "\n";
+} else {
+    echo "shell_exec() is DISABLED on this server.\n";
+}
 echo "Current Path: " . getcwd() . "\n\n";
 
 // Try to read .git/config
@@ -22,6 +30,10 @@ if (file_exists($configPath)) {
 }
 
 echo "\n--- testing github.com connection via curl ---\n";
+if (!function_exists('curl_init')) {
+    die("CURL is not enabled on this server!");
+}
+
 $ch = curl_init("https://api.github.com/repos/rubiant26074/mms");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_USERAGENT, 'PHP-Git-Diagnostic');
@@ -33,10 +45,11 @@ if ($token) {
 curl_setopt($ch, CURLOPT_VERBOSE, true);
 $verbose = fopen('php://temp', 'w+');
 curl_setopt($ch, CURLOPT_STDERR, $verbose);
+curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
 $response = curl_exec($ch);
 if ($response === false) {
-    echo "Curl Error: " . curl_error($ch) . "\n";
+    echo "Curl Error: " . curl_error($ch) . " (Code: " . curl_errno($ch) . ")\n";
 } else {
     $info = curl_getinfo($ch);
     echo "HTTP Status Code: " . $info['http_code'] . "\n";
@@ -46,15 +59,3 @@ if ($response === false) {
 rewind($verbose);
 $verboseLog = stream_get_contents($verbose);
 echo "\n--- Verbose Curl Log ---\n" . $verboseLog . "\n";
-
-echo "\n--- running git status & git fetch manually ---\n";
-chdir('..');
-echo "Git Path: " . getcwd() . "\n";
-$output_status = shell_exec('git status 2>&1');
-echo "Git Status:\n" . $output_status . "\n";
-
-$output_fetch = shell_exec('git fetch origin 2>&1');
-echo "Git Fetch Output:\n" . $output_fetch . "\n";
-
-$output_remote = shell_exec('git remote -v 2>&1');
-echo "Git Remotes:\n" . $output_remote . "\n";
