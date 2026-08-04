@@ -4,58 +4,75 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 header('Content-Type: text/plain; charset=utf-8');
-echo "=== GIT DIAGNOSTIC SCRIPT ===\n\n";
+echo "=== GIT DIAGNOSTIC SCRIPT 2 ===\n\n";
 
-if (function_exists('shell_exec') && !in_array('shell_exec', explode(', ', ini_get('disable_functions')))) {
-    echo "Current User: " . @shell_exec('whoami') . "\n";
-    echo "Git Version: " . @shell_exec('git --version') . "\n";
-} else {
-    echo "shell_exec() is DISABLED on this server.\n";
-}
-echo "Current Path: " . getcwd() . "\n\n";
+echo "Disable Functions: " . ini_get('disable_functions') . "\n\n";
 
-// Try to read .git/config
-$configPath = __DIR__ . '/../.git/config';
-$token = null;
-if (file_exists($configPath)) {
-    $content = file_get_contents($configPath);
-    if (preg_match('/url\s*=\s*https:\/\/([^@]+)@github\.com/', $content, $matches)) {
-        $token = $matches[1];
-        echo "Found token in .git/config: Masked(" . substr($token, 0, 8) . "...)\n";
-    } else {
-        echo "Could not find token in .git/config URL.\n";
+function test_command($func, $cmd) {
+    echo "Testing {$func}(): ";
+    if (!function_exists($func)) {
+        echo "NOT EXISTS\n";
+        return false;
     }
+    if (in_array($func, explode(', ', ini_get('disable_functions')))) {
+        echo "DISABLED in ini\n";
+        return false;
+    }
+    
+    try {
+        if ($func === 'exec') {
+            $output = [];
+            $code = -1;
+            @exec($cmd, $output, $code);
+            echo "SUCCESS, Code: {$code}, Output: " . implode(", ", $output) . "\n";
+            return $code === 0;
+        } elseif ($func === 'system') {
+            ob_start();
+            $code = -1;
+            @system($cmd, $code);
+            $out = ob_get_clean();
+            echo "SUCCESS, Code: {$code}, Output: " . trim($out) . "\n";
+            return $code === 0;
+        } elseif ($func === 'passthru') {
+            ob_start();
+            $code = -1;
+            @passthru($cmd, $code);
+            $out = ob_get_clean();
+            echo "SUCCESS, Code: {$code}, Output: " . trim($out) . "\n";
+            return $code === 0;
+        } elseif ($func === 'shell_exec') {
+            $out = @shell_exec($cmd);
+            echo "SUCCESS, Output: " . trim($out) . "\n";
+            return true;
+        }
+    } catch (Exception $e) {
+        echo "FAILED with exception: " . $e->getMessage() . "\n";
+    }
+    return false;
+}
+
+test_command('exec', 'git --version');
+test_command('system', 'git --version');
+test_command('passthru', 'git --version');
+test_command('shell_exec', 'git --version');
+
+echo "\n--- Attempting Git Pull via available execution function ---\n";
+// Find which function works
+$working_func = null;
+foreach (['exec', 'system', 'passthru'] as $f) {
+    if (function_exists($f) && !in_array($f, explode(', ', ini_get('disable_functions')))) {
+        $working_func = $f;
+        break;
+    }
+}
+
+if ($working_func) {
+    echo "Using {$working_func} to run 'git pull'...\n";
+    chdir('..');
+    echo "Current directory: " . getcwd() . "\n";
+    // Force git to ignore SSL verification just in case
+    test_command($working_func, 'git config http.sslVerify false');
+    test_command($working_func, 'git pull origin main 2>&1');
 } else {
-    echo ".git/config file not found at " . $configPath . "\n";
+    echo "No command execution functions are available. Cannot run git pull via PHP.\n";
 }
-
-echo "\n--- testing github.com connection via curl ---\n";
-if (!function_exists('curl_init')) {
-    die("CURL is not enabled on this server!");
-}
-
-$ch = curl_init("https://api.github.com/repos/rubiant26074/mms");
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_USERAGENT, 'PHP-Git-Diagnostic');
-if ($token) {
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Authorization: token ' . $token
-    ]);
-}
-curl_setopt($ch, CURLOPT_VERBOSE, true);
-$verbose = fopen('php://temp', 'w+');
-curl_setopt($ch, CURLOPT_STDERR, $verbose);
-curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-
-$response = curl_exec($ch);
-if ($response === false) {
-    echo "Curl Error: " . curl_error($ch) . " (Code: " . curl_errno($ch) . ")\n";
-} else {
-    $info = curl_getinfo($ch);
-    echo "HTTP Status Code: " . $info['http_code'] . "\n";
-    echo "Response Length: " . strlen($response) . " bytes\n";
-}
-
-rewind($verbose);
-$verboseLog = stream_get_contents($verbose);
-echo "\n--- Verbose Curl Log ---\n" . $verboseLog . "\n";
