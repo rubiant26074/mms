@@ -64,7 +64,12 @@
             <tbody>
             @forelse($boms as $bom)
                 <tr>
-                    <td class="ps-4 fw-bold text-primary">{{ $bom->bom_code }}</td>
+                    <td class="ps-4 fw-bold text-primary">
+                        {{ $bom->bom_code }}
+                        @if($bom->so_numbers)
+                            <br><span class="text-muted small fw-normal">{{ $bom->so_numbers }}</span>
+                        @endif
+                    </td>
                     <td><strong>{{ $bom->item?->item_code }}</strong><br><span>{{ $bom->item?->item_name }}</span></td>
                     <td class="text-center">{{ $bom->qty_result + 0 }} <span class="small text-muted">{{ $bom->item?->unit }}</span></td>
                     <td class="text-center"><span class="badge bg-info text-dark">{{ $bom->details_count }} item</span></td>

@@ -28,4 +28,19 @@ class Bom extends Model
     {
         return $this->hasMany(BomDetail::class, 'bom_id');
     }
+
+    public function salesOrderItems(): HasMany
+    {
+        return $this->hasMany(SalesOrderItem::class, 'item_id', 'item_id');
+    }
+
+    public function getSoNumbersAttribute(): string
+    {
+        $soNumbers = $this->salesOrderItems
+            ->map(fn($soItem) => $soItem->salesOrder?->so_number)
+            ->filter()
+            ->unique();
+            
+        return $soNumbers->implode(', ');
+    }
 }

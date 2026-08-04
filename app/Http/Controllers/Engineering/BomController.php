@@ -18,7 +18,7 @@ class BomController extends Controller
     {
         $search = $this->rememberedFilter($request, 'search', '');
         $boms = Bom::query()
-            ->with('item')
+            ->with(['item', 'salesOrderItems.salesOrder'])
             ->withCount('details')
             ->when($search !== '', function ($query) use ($search): void {
                 $term = "%{$search}%";
