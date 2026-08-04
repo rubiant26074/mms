@@ -106,7 +106,18 @@
 
                 $selects.each(function() {
                     var $select = $(this);
-                    if ($select.hasClass('no-search') || $select.data('noSearch') !== undefined || $select.hasClass('select2-hidden-accessible')) {
+
+                    // Handle cloned selects
+                    if ($select.hasClass('select2-hidden-accessible')) {
+                        if (!$select.data('select2')) {
+                            $select.removeClass('select2-hidden-accessible');
+                            $select.next('.select2-container').remove();
+                        } else {
+                            return;
+                        }
+                    }
+
+                    if ($select.hasClass('no-search') || $select.data('noSearch') !== undefined) {
                         return;
                     }
 
@@ -116,7 +127,15 @@
 
                     var parentModal = $select.closest('.modal');
 
-                    $select.select2({
+                    var hasStockData = false;
+                    $select.find('option').each(function() {
+                        if ($(this).attr('data-stock') !== undefined) {
+                            hasStockData = true;
+                            return false;
+                        }
+                    });
+
+                    var select2Options = {
                         theme: 'bootstrap-5',
                         width: '100%',
                         dropdownParent: parentModal.length ? parentModal : $(document.body),
@@ -125,7 +144,45 @@
                                 return "Tidak ditemukan hasil";
                             }
                         }
-                    });
+                    };
+
+                    if (hasStockData) {
+                        var formatStock = function(state) {
+                            if (!state.id) {
+                                return state.text;
+                            }
+                            var element = state.element;
+                            if (!element) {
+                                return state.text;
+                            }
+                            var stock = element.getAttribute('data-stock');
+                            if (stock === null || stock === undefined) {
+                                return state.text;
+                            }
+
+                            var minStock = element.getAttribute('data-min-stock') || 0;
+                            var stockVal = parseFloat(stock);
+                            var minStockVal = parseFloat(minStock);
+
+                            var color = '#198754'; // Safe stock: Green
+                            if (stockVal <= 0) {
+                                color = '#dc3545'; // Out of stock: Red
+                                stockVal = 0;
+                            } else if (minStockVal > 0 && stockVal <= minStockVal) {
+                                color = '#e65100'; // Low stock: Dark Orange
+                            }
+
+                            var formattedStock = Number(stockVal.toFixed(4)) + 0;
+                            var originalText = state.text;
+
+                            return $('<span>' + originalText + ' - <strong class="ms-1">Stok: <span style="color: ' + color + '; font-weight: bold;">' + formattedStock + '</span></strong></span>');
+                        };
+
+                        select2Options.templateResult = formatStock;
+                        select2Options.templateSelection = formatStock;
+                    }
+
+                    $select.select2(select2Options);
                 });
             };
 

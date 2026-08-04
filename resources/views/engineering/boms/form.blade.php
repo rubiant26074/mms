@@ -44,7 +44,7 @@
                     <tbody>
                     @forelse($details as $detail)
                         <tr>
-                            <td><select name="material_id[]" class="form-select" required><option value="">-- Pilih Material --</option>@foreach($materials as $mat)<option value="{{ $mat->id }}" @selected((int) $detail->material_id === $mat->id)>{{ $mat->item_code }} - {{ $mat->item_name }} ({{ $mat->unit }})</option>@endforeach</select></td>
+                            <td><select name="material_id[]" class="form-select" required><option value="">-- Pilih Material --</option>@foreach($materials as $mat)<option value="{{ $mat->id }}" @selected((int) $detail->material_id === $mat->id) data-stock="{{ $mat->current_stock }}" data-min-stock="{{ $mat->min_stock }}" data-unit="{{ $mat->unit }}">{{ $mat->item_code }} - {{ $mat->item_name }} ({{ $mat->unit }})</option>@endforeach</select></td>
                             <td><input type="number" step="any" min="0" name="qty_needed[]" class="form-control text-end fw-bold" value="{{ $detail->qty + 0 }}"></td>
                             <td><input type="number" step="0.01" min="0" name="waste_percent[]" class="form-control text-end" value="{{ $detail->waste_percent + 0 }}"></td>
                             <td><input type="text" name="detail_notes[]" class="form-control" value="{{ $detail->notes }}"></td>
@@ -52,7 +52,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td><select name="material_id[]" class="form-select" required><option value="">-- Pilih Material --</option>@foreach($materials as $mat)<option value="{{ $mat->id }}">{{ $mat->item_code }} - {{ $mat->item_name }} ({{ $mat->unit }})</option>@endforeach</select></td>
+                            <td><select name="material_id[]" class="form-select" required><option value="">-- Pilih Material --</option>@foreach($materials as $mat)<option value="{{ $mat->id }}" data-stock="{{ $mat->current_stock }}" data-min-stock="{{ $mat->min_stock }}" data-unit="{{ $mat->unit }}">{{ $mat->item_code }} - {{ $mat->item_name }} ({{ $mat->unit }})</option>@endforeach</select></td>
                             <td><input type="number" step="any" min="0" name="qty_needed[]" class="form-control text-end fw-bold" placeholder="0.00"></td>
                             <td><input type="number" step="0.01" min="0" name="waste_percent[]" class="form-control text-end" value="0"></td>
                             <td><input type="text" name="detail_notes[]" class="form-control"></td>
