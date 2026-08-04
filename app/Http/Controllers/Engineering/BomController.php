@@ -240,9 +240,18 @@ class BomController extends Controller
 
     private function nextBomCode(): string
     {
-        $ym = now()->format('ym');
-        $count = Bom::query()->where('bom_code', 'like', "BOM-{$ym}-%")->count() + 1;
+        $year = now()->format('Y');
+        $month = (int) now()->format('n');
+        
+        $romanMap = [
+            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI',
+            7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+        ];
+        $roman = $romanMap[$month] ?? 'I';
+        
+        $prefix = "{$year}/{$roman}/ENG-BOM.";
+        $count = Bom::query()->where('bom_code', 'like', "{$prefix}%")->count() + 1;
 
-        return 'BOM-' . $ym . '-' . str_pad((string) $count, 4, '0', STR_PAD_LEFT);
+        return $prefix . str_pad((string) $count, 4, '0', STR_PAD_LEFT);
     }
 }
