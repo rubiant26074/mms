@@ -64,7 +64,7 @@ class PurchaseRequestController extends Controller
                 $data['notes'] = trim((string) $data['notes']) . ' [REF-SPK:' . $request->integer('spk_id') . ']';
             }
             $pr = PurchaseRequest::query()->create($data + [
-                'pr_number' => $this->nextPrNumber(),
+                'pr_number' => $this->nextPrNumber($data['pr_date']),
                 'status' => 'draft',
                 'created_by' => auth()->id(),
             ]);
@@ -190,11 +190,29 @@ class PurchaseRequestController extends Controller
             ->values();
     }
 
-    private function nextPrNumber(): string
+    private function nextPrNumber(string $date): string
     {
-        $ym = now()->format('ym');
-        $count = PurchaseRequest::query()->where('pr_number', 'like', "PR-{$ym}-%")->count() + 1;
+        $year = date('Y', strtotime($date));
+        $month = (int) date('n', strtotime($date));
+        
+        $romanMap = [
+            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI',
+            7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X', 11 => 'XI', 12 => 'XII'
+        ];
+        $roman = $romanMap[$month] ?? 'I';
+        
+        $prefix = "{$year}/{$roman}/PPIC-REQ.";
+        $last = PurchaseRequest::query()->where('pr_number', 'like', "{$prefix}%")->latest('id')->value('pr_number');
+        
+        $seq = 1;
+        if ($last) {
+            $parts = explode('.', (string) $last);
+            $lastSeq = end($parts);
+            if (is_numeric($lastSeq)) {
+                $seq = ((int) $lastSeq) + 1;
+            }
+        }
 
-        return 'PR-' . $ym . '-' . str_pad((string) $count, 4, '0', STR_PAD_LEFT);
+        return $prefix . str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
     }
 }
