@@ -55,6 +55,17 @@
 @php
     $company = app(App\Services\MmsContext::class)->company();
     $approved = in_array($pr->status, ['approved', 'completed'], true);
+    $getFormattedDate = function($val, $format = 'd F Y') {
+        if (!$val) return '-';
+        if ($val instanceof \Carbon\Carbon || $val instanceof \DateTime) {
+            return $val->format($format);
+        }
+        try {
+            return \Carbon\Carbon::parse($val)->format($format);
+        } catch (\Exception $e) {
+            return $val;
+        }
+    };
 @endphp
 <button class="no-print-btn" onclick="window.print()">Print</button>
 <div class="box">
@@ -88,8 +99,8 @@
                         {!! nl2br(e($pr->notes ?: '-')) !!}
                     </td>
                     <td width="45%" align="right">
-                        <strong>Tanggal Request :</strong> {{ optional($pr->pr_date)->format('d F Y') ?: '-' }}<br>
-                        <strong>Tgl Dibutuhkan :</strong> {{ optional($pr->required_date)->format('d F Y') ?: '-' }}<br>
+                        <strong>Tanggal Request :</strong> {{ $getFormattedDate($pr->pr_date) }}<br>
+                        <strong>Tgl Dibutuhkan :</strong> {{ $getFormattedDate($pr->required_date) }}<br>
                         <strong>Status :</strong> {{ strtoupper(str_replace('_', ' ', $pr->status)) }}
                     </td>
                 </tr>
@@ -119,7 +130,7 @@
                             </td>
                             <td class="text-center"><strong>{{ $row->qty + 0 }}</strong></td>
                             <td class="text-center">{{ $row->item?->unit ?: '-' }}</td>
-                            <td class="text-center">{{ optional($pr->required_date)->format('d/m/Y') }}</td>
+                            <td class="text-center">{{ $getFormattedDate($pr->required_date, 'd/m/Y') }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -145,7 +156,7 @@
                                 <div style="height:55px"></div>
                             @endif
                             <span class="sig-name">{{ $pr->creator?->fullname ?: 'Staff PPIC' }}</span>
-                            <span>Tgl: {{ optional($pr->pr_date)->format('d/m/Y') ?: '-' }}</span>
+                            <span>Tgl: {{ $getFormattedDate($pr->pr_date, 'd/m/Y') }}</span>
                         </td>
                         <td>
                             @if($approved && $pr->approver?->signature_path)
@@ -154,7 +165,7 @@
                                 <div style="height:55px"></div>
                             @endif
                             <span class="sig-name">{{ $approved ? ($pr->approver?->fullname ?: '....................') : '....................' }}</span>
-                            <span>Tgl: {{ $approved && $pr->updated_at ? $pr->updated_at->format('d/m/Y') : '/ /' }}</span>
+                            <span>Tgl: {{ $approved ? $getFormattedDate($pr->approved_at ?: $pr->last_approval_date ?: $pr->updated_at, 'd/m/Y') : '/ /' }}</span>
                         </td>
                     </tr>
                 </tbody>
