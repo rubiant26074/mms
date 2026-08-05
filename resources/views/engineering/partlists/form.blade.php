@@ -26,17 +26,17 @@
                     <tr>
                         <td>
                             <input type="hidden" name="row_index[]" value="{{ $loop->index }}">
-                            <input name="item_no[]" class="form-control text-center" value="{{ $part->item_no }}">
+                            <input name="item_no[]" class="form-control text-center" value="{{ $part->item_no }}" style="min-width: 50px;">
                         </td>
-                        <td><input name="drawing_no[]" class="form-control" value="{{ $part->drawing_no }}"></td>
-                        <td><input name="part_name[]" class="form-control" value="{{ $part->part_name }}"></td>
-                        <td><input name="qty[]" type="number" step="0.01" class="form-control" value="{{ $part->qty !== null ? $part->qty + 0 : '' }}"></td>
-                        <td><input name="material[]" class="form-control" value="{{ $part->material }}"></td>
-                        <td><input name="thickness[]" class="form-control" value="{{ $part->thickness }}"></td>
-                        <td><input name="length[]" type="number" step="0.01" class="form-control" value="{{ $part->length !== null ? $part->length + 0 : '' }}"></td>
-                        <td><input name="width[]" type="number" step="0.01" class="form-control" value="{{ $part->width !== null ? $part->width + 0 : '' }}"></td>
-                        <td><input name="process[]" class="form-control" value="{{ $part->process }}"></td>
-                        <td><input name="notes[]" class="form-control" value="{{ $part->notes }}"></td>
+                        <td><input name="drawing_no[]" class="form-control" value="{{ $part->drawing_no }}" style="min-width: 110px;"></td>
+                        <td><textarea name="part_name[]" class="form-control px-2 py-1" rows="2" style="min-width: 150px; font-size: 13px; line-height: 1.3; resize: vertical;">{{ $part->part_name }}</textarea></td>
+                        <td><input name="qty[]" type="number" step="0.01" class="form-control text-end fw-bold" value="{{ $part->qty !== null ? $part->qty + 0 : '' }}" style="min-width: 75px;"></td>
+                        <td><textarea name="material[]" class="form-control px-2 py-1" rows="2" style="min-width: 130px; font-size: 13px; line-height: 1.3; resize: vertical;">{{ $part->material }}</textarea></td>
+                        <td><input name="thickness[]" class="form-control" value="{{ $part->thickness }}" style="min-width: 80px;"></td>
+                        <td><input name="length[]" type="number" step="0.01" class="form-control text-end" value="{{ $part->length !== null ? $part->length + 0 : '' }}" style="min-width: 80px;"></td>
+                        <td><input name="width[]" type="number" step="0.01" class="form-control text-end" value="{{ $part->width !== null ? $part->width + 0 : '' }}" style="min-width: 80px;"></td>
+                        <td><input name="process[]" class="form-control" value="{{ $part->process }}" style="min-width: 110px;"></td>
+                        <td><textarea name="notes[]" class="form-control px-2 py-1" rows="2" style="min-width: 150px; font-size: 13px; line-height: 1.3; resize: vertical;">{{ $part->notes }}</textarea></td>
                         <td style="min-width: 220px;">
                             @php
                                 $isUploaded = $part->drawing_path && str_starts_with($part->drawing_path, 'uploads/');
@@ -76,9 +76,17 @@
                     <tr>
                         <td>
                             <input type="hidden" name="row_index[]" value="0">
-                            <input name="item_no[]" class="form-control text-center">
+                            <input name="item_no[]" class="form-control text-center" style="min-width: 50px;">
                         </td>
-                        <td><input name="drawing_no[]" class="form-control"></td><td><input name="part_name[]" class="form-control"></td><td><input name="qty[]" type="number" step="0.01" class="form-control"></td><td><input name="material[]" class="form-control"></td><td><input name="thickness[]" class="form-control"></td><td><input name="length[]" type="number" step="0.01" class="form-control"></td><td><input name="width[]" type="number" step="0.01" class="form-control"></td><td><input name="process[]" class="form-control"></td><td><input name="notes[]" class="form-control"></td>
+                        <td><input name="drawing_no[]" class="form-control" style="min-width: 110px;"></td>
+                        <td><textarea name="part_name[]" class="form-control px-2 py-1" rows="2" style="min-width: 150px; font-size: 13px; line-height: 1.3; resize: vertical;"></textarea></td>
+                        <td><input name="qty[]" type="number" step="0.01" class="form-control text-end fw-bold" style="min-width: 75px;"></td>
+                        <td><textarea name="material[]" class="form-control px-2 py-1" rows="2" style="min-width: 130px; font-size: 13px; line-height: 1.3; resize: vertical;"></textarea></td>
+                        <td><input name="thickness[]" class="form-control" style="min-width: 80px;"></td>
+                        <td><input name="length[]" type="number" step="0.01" class="form-control text-end" style="min-width: 80px;"></td>
+                        <td><input name="width[]" type="number" step="0.01" class="form-control text-end" style="min-width: 80px;"></td>
+                        <td><input name="process[]" class="form-control" style="min-width: 110px;"></td>
+                        <td><textarea name="notes[]" class="form-control px-2 py-1" rows="2" style="min-width: 150px; font-size: 13px; line-height: 1.3; resize: vertical;"></textarea></td>
                         <td style="min-width: 220px;">
                             <div class="d-flex align-items-center gap-1">
                                 <input type="hidden" name="existing_drawing_path[]" class="js-existing-path" value="">
@@ -138,8 +146,8 @@
     
     // Cache a clean template row
     const templateRow = tbody.querySelector('tr').cloneNode(true);
-    // Clear standard inputs
-    templateRow.querySelectorAll('input:not([type="hidden"])').forEach(input => input.value = '');
+    // Clear standard inputs and textareas
+    templateRow.querySelectorAll('input:not([type="hidden"]), textarea').forEach(input => input.value = '');
     
     // Ensure hidden inputs are also reset appropriately
     const templateRowIndex = templateRow.querySelector('input[name="row_index[]"]');
@@ -309,7 +317,7 @@
             }
 
             let hasInput = false;
-            tbody.querySelectorAll('input:not([type="hidden"])').forEach(input => {
+            tbody.querySelectorAll('input:not([type="hidden"]), textarea').forEach(input => {
                 if (input.value.trim() !== '') hasInput = true;
             });
 
@@ -358,11 +366,11 @@
                     uploadBtn.classList.add('btn-outline-secondary');
                 }
                 
-                const itemNoInput = row.querySelector('input[name="item_no[]"]');
-                const partNameInput = row.querySelector('input[name="part_name[]"]');
-                const qtyInput = row.querySelector('input[name="qty[]"]');
-                const materialInput = row.querySelector('input[name="material[]"]');
-                const notesInput = row.querySelector('input[name="notes[]"]');
+                const itemNoInput = row.querySelector('[name="item_no[]"]');
+                const partNameInput = row.querySelector('[name="part_name[]"]');
+                const qtyInput = row.querySelector('[name="qty[]"]');
+                const materialInput = row.querySelector('[name="material[]"]');
+                const notesInput = row.querySelector('[name="notes[]"]');
                 
                 if (itemNoInput) itemNoInput.value = index + 1;
                 if (partNameInput) partNameInput.value = item.item_name;
