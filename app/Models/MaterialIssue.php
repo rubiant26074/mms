@@ -14,6 +14,7 @@ class MaterialIssue extends Model
         'itr_number',
         'spk_id',
         'itr_date',
+        'pickup_time',
         'issued_by',
         'received_by',
         'notes',

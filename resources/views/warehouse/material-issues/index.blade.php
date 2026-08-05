@@ -22,12 +22,13 @@
 <div class="card shadow-sm">
     <div class="card-body table-responsive">
         <table class="table table-hover align-middle">
-            <thead class="table-light"><tr><th>No. ITR</th><th>Tgl Request</th><th>Ref. SPK</th><th>Pemohon</th><th>Petugas Gudang</th><th>Status</th><th>Aksi</th></tr></thead>
+            <thead class="table-light"><tr><th>No. ITR</th><th>Tgl Request</th><th>Jam Ambil</th><th>Ref. SPK</th><th>Pemohon</th><th>Petugas Gudang</th><th>Status</th><th>Aksi</th></tr></thead>
             <tbody>
             @forelse($issues as $issue)
                 <tr>
                     <td><strong>{{ $issue->itr_number }}</strong></td>
                     <td>{{ optional($issue->itr_date)->format('d/m/Y') }}</td>
+                    <td>{{ $issue->pickup_time ?: '-' }}</td>
                     <td><span class="badge bg-light text-dark border">{{ $issue->spk?->spk_number ?: '-' }}</span></td>
                     <td>{{ $issue->received_by ?: '-' }}</td>
                     <td>{{ $issue->issued_by ?: '-' }}</td>

@@ -56,6 +56,7 @@ class MaterialIssueController extends Controller
         $data = $request->validate([
             'spk_id' => ['required', 'integer', 'exists:spk,id'],
             'itr_date' => ['required', 'date'],
+            'pickup_time' => ['nullable', 'string', 'max:50'],
             'received_by' => ['required', 'string', 'max:100'],
             'notes' => ['nullable', 'string'],
             'item_id' => ['required', 'array'],
@@ -84,6 +85,7 @@ class MaterialIssueController extends Controller
                 'itr_number' => $this->nextItrNumber(),
                 'spk_id' => $data['spk_id'],
                 'itr_date' => $data['itr_date'],
+                'pickup_time' => $data['pickup_time'] ?? null,
                 'received_by' => $data['received_by'],
                 'notes' => $data['notes'] ?? null,
                 'created_by' => auth()->id(),

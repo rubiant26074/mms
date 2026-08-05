@@ -13,8 +13,9 @@
                 <div class="card-body">
                     <div class="mb-3"><label>Referensi SPK</label><select name="spk_id" class="form-select" required onchange="window.location.href='{{ route('warehouse.material_issues.create') }}?spk_id='+this.value"><option value="">-- Pilih SPK --</option>@foreach($spkOptions as $opt)<option value="{{ $opt->id }}" @selected($spk?->id === $opt->id)>{{ $opt->spk_number }} - {{ \Illuminate\Support\Str::limit($opt->project_name, 24) }}</option>@endforeach</select><small class="text-muted">Hanya menampilkan SPK yang belum dibuatkan ITR.</small></div>
                     <div class="mb-3"><label>Tanggal Request</label><input type="date" name="itr_date" class="form-control" value="{{ old('itr_date', optional($issue->itr_date)->format('Y-m-d') ?: now()->toDateString()) }}" required></div>
+                    <div class="mb-3"><label>Jam Pengambilan</label><input type="text" name="pickup_time" class="form-control" placeholder="Contoh: 10:00 atau 14:30 WIB" value="{{ old('pickup_time', $issue->pickup_time) }}"></div>
                     <div class="mb-3"><label>Pemohon (Produksi)</label><input type="text" name="received_by" class="form-control" value="{{ old('received_by', $issue->received_by) }}" required></div>
-                    <div class="mb-3"><label>Catatan</label><textarea name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea></div>
+                    <div class="mb-3"><label>Catatan</label><textarea name="notes" class="form-control" rows="3">{{ old('notes', $spk ? "Pemenuhan nomor SO: " . ($spk->salesOrder?->so_number ?: '-') . " / nomor SPK: " . $spk->spk_number : '') }}</textarea></div>
                 </div>
             </div>
         </div>
