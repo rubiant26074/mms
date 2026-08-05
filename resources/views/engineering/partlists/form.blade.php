@@ -3,6 +3,44 @@
 @section('title', 'Form Part List')
 
 @section('content')
+<style>
+    #partTable {
+        table-layout: fixed;
+        width: 100%;
+    }
+    #partTable th {
+        font-size: 11px !important;
+        text-transform: uppercase;
+        font-weight: bold;
+        text-align: center;
+        padding: 6px 4px !important;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+    #partTable td {
+        padding: 4px !important;
+        vertical-align: middle;
+    }
+    #partTable .form-control {
+        padding: 4px 6px !important;
+        font-size: 12px !important;
+        height: 28px !important;
+    }
+    #partTable textarea.form-control {
+        height: 38px !important;
+        min-height: 38px !important;
+        line-height: 1.25 !important;
+        resize: vertical !important;
+    }
+    #partTable .btn-sm {
+        padding: 2px 6px !important;
+        font-size: 12px !important;
+        height: 28px !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
 <div class="row mb-3">
     <div class="col-md-8">
         <h3 class="fw-bold"><i class="bi bi-list-check"></i> Form Part List</h3>
@@ -20,24 +58,39 @@
     <div class="card shadow-sm">
         <div class="card-body p-0 table-responsive">
             <table class="table table-bordered mb-0" id="partTable">
-                <thead class="table-light"><tr><th width="65" class="text-center">Item No</th><th>Drawing No</th><th>Part Name</th><th width="90">Qty</th><th>Material</th><th width="100">Thick</th><th width="100">Length</th><th width="100">Width</th><th>Process</th><th>Notes</th><th>Drawing File</th><th width="60"></th></tr></thead>
+                <thead class="table-light">
+                    <tr>
+                        <th width="40" class="text-center">No</th>
+                        <th width="90">Drawing No</th>
+                        <th width="130">Part Name</th>
+                        <th width="55" class="text-center">Qty</th>
+                        <th width="100">Material</th>
+                        <th width="55" class="text-center">Thick</th>
+                        <th width="60" class="text-center">Length</th>
+                        <th width="60" class="text-center">Width</th>
+                        <th width="80">Process</th>
+                        <th width="100">Notes</th>
+                        <th width="190">Drawing File</th>
+                        <th width="40"></th>
+                    </tr>
+                </thead>
                 <tbody>
                 @forelse($parts as $part)
                     <tr>
                         <td>
                             <input type="hidden" name="row_index[]" value="{{ $loop->index }}">
-                            <input name="item_no[]" class="form-control text-center" value="{{ $part->item_no }}" style="min-width: 50px;">
+                            <input name="item_no[]" class="form-control text-center" value="{{ $part->item_no }}">
                         </td>
-                        <td><input name="drawing_no[]" class="form-control" value="{{ $part->drawing_no }}" style="min-width: 110px;"></td>
-                        <td><textarea name="part_name[]" class="form-control px-2 py-1" rows="2" style="min-width: 150px; font-size: 13px; line-height: 1.3; resize: vertical;">{{ $part->part_name }}</textarea></td>
-                        <td><input name="qty[]" type="number" step="0.01" class="form-control text-end fw-bold" value="{{ $part->qty !== null ? $part->qty + 0 : '' }}" style="min-width: 75px;"></td>
-                        <td><textarea name="material[]" class="form-control px-2 py-1" rows="2" style="min-width: 130px; font-size: 13px; line-height: 1.3; resize: vertical;">{{ $part->material }}</textarea></td>
-                        <td><input name="thickness[]" class="form-control" value="{{ $part->thickness }}" style="min-width: 80px;"></td>
-                        <td><input name="length[]" type="number" step="0.01" class="form-control text-end" value="{{ $part->length !== null ? $part->length + 0 : '' }}" style="min-width: 80px;"></td>
-                        <td><input name="width[]" type="number" step="0.01" class="form-control text-end" value="{{ $part->width !== null ? $part->width + 0 : '' }}" style="min-width: 80px;"></td>
-                        <td><input name="process[]" class="form-control" value="{{ $part->process }}" style="min-width: 110px;"></td>
-                        <td><textarea name="notes[]" class="form-control px-2 py-1" rows="2" style="min-width: 150px; font-size: 13px; line-height: 1.3; resize: vertical;">{{ $part->notes }}</textarea></td>
-                        <td style="min-width: 220px;">
+                        <td><input name="drawing_no[]" class="form-control" value="{{ $part->drawing_no }}"></td>
+                        <td><textarea name="part_name[]" class="form-control px-2 py-1" rows="2" style="resize: vertical;">{{ $part->part_name }}</textarea></td>
+                        <td><input name="qty[]" type="number" step="0.01" class="form-control text-end fw-bold" value="{{ $part->qty !== null ? $part->qty + 0 : '' }}"></td>
+                        <td><textarea name="material[]" class="form-control px-2 py-1" rows="2" style="resize: vertical;">{{ $part->material }}</textarea></td>
+                        <td><input name="thickness[]" class="form-control" value="{{ $part->thickness }}"></td>
+                        <td><input name="length[]" type="number" step="0.01" class="form-control text-end" value="{{ $part->length !== null ? $part->length + 0 : '' }}"></td>
+                        <td><input name="width[]" type="number" step="0.01" class="form-control text-end" value="{{ $part->width !== null ? $part->width + 0 : '' }}"></td>
+                        <td><input name="process[]" class="form-control" value="{{ $part->process }}"></td>
+                        <td><textarea name="notes[]" class="form-control px-2 py-1" rows="2" style="resize: vertical;">{{ $part->notes }}</textarea></td>
+                        <td>
                             @php
                                 $isUploaded = $part->drawing_path && str_starts_with($part->drawing_path, 'uploads/');
                                 $hasLink = $part->drawing_path && ! $isUploaded;
@@ -52,7 +105,7 @@
                                 <input type="file" class="d-none js-drawing-file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf">
 
                                 <!-- Manual Link / Win Path Input -->
-                                <input type="text" name="drawing_path[]" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web/Win)" value="{{ $hasLink ? trim($part->drawing_path, ' "') : '' }}" style="min-width: 110px;">
+                                <input type="text" name="drawing_path[]" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web/Win)" value="{{ $hasLink ? trim($part->drawing_path, ' "') : '' }}">
 
                                 <!-- Upload Button -->
                                 <button type="button" class="btn btn-sm {{ $isUploaded ? 'btn-success' : 'btn-outline-secondary' }} px-2 js-upload-btn" title="{{ $isUploaded ? 'File terupload: '.basename($part->drawing_path).' (Klik untuk ganti file)' : 'Upload File Drawing PDF/Gambar' }}">
@@ -76,18 +129,18 @@
                     <tr>
                         <td>
                             <input type="hidden" name="row_index[]" value="0">
-                            <input name="item_no[]" class="form-control text-center" style="min-width: 50px;">
+                            <input name="item_no[]" class="form-control text-center">
                         </td>
-                        <td><input name="drawing_no[]" class="form-control" style="min-width: 110px;"></td>
-                        <td><textarea name="part_name[]" class="form-control px-2 py-1" rows="2" style="min-width: 150px; font-size: 13px; line-height: 1.3; resize: vertical;"></textarea></td>
-                        <td><input name="qty[]" type="number" step="0.01" class="form-control text-end fw-bold" style="min-width: 75px;"></td>
-                        <td><textarea name="material[]" class="form-control px-2 py-1" rows="2" style="min-width: 130px; font-size: 13px; line-height: 1.3; resize: vertical;"></textarea></td>
-                        <td><input name="thickness[]" class="form-control" style="min-width: 80px;"></td>
-                        <td><input name="length[]" type="number" step="0.01" class="form-control text-end" style="min-width: 80px;"></td>
-                        <td><input name="width[]" type="number" step="0.01" class="form-control text-end" style="min-width: 80px;"></td>
-                        <td><input name="process[]" class="form-control" style="min-width: 110px;"></td>
-                        <td><textarea name="notes[]" class="form-control px-2 py-1" rows="2" style="min-width: 150px; font-size: 13px; line-height: 1.3; resize: vertical;"></textarea></td>
-                        <td style="min-width: 220px;">
+                        <td><input name="drawing_no[]" class="form-control"></td>
+                        <td><textarea name="part_name[]" class="form-control px-2 py-1" rows="2" style="resize: vertical;"></textarea></td>
+                        <td><input name="qty[]" type="number" step="0.01" class="form-control text-end fw-bold"></td>
+                        <td><textarea name="material[]" class="form-control px-2 py-1" rows="2" style="resize: vertical;"></textarea></td>
+                        <td><input name="thickness[]" class="form-control"></td>
+                        <td><input name="length[]" type="number" step="0.01" class="form-control text-end"></td>
+                        <td><input name="width[]" type="number" step="0.01" class="form-control text-end"></td>
+                        <td><input name="process[]" class="form-control"></td>
+                        <td><textarea name="notes[]" class="form-control px-2 py-1" rows="2" style="resize: vertical;"></textarea></td>
+                        <td>
                             <div class="d-flex align-items-center gap-1">
                                 <input type="hidden" name="existing_drawing_path[]" class="js-existing-path" value="">
                                 <input type="hidden" name="remove_drawing[]" class="js-remove-drawing" value="0">
@@ -95,7 +148,7 @@
                                 <input type="hidden" name="drawing_filename[]" class="js-drawing-filename" value="">
                                 <input type="file" class="d-none js-drawing-file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf">
 
-                                <input type="text" name="drawing_path[]" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web/Win)" style="min-width: 110px;">
+                                <input type="text" name="drawing_path[]" class="form-control form-control-sm js-drawing-path" placeholder="Link (Drive/Web/Win)">
                                 
                                 <button type="button" class="btn btn-sm btn-outline-secondary px-2 js-upload-btn" title="Upload File Drawing PDF/Gambar">
                                     <i class="bi bi-cloud-upload"></i>
