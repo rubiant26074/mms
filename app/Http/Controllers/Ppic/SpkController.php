@@ -249,6 +249,10 @@ class SpkController extends Controller
             }
         }
 
+        foreach ($needs as $key => $val) {
+            $needs[$key]['qty_required'] = (float) ceil($val['qty_required']);
+        }
+
         $materials = array_values($needs);
 
         return $withSoItems ? [$materials, array_values(array_unique($missing)), $so->items] : [$materials, array_values(array_unique($missing))];
